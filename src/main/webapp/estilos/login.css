@@ -1,0 +1,69 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    background-color: #dbe9fc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* Contenedor del login */
+#contenedorLogin {
+    background-color: #06295a;
+    color: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    width: 320px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+/* Título */
+#contenedorLogin h2 {
+    margin-bottom: 25px;
+    color: #05868a;
+}
+
+/* Campos */
+.campo {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.campo label {
+    font-weight: bold;
+    color: #ffffff;
+}
+
+.campo input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    margin-top: 5px;
+}
+
+/* Botón */
+.acciones input[type="submit"] {
+    background-color: #05868a;
+    color: #06295a;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+}
+
+.acciones input[type="submit"]:hover {
+    background-color: #046b6f;
+}
