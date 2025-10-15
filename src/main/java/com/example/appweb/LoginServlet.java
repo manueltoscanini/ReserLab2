@@ -27,7 +27,6 @@ public class LoginServlet extends HttpServlet {
 
         try {
             Usuario usuario = usuarioDAO.autenticarUsuario(email, password);
-
             if (usuario != null) {
                 // Guardás el usuario en sesión
                 request.getSession().setAttribute("usuario", usuario);
