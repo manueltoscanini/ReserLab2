@@ -279,6 +279,46 @@ public class ActividadDAO {
             throw new RuntimeException("Error al verificar conflicto de reserva", e);
         }
     }
+
+    public List<Actividad> reservasActivasPorCi(String cedula, String estado) {
+        List<Actividad> lista = new ArrayList<>();
+        String sql = "SELECT a.id_actividad, a.fecha, a.hora_inicio, a.hora_fin, a.estado, " +
+                "a.cant_participantes, a.ci_cliente, " +
+                "u.nombre AS nombre_usuario, ca.nombre AS carrera_nombre " +
+                "FROM Actividad a " +
+                "JOIN Cliente c ON a.ci_cliente = c.ci_Usuario " +
+                "JOIN Usuario u ON c.ci_Usuario = u.cedula " +
+                "LEFT JOIN Carrera ca ON c.id_carrera = ca.id_carrera " +
+                "WHERE a.ci_cliente = ? AND a.estado = ?" +
+                "ORDER BY a.fecha, a.hora_inicio";
+
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setString(1, cedula);
+            ps.setString(2, estado);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Integer cantParticipantesObj = (Integer) rs.getObject("cant_participantes");
+                int cantParticipantes = (cantParticipantesObj == null) ? 0 : cantParticipantesObj;
+
+                Actividad act = new Actividad(
+                        rs.getInt("id_actividad"),
+                        rs.getDate("fecha").toLocalDate(),
+                        rs.getTime("hora_inicio"),
+                        rs.getTime("hora_fin"),
+                        rs.getString("estado"),
+                        cantParticipantes,
+                        rs.getString("ci_cliente"),
+                        rs.getString("nombre_usuario"),   // nombre del cliente
+                        rs.getString("carrera_nombre")
+                );
+                lista.add(act);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener actividades", e);
+        }
+        return lista;
+    }
 }
 
 
