@@ -417,8 +417,10 @@ body {
     border: 1px solid #b5c9ef;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
 }
-/* ==== Submenú Equipos ==== */
 
+
+
+/* ==== Submenú Equipos ==== */
 /* ==== Tarjetas de equipos ==== */
 .titulo-equipos {
     text-align: center;

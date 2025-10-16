@@ -48,6 +48,8 @@
     </main>
 </div>
 
+
+
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const btnEquipos = document.querySelector('.menu button:nth-child(2)'); // segundo botón = Equipos
@@ -71,7 +73,8 @@
         });
     });
 </script>
-
 <script src="js/usuario.js"></script>
+
+
 </body>
 </html>

@@ -21,3 +21,7 @@ public class EquiposServlet extends HttpServlet {
         dispatcher.forward(request, response);
     }
 }
+
+
+
+
