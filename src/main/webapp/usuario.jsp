@@ -29,10 +29,41 @@
 
     </aside>
 
+    <div id="popupEquipos" class="popupEquipos oculto">
+        <div class="flechaAzul"></div>
+        <div class="rectAzul">
+            <button id="btnListarEquipos" class="btnVerde">Listar Equipos</button>
+        </div>
+    </div>
+
     <main class="contenido">
         <!-- Contenido principal -->
     </main>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnEquipos = document.querySelector('.menu button:nth-child(2)'); // segundo botón = Equipos
+        const popup = document.getElementById('popupEquipos');
+        const btnListar = document.getElementById('btnListarEquipos');
+        const contenido = document.querySelector('.contenido');
+
+        // Mostrar/ocultar el rectángulo azul al presionar "Equipos"
+        btnEquipos.addEventListener('click', () => {
+            popup.classList.toggle('oculto');
+        });
+
+        // Al presionar "Listar Equipos"
+        btnListar.addEventListener('click', async () => {
+            popup.classList.add('oculto'); // desaparece el popup
+
+            // Carga la lista de equipos
+            const resp = await fetch("EquiposServlet");
+            const html = await resp.text();
+            contenido.innerHTML = html;
+        });
+    });
+</script>
 
 </body>
 </html>
