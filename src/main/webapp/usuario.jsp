@@ -17,11 +17,18 @@
         </div>
 
         <nav class="menu">
-            <button><i class="fa-solid fa-calendar-days"></i> Reservas</button>
+            <button id="opciones-reserva"><i class="fa-solid fa-calendar-days"></i> Reservas</button>
             <button><i class="fa-solid fa-laptop"></i> Equipos</button>
             <button><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
             <button><i class="fa-solid fa-user"></i> Perfil</button>
         </nav>
+
+        <!-- Panel desplegable para opciones de reserva -->
+        <div id="submenu-reservas" class="submenu">
+            <button>Hacer una reserva</button>
+            <button>Mis reservas activas</button>
+            <button>Historial de reservas</button>
+        </div>
 
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
@@ -65,5 +72,6 @@
     });
 </script>
 
+<script src="js/usuario.js"></script>
 </body>
 </html>
