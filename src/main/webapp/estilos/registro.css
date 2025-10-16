@@ -1,7 +1,7 @@
-/* ===== Reset breve y fuente ===== */
+/* ===== Reset y fuente ===== */
 *{ margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", Arial, sans-serif; }
 
-/* ===== Fondo (tu color claro) ===== */
+/* ===== Fondo ===== */
 body{
     background-color:#dbe9fc;
     min-height:100vh;
@@ -11,45 +11,41 @@ body{
     padding:24px;
 }
 
-/* ===== Card Login ===== */
-#contenedorLogin{
-    width:min(360px, 92vw);
-    background:#06295a;               /* azul oscuro (tu primario) */
+/* ===== Card Registro ===== */
+#contenedorRegistro{
+    width:min(480px, 92vw);
+    background:#06295a;
     color:#ffffff;
     border-radius:16px;
     padding:28px 24px 22px;
     box-shadow: 0 18px 36px rgba(0,0,0,.28), 0 2px 8px rgba(0,0,0,.18);
     border:1px solid rgba(255,255,255,.06);
-    text-align:left;                  /* alineación natural de formularios */
 }
 
-/* Título */
-#contenedorLogin h2{
+#contenedorRegistro h2{
     text-align:center;
     margin-bottom:18px;
-    color:#05868a;                    /* acento teal */
+    color:#05868a;
     letter-spacing:.2px;
 }
 
-/* Layout del form: separaciones limpias */
-#contenedorLogin form{
+#contenedorRegistro form{
     display:flex;
     flex-direction:column;
-    gap:12px;                         /* espacio uniforme entre elementos */
+    gap:12px;
 }
 
-/* Etiquetas */
-#contenedorLogin label{
-    display:block;
+label{
     font-weight:600;
     color:#eaf2ff;
     margin-bottom:6px;
     font-size:.95rem;
 }
 
-/* Inputs de texto */
-#contenedorLogin input[type="email"],
-#contenedorLogin input[type="password"]{
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select{
     width:100%;
     padding:12px 14px;
     border-radius:10px;
@@ -59,17 +55,31 @@ body{
     outline:none;
     transition:border-color .2s, box-shadow .2s, background .2s;
 }
-#contenedorLogin input::placeholder{ color:rgba(255,255,255,.70); }
-#contenedorLogin input:focus{
+
+select option{ color:#06295a; }
+
+input::placeholder{ color:rgba(255,255,255,.70); }
+input:focus, select:focus{
     border-color:rgba(5,134,138,.55);
     box-shadow:0 0 0 4px rgba(5,134,138,.35);
     background:rgba(255,255,255,.14);
 }
 
-/* Botón enviar */
-#contenedorLogin input[type="submit"]{
-    width:100%;
+.fila{
+    display:flex;
+    gap:12px;
+}
+.fila > div{ flex:1; }
+
+/* Botones */
+.acciones{
+    display:flex;
+    gap:12px;
     margin-top:6px;
+}
+.acciones button,
+input[type="submit"]{
+    flex:1;
     background:linear-gradient(180deg, #05868a, #047277);
     color:#e9fbff;
     border:none;
@@ -81,11 +91,13 @@ body{
     box-shadow:0 10px 18px rgba(5,134,138,.35);
     transition:filter .18s ease, transform .04s ease;
 }
-#contenedorLogin input[type="submit"]:hover{ filter:brightness(1.05); }
-#contenedorLogin input[type="submit"]:active{ transform:translateY(1px); }
+.acciones button:hover, input[type="submit"]:hover{ filter:brightness(1.05); }
+.acciones button:active, input[type="submit"]:active{ transform:translateY(1px); }
 
-/* Accesibilidad: no marcar rojo por defecto del navegador */
-input:invalid{ box-shadow:none; }
+.nota{
+    font-size:.85rem;
+    color:#cfe7ff;
+    margin-top:4px;
+}
 
-/* Opcional: centrado del contenido si mantenés <br> en el HTML */
-#contenedorLogin br{ display:none; }
+
