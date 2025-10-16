@@ -64,10 +64,8 @@ public class UsuarioDAO {
                     Boolean esAdmin = rs.getBoolean("es_admin");
                     Integer activo = rs.getObject("activo", Integer.class);
                     
-                    // Verificar si la contraseña ingresada coincide con la encriptada
-                    // TEMPORAL: Para pruebas, usar comparación simple
-                    // TODO: Cambiar a Hashed.verificarContra() cuando se implemente correctamente
-                    if (contrasenia.equals(contraseniaEncriptada)) {
+                    // Verificar si la contraseña ingresada coincide con la encriptada (salt + SHA-256)
+                    if (Hashed.verificarContra(contrasenia, contraseniaEncriptada)) {
                         // Verificar si es admin o si es cliente activo
                         if (esAdmin || (activo != null && activo == 1)) {
                             return new Usuario(

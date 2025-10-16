@@ -34,3 +34,4 @@ public class PasswordGenerator {
         System.out.println("User123 verificado: " + Hashed.verificarContra(userPassword, userHash));
     }
 }
+
