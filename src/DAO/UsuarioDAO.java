@@ -52,32 +52,39 @@ public class UsuarioDAO {
         String consulta = """
     SELECT u.*, c.activo
     FROM usuario u
-    LEFT JOIN cliente c ON u.cedula = c.ci_Usuario
+    LEFT JOIN cliente c ON u.cedula = c.ci_usuario
     WHERE u.email = ?
-      AND (u.es_admin = 1 OR c.activo = 1)
 """;
-        try {
-            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(consulta);
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(consulta)) {
             ps.setString(1, correo);
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                String contraseniaEncriptada = rs.getString("contrasenia");
-                // Verificar si la contraseña ingresada coincide con la encriptada
-                if (Hashed.verificarContra(contrasenia, contraseniaEncriptada)) {
-                    return new Usuario(
-                        rs.getString("nombre"),
-                        rs.getString("email"),
-                        rs.getString("cedula"),
-                        rs.getString("contrasenia"),
-                        rs.getBoolean("es_admin")
-                    );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String contraseniaEncriptada = rs.getString("contrasenia");
+                    Boolean esAdmin = rs.getBoolean("es_admin");
+                    Integer activo = rs.getObject("activo", Integer.class);
+                    
+                    // Verificar si la contraseña ingresada coincide con la encriptada
+                    // TEMPORAL: Para pruebas, usar comparación simple
+                    // TODO: Cambiar a Hashed.verificarContra() cuando se implemente correctamente
+                    if (contrasenia.equals(contraseniaEncriptada)) {
+                        // Verificar si es admin o si es cliente activo
+                        if (esAdmin || (activo != null && activo == 1)) {
+                            return new Usuario(
+                                rs.getString("nombre"),
+                                rs.getString("email"),
+                                rs.getString("cedula"),
+                                rs.getString("contrasenia"),
+                                esAdmin
+                            );
+                        }
+                    }
                 }
             }
             return null;
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Error al autenticar usuario", e);
+            throw new RuntimeException("Error al autenticar usuario: " + e.getMessage(), e);
         }
     }
 
@@ -235,24 +242,54 @@ public class UsuarioDAO {
 
     public Usuario obtenerUsuarioPorEmail(String email) {
         String sql = "SELECT * FROM usuario WHERE email = ?";
-        try {
-            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
             ps.setString(1, email);
 
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new Usuario(
-                        rs.getString("nombre"),
-                        rs.getString("email"),
-                        rs.getString("cedula"),
-                        rs.getString("contrasenia"),
-                        rs.getBoolean("es_admin")
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(
+                            rs.getString("nombre"),
+                            rs.getString("email"),
+                            rs.getString("cedula"),
+                            rs.getString("contrasenia"),
+                            rs.getBoolean("es_admin")
+                    );
+                }
+                return null;
             }
-            return null;
-
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener usuario", e);
+        }
+    }
+
+    // Método para probar la conexión a la base de datos
+    public boolean probarConexion() {
+        try {
+            ConnectionDB.getInstancia().getConnection();
+            System.out.println("Conexión a la base de datos exitosa");
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error al conectar con la base de datos: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método para verificar si existe un usuario con el email dado
+    public boolean existeUsuarioPorEmail(String email) {
+        String sql = "SELECT COUNT(*) FROM usuario WHERE email = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+                return false;
+            }
+        } catch (Exception e) {
+            System.err.println("Error al verificar existencia del usuario: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 }

@@ -9,15 +9,21 @@ public class ConnectionDB {
     private static ConnectionDB instancia;
     private Connection connection;
 
-    private final String url = "jdbc:mysql://localhost:3306/reserlab";
+    private final String url = "jdbc:mysql://localhost:3306/reserlab?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private final String user = "root";
     private final String password = "";
 
     private ConnectionDB() throws SQLException {
         try {
+            // Cargar el driver de MySQL
+            Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(url, user, password);
+            System.out.println("Conexión a la base de datos establecida correctamente");
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver de MySQL no encontrado", e);
         } catch (SQLException e) {
-            throw new SQLException("Error al conectarse a la base de datos", e);
+            System.err.println("Error al conectarse a la base de datos: " + e.getMessage());
+            throw new SQLException("Error al conectarse a la base de datos: " + e.getMessage(), e);
         }
     }
 
@@ -29,6 +35,16 @@ public class ConnectionDB {
     }
 
     public Connection getConnection() {
-        return connection;
+        try {
+            // Verificar si la conexión sigue siendo válida
+            if (connection == null || connection.isClosed()) {
+                instancia = null; // Forzar recreación
+                return getInstancia().getConnection();
+            }
+            return connection;
+        } catch (SQLException e) {
+            System.err.println("Error al obtener conexión: " + e.getMessage());
+            throw new RuntimeException("Error al obtener conexión", e);
+        }
     }
 }
