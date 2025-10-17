@@ -1,4 +1,19 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    // Evita que se guarde en caché (por seguridad)
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
+    // Obtiene el nombre de usuario de la sesión
+    String nombreUsuario = (String) session.getAttribute("nombreUsuario");
+
+    // Si no hay usuario logueado, redirige al login
+    if (nombreUsuario == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -13,7 +28,7 @@
     <aside class="barraLateral">
         <div class="perfil">
             <i class="fa-solid fa-user-circle iconoPerfil"></i>
-            <h2 class="nombreUsuario">Nombre</h2>
+            <h2 class="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
         <nav class="menu">
@@ -33,7 +48,6 @@
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
         </form>
-
     </aside>
 
     <div id="popupEquipos" class="popupEquipos oculto">
@@ -47,8 +61,6 @@
         <!-- Contenido principal -->
     </main>
 </div>
-
-
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -73,8 +85,8 @@
         });
     });
 </script>
-<script src="js/usuario.js"></script>
 
+<script src="js/usuario.js"></script>
 
 </body>
 </html>
