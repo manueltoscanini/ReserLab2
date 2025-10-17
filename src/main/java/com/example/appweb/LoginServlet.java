@@ -5,13 +5,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-// Import de tu módulo 1 ya dentro del mismo proyecto
 import DAO.UsuarioDAO;
 import Models.Usuario;
 
 import java.io.IOException;
-
 
 @WebServlet(name = "LoginServlet", value = "/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -34,11 +33,15 @@ public class LoginServlet extends HttpServlet {
         try {
             System.out.println("Intentando autenticar usuario: " + email);
             Usuario usuario = usuarioDAO.autenticarUsuario(email, password);
-            
+
             if (usuario != null) {
                 System.out.println("Usuario autenticado exitosamente: " + usuario.getNombre());
-                // Guardar el usuario en sesión
-                request.getSession().setAttribute("usuario", usuario);
+
+                // ✅ Crear sesión y guardar datos del usuario
+                HttpSession session = request.getSession();
+                session.setAttribute("usuario", usuario);
+                session.setAttribute("nombreUsuario", usuario.getNombre());  // usado en usuario.jsp
+                session.setAttribute("ciUsuario", usuario.getCedula());      // opcional, útil para consultas
 
                 // Redirigir según su rol
                 if (usuario.getEsAdmin()) {
@@ -50,9 +53,9 @@ public class LoginServlet extends HttpServlet {
                 }
             } else {
                 System.out.println("Autenticación fallida para: " + email);
-                // Login fallido
                 response.getWriter().println("<h3>Email o contraseña incorrectos</h3>");
             }
+
         } catch (Exception e) {
             System.err.println("Error en LoginServlet: " + e.getMessage());
             e.printStackTrace();

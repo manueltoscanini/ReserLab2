@@ -48,9 +48,15 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-crypto</artifactId>
             <version>6.3.3</version> <!-- versión estable en 2025 -->
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.10.1</version>
         </dependency>
     </dependencies>
 
