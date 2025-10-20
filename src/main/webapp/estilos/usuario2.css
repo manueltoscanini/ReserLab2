@@ -1,0 +1,346 @@
+/* ======== General ======== */
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #e8f0ff;
+}
+
+/* ======== Estructura ======== */
+.contenedorPrincipal {
+    display: flex;
+    height: 100vh;
+}
+
+/* ======== Barra lateral ======== */
+.barraLateral {
+    width: 230px;
+    background-color: #027b8e; /* tono verde-agua */
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.25);
+    border-right: 2px solid rgba(255,255,255,0.1);
+}
+
+/* ======== Perfil ======== */
+.perfil {
+    text-align: center;
+    margin-bottom: 40px;
+}
+.iconoPerfil {
+    font-size: 68px;
+    color: #06295a;
+}
+.nombreUsuario {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #eaf6ff;
+}
+
+/* ======== Menú ======== */
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    align-items: center;
+    flex-grow: 1; /* permite empujar el botón cerrar abajo */
+}
+.menu button {
+    width: 80%;
+    background-color: #06295a;
+    color: #cfe7ff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 0;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.menu button:hover {
+    background-color: #045777;
+    transform: translateY(-1px);
+}
+
+/* ======== Botón Cerrar sesión ======== */
+.logout {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+    border-top: 1px solid rgba(255,255,255,0.15);
+}
+.logout button {
+    width: 80%;
+    background-color: #06295a;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 0;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.logout button:hover {
+    background-color: #045777;
+    transform: translateY(-1px);
+}
+
+/* ======== Contenido ======== */
+.contenido {
+    flex-grow: 1;
+    background-color: #d8e7ff;
+    border-radius: 8px;
+    margin: 10px;
+    border: 1px solid #b5c9ef;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+.contenido-reservas {
+    padding: 20px;
+}
+
+.titulo-seccion {
+    color: #027b8e;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.grid-reservas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.ficha-reserva {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.ficha-reserva:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.imagen-reserva {
+    background: linear-gradient(135deg, #027b8e, #045777);
+    padding: 20px;
+    text-align: center;
+}
+
+.logo-ficha {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.info-reserva {
+    padding: 20px;
+}
+
+.info-reserva > div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+
+.info-reserva > div:last-child {
+    margin-bottom: 0;
+}
+
+.info-reserva i {
+    color: #027b8e;
+    width: 16px;
+    text-align: center;
+}
+
+.info-reserva span {
+    color: #333;
+    font-size: 14px;
+}
+
+.horario span {
+    font-weight: 600;
+    color: #027b8e;
+}
+
+.estado {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.estado-pendiente {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.estado-aprobada {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.estado-rechazada {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.cliente span {
+    font-weight: 500;
+}
+
+.participantes span {
+    color: #666;
+}
+
+.fecha span {
+    color: #666;
+}
+
+/* ======== Paginación ======== */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 30px;
+    padding: 20px;
+}
+
+.btn-paginacion {
+    background-color: #027b8e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.btn-paginacion:hover {
+    background-color: #045777;
+    transform: translateY(-1px);
+}
+
+.info-paginacion {
+    color: #666;
+    font-size: 14px;
+}
+
+/* ======== Sin reservas ======== */
+.sin-reservas {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.sin-reservas i {
+    font-size: 48px;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.sin-reservas h3 {
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* ======== Fix para botones con enlaces ======== */
+.menu a {
+    text-decoration: none;
+    width: 80%;
+    display: block;
+}
+
+.menu a button {
+    width: 100%;
+}
+
+/* ======== Botón activo ======== */
+.menu a.active button {
+    background-color: #045777;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+}
+
+/* ======== Botones de cambio de estado ======== */
+.acciones-reserva {
+    padding: 15px 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-aprobar, .btn-rechazar {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-aprobar {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-aprobar:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+.btn-rechazar {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-rechazar:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+.estado-final {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.estado-final i {
+    color: #28a745;
+}

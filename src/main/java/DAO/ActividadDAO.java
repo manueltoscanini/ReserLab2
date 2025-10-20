@@ -27,6 +27,30 @@ public class ActividadDAO {
         }
     }
 
+    public String buscarEmail(int idActividad) {
+        String sql = """
+        SELECT u.email
+        FROM actividad a
+        JOIN cliente c ON c.ci_usuario = a.ci_cliente
+        JOIN usuario u ON u.cedula = c.ci_usuario
+        WHERE a.id_actividad = ?
+    """;
+
+        try (PreparedStatement ps = ConnectionDB.getInstancia()
+                .getConnection().prepareStatement(sql)) {
+            ps.setInt(1, idActividad);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("email");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar email por idActividad", e);
+        }
+
+        return null; // si no se encuentra el email
+    }
+
     public boolean esUsuarioAdminPorEmail(String email) {
         String sql = "SELECT es_admin FROM usuario WHERE email = ?";
         try {
@@ -41,7 +65,17 @@ public class ActividadDAO {
             throw new RuntimeException("Error al verificar si el usuario es admin", e);
         }
     }
-
+    public boolean aprobarActividad(int idActividad) {
+        String sql = "UPDATE actividad SET estado = 'aceptada' WHERE id_actividad = ? AND estado = 'en_espera'";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setInt(1, idActividad);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al aprobar actividad", e);
+        }
+    }
     public static Integer crearReservaYObtenerId(LocalDate fecha,
                                           Time horaInicio,
                                           Time horaFin,
@@ -198,18 +232,6 @@ public class ActividadDAO {
             throw new RuntimeException("Error al obtener actividades por fecha", e);
         }
         return lista;
-    }
-
-    public boolean aprobarActividad(int idActividad) {
-        String sql = "UPDATE actividad SET estado = 'aprobada' WHERE id_actividad = ? AND estado = 'pendiente'";
-        try {
-            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
-            ps.setInt(1, idActividad);
-            int filas = ps.executeUpdate();
-            return filas > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al aprobar actividad", e);
-        }
     }
 
     public Actividad obtenerActividadPorId(int id) {
