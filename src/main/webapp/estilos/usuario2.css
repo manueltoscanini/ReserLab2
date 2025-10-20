@@ -8,7 +8,7 @@ body {
 /* ======== Estructura ======== */
 .contenedorPrincipal {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 /* ======== Barra lateral ======== */
@@ -25,14 +25,33 @@ body {
 }
 
 /* ======== Perfil ======== */
+.perfil-link {
+    text-decoration: none;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 8px;
+}
+
+.perfil-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .perfil {
     text-align: center;
     margin-bottom: 40px;
+    padding: 10px;
 }
 .iconoPerfil {
     font-size: 68px;
     color: #06295a;
+    transition: transform 0.2s ease;
 }
+
+.perfil-link:hover .iconoPerfil {
+    transform: scale(1.05);
+}
+
 .nombreUsuario {
     margin-top: 10px;
     font-size: 18px;
@@ -107,6 +126,8 @@ body {
     margin: 10px;
     border: 1px solid #b5c9ef;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    min-height: calc(100vh - 20px);
+    overflow-y: auto;
 }
 .contenido-reservas {
     padding: 20px;
@@ -343,4 +364,435 @@ body {
 
 .estado-final i {
     color: #28a745;
+}
+
+/* ======== Header Reservas con Botón Crear ======== */
+.header-reservas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-crear-reserva {
+    background-color: #027b8e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-crear-reserva:hover {
+    background-color: #045777;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ======== Modal ======== */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #027b8e, #045777);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cerrar-modal {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-cerrar-modal:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ======== Formulario ======== */
+#formCrearReserva {
+    padding: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-group label i {
+    color: #027b8e;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #027b8e;
+    box-shadow: 0 0 0 3px rgba(2, 123, 142, 0.1);
+}
+
+.form-group small {
+    color: #666;
+    font-size: 12px;
+}
+
+/* ======== Footer del Modal ======== */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancelar,
+.btn-guardar {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-cancelar {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-cancelar:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-guardar {
+    background-color: #027b8e;
+    color: white;
+}
+
+.btn-guardar:hover {
+    background-color: #045777;
+    transform: translateY(-1px);
+}
+
+/* ======== Mensajes de Éxito y Error ======== */
+.mensaje-exito,
+.mensaje-error {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mensaje-exito {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.mensaje-exito i {
+    color: #28a745;
+    font-size: 18px;
+}
+
+.mensaje-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.mensaje-error i {
+    color: #dc3545;
+    font-size: 18px;
+}
+
+/* ======== Página de Perfil ======== */
+.contenido-perfil {
+    padding: 20px;
+    min-height: 100%;
+}
+
+.perfil-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: visible;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+}
+
+.perfil-header-card {
+    background: linear-gradient(135deg, #027b8e, #045777);
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+.icono-perfil-grande {
+    font-size: 50px;
+    margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.perfil-header-card h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.form-perfil {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.form-row.password-section {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 2px dashed #ffe082;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-perfil .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-perfil .form-group label {
+    color: #333;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-perfil .form-group label i {
+    color: #027b8e;
+    width: 20px;
+}
+
+.form-perfil .form-group input {
+    padding: 8px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+}
+
+.form-perfil .form-group input:read-only {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    color: #666;
+}
+
+.form-perfil .form-group input:not([readonly]):focus {
+    outline: none;
+    border-color: #027b8e;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(2, 123, 142, 0.1);
+}
+
+.form-perfil .form-group input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+    color: #999;
+}
+
+.form-perfil .form-group small {
+    color: #666;
+    font-size: 12px;
+    margin-top: -4px;
+}
+
+.perfil-actions {
+    padding: 12px 20px 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-editar,
+.btn-guardar-perfil,
+.btn-cancelar-perfil {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-editar {
+    background-color: #027b8e;
+    color: white;
+}
+
+.btn-editar:hover {
+    background-color: #045777;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-guardar-perfil {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-guardar-perfil:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cancelar-perfil {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-cancelar-perfil:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.password-group {
+    background-color: #fff8e1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ffe082;
+}
+
+.password-group input {
+    background-color: white !important;
+}
+
+.password-group small {
+    display: block;
+    margin-top: 4px;
 }

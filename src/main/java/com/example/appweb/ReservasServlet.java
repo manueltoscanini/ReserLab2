@@ -24,7 +24,7 @@ public class ReservasServlet extends HttpServlet {
             // Obtener parámetros de paginación
             String pageParam = request.getParameter("page");
             int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
-            int pageSize = 4; // 4 reservas por página
+            int pageSize = 3; // 3 reservas por página
             int offset = (page - 1) * pageSize;
 
             // Obtener todas las reservas

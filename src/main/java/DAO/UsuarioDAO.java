@@ -290,4 +290,37 @@ public class UsuarioDAO {
             return false;
         }
     }
+
+    // Método para actualizar usuario (nombre y email) por cédula
+    public boolean actualizarUsuario(String cedula, String nombre, String email) {
+        String sql = "UPDATE usuario SET nombre = ?, email = ? WHERE cedula = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setString(2, email);
+            ps.setString(3, cedula);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (Exception e) {
+            System.err.println("Error al actualizar usuario: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Método para actualizar usuario incluyendo contraseña
+    public boolean actualizarUsuarioConPassword(String cedula, String nombre, String email, String nuevaPassword) {
+        String sql = "UPDATE usuario SET nombre = ?, email = ?, contrasenia = ? WHERE cedula = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            ps.setString(2, email);
+            ps.setString(3, Hashed.encriptarContra(nuevaPassword));
+            ps.setString(4, cedula);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (Exception e) {
+            System.err.println("Error al actualizar usuario con contraseña: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
