@@ -13,10 +13,12 @@
 
 <div class="contenedorPrincipal">
     <aside class="barraLateral">
-        <div class="perfil">
-            <i class="fa-solid fa-user-shield iconoPerfil"></i>
-            <h2 class="nombreUsuario">Administrador</h2>
-        </div>
+        <a href="perfil-admin" class="perfil-link">
+            <div class="perfil">
+                <i class="fa-solid fa-user-shield iconoPerfil"></i>
+                <h2 class="nombreUsuario">Administrador</h2>
+            </div>
+        </a>
 
         <nav class="menu">
             <%
@@ -28,7 +30,6 @@
             <button><i class="fa-solid fa-users"></i> Usuarios</button>
             <button><i class="fa-solid fa-laptop"></i> Equipos</button>
             <button><i class="fa-solid fa-graduation-cap"></i> Carreras</button>
-            <button><i class="fa-solid fa-user"></i> Perfil</button>
         </nav>
 
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
@@ -39,7 +40,38 @@
 
     <main class="contenido">
         <div class="contenido-reservas">
-            <h2 class="titulo-seccion">Reservas</h2>
+            <div class="header-reservas">
+                <h2 class="titulo-seccion">Reservas</h2>
+                <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                    <i class="fa-solid fa-plus"></i> Crear Reserva
+                </button>
+            </div>
+
+            <%-- Mostrar mensajes de éxito o error --%>
+            <%
+                String mensajeExito = (String) session.getAttribute("exito");
+                String mensajeError = (String) session.getAttribute("error");
+                
+                if (mensajeExito != null) {
+                    session.removeAttribute("exito");
+            %>
+            <div class="mensaje-exito">
+                <i class="fa-solid fa-check-circle"></i>
+                <%= mensajeExito %>
+            </div>
+            <%
+                }
+                
+                if (mensajeError != null) {
+                    session.removeAttribute("error");
+            %>
+            <div class="mensaje-error">
+                <i class="fa-solid fa-exclamation-circle"></i>
+                <%= mensajeError %>
+            </div>
+            <%
+                }
+            %>
 
             <%
                 List<Actividad> reservas = (List<Actividad>) request.getAttribute("reservas");
@@ -166,6 +198,112 @@
         </div>
     </main>
 </div>
+
+<!-- Modal para crear reserva -->
+<div id="modalCrearReserva" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-calendar-plus"></i> Crear Nueva Reserva</h3>
+            <button class="btn-cerrar-modal" onclick="cerrarModalCrearReserva()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <form id="formCrearReserva" action="crear-reserva" method="post">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="cedulaCliente">
+                        <i class="fa-solid fa-user"></i> Cédula del Cliente
+                    </label>
+                    <input type="text" id="cedulaCliente" name="cedulaCliente" 
+                           placeholder="Ej: 12345678" required pattern="[0-9]{8}">
+                    <small>Debe ser un cliente registrado en el sistema</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha">
+                        <i class="fa-solid fa-calendar"></i> Fecha
+                    </label>
+                    <input type="date" id="fecha" name="fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaInicio">
+                        <i class="fa-solid fa-clock"></i> Hora Inicio
+                    </label>
+                    <input type="time" id="horaInicio" name="horaInicio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="horaFin">
+                        <i class="fa-solid fa-clock"></i> Hora Fin
+                    </label>
+                    <input type="time" id="horaFin" name="horaFin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidadParticipantes">
+                        <i class="fa-solid fa-users"></i> Cantidad de Participantes
+                    </label>
+                    <input type="number" id="cantidadParticipantes" name="cantidadParticipantes" 
+                           min="1" max="50" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="estado">
+                        <i class="fa-solid fa-circle-check"></i> Estado Inicial
+                    </label>
+                    <select id="estado" name="estado" required>
+                        <option value="en_espera">En Espera</option>
+                        <option value="aceptada" selected>Aprobada</option>
+                        <option value="rechazada">Rechazada</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalCrearReserva()">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-guardar">
+                    <i class="fa-solid fa-save"></i> Crear Reserva
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function mostrarModalCrearReserva() {
+        document.getElementById('modalCrearReserva').style.display = 'flex';
+        // Establecer fecha mínima como hoy
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fecha').setAttribute('min', hoy);
+    }
+
+    function cerrarModalCrearReserva() {
+        document.getElementById('modalCrearReserva').style.display = 'none';
+        document.getElementById('formCrearReserva').reset();
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    window.onclick = function(event) {
+        const modal = document.getElementById('modalCrearReserva');
+        if (event.target === modal) {
+            cerrarModalCrearReserva();
+        }
+    }
+
+    // Validar que hora fin sea mayor que hora inicio
+    document.getElementById('formCrearReserva').addEventListener('submit', function(e) {
+        const horaInicio = document.getElementById('horaInicio').value;
+        const horaFin = document.getElementById('horaFin').value;
+        
+        if (horaInicio && horaFin && horaInicio >= horaFin) {
+            e.preventDefault();
+            alert('La hora de fin debe ser posterior a la hora de inicio');
+        }
+    });
+</script>
 
 </body>
 </html>
