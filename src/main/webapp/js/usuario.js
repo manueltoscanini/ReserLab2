@@ -128,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnHistorialReservas && contenido) {
         btnHistorialReservas.addEventListener('click', () => {
             cerrarTodosLosPopups();
+            cargarHistorialReservas();
             // TODO: implementar historial de reservas
         });
     }
@@ -330,4 +331,95 @@ function cancelarReserva(idActividad) {
 function editarReserva(idActividad) {
     // Aquí implementarías la lógica para editar la reserva
     alert('Funcionalidad de edición en desarrollo');
+}
+
+
+/* ------------------------ */
+
+// Función para cargar reservas activas
+function cargarHistorialReservas() {
+    fetch('HistorialReservasServlet', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            mostrarHistorial(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarError('Error al cargar historial');
+        });
+}
+
+// Función para mostrar las reservas activas en el contenido
+function mostrarHistorial(reservas) {
+    console.log('Reserva recibida:', reservas);
+    const fecha = formatearFecha(reservas.fecha);
+    const horaInicio = formatearHora(reservas.horaInicio);
+    const horaFin = formatearHora(reservas.horaFin);
+    const contenido = document.querySelector('.contenido');
+
+    if (reservas.length === 0) {
+        contenido.innerHTML = `
+            <div class="contenido-reservas">
+                <h1>Reservas activas</h1>
+                <div class="sin-reservas">
+                    <i class="fa-solid fa-calendar-xmark"></i>
+                    <p>No tienes reservas activas en este momento</p>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    let html = `
+        <div class="contenido-reservas">
+            <h1>Historial de reservas</h1>
+            <div class="grid-reservas">
+    `;
+
+    reservas.forEach(reserva => {
+        const fecha = formatearFecha(reserva.fecha);
+        const horaInicio = formatearHora(reserva.horaInicio);
+        const horaFin = formatearHora(reserva.horaFin);
+
+        html += `
+            <div class="tarjeta-reserva">
+                <div class="icono-reserva">
+                     <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
+                </div>
+                <div class="detalles-reserva">
+                    <div class="detalle">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>${fecha}</span>
+                    </div>
+                    <div class="detalle">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>${horaInicio} - ${horaFin}</span>
+                    </div>
+               
+                    <div class="detalle">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>${reserva.estado}</span>
+                    </div>
+                </div>
+                
+            </div>
+        `;
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    contenido.innerHTML = html;
 }
