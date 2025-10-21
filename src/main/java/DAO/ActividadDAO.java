@@ -342,6 +342,48 @@ public class ActividadDAO {
         }
         return lista;
     }
+
+    public List<Actividad> historialReservasPorCi(String cedula) {
+        List<Actividad> lista = new ArrayList<>();
+        String sql = "SELECT a.id_actividad, a.fecha, a.hora_inicio, a.hora_fin, a.estado, " +
+                "a.cant_participantes, a.ci_cliente, " +
+                "u.nombre AS nombre_usuario, s.nombre AS sede_nombre " +
+                "FROM Actividad a " +
+                "JOIN Cliente c ON a.ci_cliente = c.ci_Usuario " +
+                "JOIN Usuario u ON c.ci_Usuario = u.cedula " +
+                "LEFT JOIN Carrera ca ON c.id_carrera = ca.id_carrera " +
+                "LEFT JOIN Sede s ON ca.id_sede = s.id_sede " +
+                "WHERE a.ci_cliente = ? AND a.estado != 'aceptada'" +
+                "ORDER BY a.fecha, a.hora_inicio";
+
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setString(1, cedula);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Integer cantParticipantesObj = (Integer) rs.getObject("cant_participantes");
+                int cantParticipantes = (cantParticipantesObj == null) ? 0 : cantParticipantesObj;
+
+                Actividad act = new Actividad(
+                        rs.getInt("id_actividad"),
+                        rs.getDate("fecha").toLocalDate(),
+                        rs.getTime("hora_inicio"),
+                        rs.getTime("hora_fin"),
+                        rs.getString("estado"),
+                        cantParticipantes,
+                        rs.getString("ci_cliente"),
+                        rs.getString("nombre_usuario"),   // nombre del cliente
+                        rs.getString("sede_nombre")
+                );
+                lista.add(act);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener actividades", e);
+        }
+        return lista;
+    }
+
+
 }
 
 
