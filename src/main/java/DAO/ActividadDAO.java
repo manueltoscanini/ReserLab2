@@ -306,11 +306,12 @@ public class ActividadDAO {
         List<Actividad> lista = new ArrayList<>();
         String sql = "SELECT a.id_actividad, a.fecha, a.hora_inicio, a.hora_fin, a.estado, " +
                 "a.cant_participantes, a.ci_cliente, " +
-                "u.nombre AS nombre_usuario, ca.nombre AS carrera_nombre " +
+                "u.nombre AS nombre_usuario, s.nombre AS sede_nombre " +
                 "FROM Actividad a " +
                 "JOIN Cliente c ON a.ci_cliente = c.ci_Usuario " +
                 "JOIN Usuario u ON c.ci_Usuario = u.cedula " +
                 "LEFT JOIN Carrera ca ON c.id_carrera = ca.id_carrera " +
+                "LEFT JOIN Sede s ON ca.id_sede = s.id_sede " +
                 "WHERE a.ci_cliente = ? AND a.estado = ?" +
                 "ORDER BY a.fecha, a.hora_inicio";
 
@@ -332,7 +333,7 @@ public class ActividadDAO {
                         cantParticipantes,
                         rs.getString("ci_cliente"),
                         rs.getString("nombre_usuario"),   // nombre del cliente
-                        rs.getString("carrera_nombre")
+                        rs.getString("sede_nombre")
                 );
                 lista.add(act);
             }

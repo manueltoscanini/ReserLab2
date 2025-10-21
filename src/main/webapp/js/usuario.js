@@ -234,8 +234,7 @@ function mostrarReservasActivas(reservas) {
         html += `
             <div class="tarjeta-reserva">
                 <div class="icono-reserva">
-                    <i class="fa-solid fa-flask"></i>
-                    <i class="fa-solid fa-calendar-days icono-calendario"></i>
+                     <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
                 </div>
                 <div class="detalles-reserva">
                     <div class="detalle">
@@ -248,7 +247,7 @@ function mostrarReservasActivas(reservas) {
                     </div>
                     <div class="detalle">
                         <i class="fa-solid fa-map-marker-alt"></i>
-                        <span>${reserva.carreraCliente || 'Sede de la carrera'}</span>
+                        <span>${reserva.carreraCliente || 'Sede no disponible'}</span>
                     </div>
                 </div>
                 <div class="botones-reserva">
