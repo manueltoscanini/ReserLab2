@@ -32,28 +32,56 @@
         </div>
 
         <nav class="menu">
+            <button id="opciones-perfil"><i class="fa-solid fa-user"></i> Perfil</button>
             <button id="opciones-reserva"><i class="fa-solid fa-calendar-days"></i> Reservas</button>
-            <button><i class="fa-solid fa-laptop"></i> Equipos</button>
-            <button><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
-            <button><i class="fa-solid fa-user"></i> Perfil</button>
+            <button id="opciones-equipos"><i class="fa-solid fa-laptop"></i> Equipos</button>
+            <button id="opciones-otros"><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
         </nav>
-
-        <!-- Panel desplegable para opciones de reserva -->
-        <div id="submenu-reservas" class="submenu">
-            <button>Hacer una reserva</button>
-            <button>Mis reservas activas</button>
-            <button>Historial de reservas</button>
-        </div>
 
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
         </form>
     </aside>
 
-    <div id="popupEquipos" class="popupEquipos oculto">
+    <div id="popupEquipos" class="popup oculto">
         <div class="flechaAzul"></div>
         <div class="rectAzul">
             <button id="btnListarEquipos" class="btnVerde">Listar Equipos</button>
+        </div>
+    </div>
+
+    <!-- Popup Perfil -->
+    <div id="popupPerfil" class="popup oculto">
+        <div class="flechaAzul"></div>
+        <div class="rectAzul">
+            <div class="submenu-vertical">
+                <button id="btnVerPerfil" class="btnVerde">Ver perfil</button>
+                <button id="btnCambiarDatos" class="btnVerde">Cambiar mis datos</button>
+                <button id="btnCambiarContraseña" class="btnVerde">Cambiar contraseña</button>
+                <button id="btnEliminarCuenta" class="btnVerde">Eliminar cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Reservas -->
+    <div id="popupReservas" class="popup oculto">
+        <div class="flechaAzul"></div>
+        <div class="rectAzul">
+            <div class="submenu-vertical">
+                <button id="btnHacerReserva" class="btnVerde">Hacer reserva</button>
+                <button id="btnMisReservas" class="btnVerde">Mis reservas activas</button>
+                <button id="btnHistorialReservas" class="btnVerde">Historial de reservas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popup Otros -->
+    <div id="popupOtros" class="popup oculto">
+        <div class="flechaAzul"></div>
+        <div class="rectAzul">
+            <div class="submenu-vertical">
+                <button id="btnReclamo" class="btnVerde">Enviar reclamo o consulta</button>
+            </div>
         </div>
     </div>
 
@@ -62,31 +90,8 @@
     </main>
 </div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const btnEquipos = document.querySelector('.menu button:nth-child(2)'); // segundo botón = Equipos
-        const popup = document.getElementById('popupEquipos');
-        const btnListar = document.getElementById('btnListarEquipos');
-        const contenido = document.querySelector('.contenido');
+<script src="js/usuario.js?v=1.0" defer></script>
 
-        // Mostrar/ocultar el rectángulo azul al presionar "Equipos"
-        btnEquipos.addEventListener('click', () => {
-            popup.classList.toggle('oculto');
-        });
-
-        // Al presionar "Listar Equipos"
-        btnListar.addEventListener('click', async () => {
-            popup.classList.add('oculto'); // desaparece el popup
-
-            // Carga la lista de equipos
-            const resp = await fetch("EquiposServlet");
-            const html = await resp.text();
-            contenido.innerHTML = html;
-        });
-    });
-</script>
-
-<script src="js/usuario.js"></script>
 
 </body>
 </html>

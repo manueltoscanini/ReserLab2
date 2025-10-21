@@ -457,9 +457,8 @@ body {
 }
 
 /* === Rectángulo flotante para "Listar Equipos" === */
-.popupEquipos {
+.popup {
     position: absolute;
-    top: 225px; /* ajustá si querés moverlo más arriba o abajo */
     left: 250px;
     display: flex;
     align-items: center;
@@ -507,6 +506,38 @@ body {
     display: none;
 }
 
+.submenu-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.submenu-vertical .btnVerde {
+    width: 180px;
+}
+
+#popupEquipos
+{
+    top: 280px; /* ajustá si querés moverlo más arriba o abajo */
+}
+
+#popupReservas
+{
+    top: 180px; /* ajustá si querés moverlo más arriba o abajo */
+}
+
+#popupPerfil
+{
+    top: 110px; /* ajustá si querés moverlo más arriba o abajo */
+}
+
+#popupOtros
+{
+    top: 325px; /* ajustá si querés moverlo más arriba o abajo */
+}
+
+
+/* ======== Contenido de Reservas ======== */
 .contenido-reservas {
     padding: 20px;
 }
