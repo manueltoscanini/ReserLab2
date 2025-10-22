@@ -14,16 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Popups
     const popupEquipos  = document.getElementById('popupEquipos');
-    const popupPerfil   = document.getElementById('popupPerfil');
     const popupReservas = document.getElementById('popupReservas');
     const popupOtros    = document.getElementById('popupOtros');
 
     // Botones internos
-    const btnListar = document.getElementById('btnListarEquipos');
-    const btnVerPerfil = document.getElementById('btnVerPerfil');
-    const btnCambiarDatos = document.getElementById('btnCambiarDatos');
-    const btnCambiarContrasena = document.getElementById('btnCambiarContraseña');
-    const btnEliminarCuenta = document.getElementById('btnEliminarCuenta');
+    const btnListarEquipos = document.getElementById('btnListarEquipos');
     const btnHacerReserva = document.getElementById('btnHacerReserva');
     const btnMisReservas = document.getElementById('btnMisReservas');
     const btnHistorialReservas = document.getElementById('btnHistorialReservas');
@@ -31,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Función utilitaria para cerrar todos los popups ---
     function cerrarTodosLosPopups() {
-        [popupEquipos, popupPerfil, popupReservas, popupOtros].forEach(p => {
+        [popupEquipos, popupReservas, popupOtros].forEach(p => {
             if (p) p.classList.add('oculto');
         });
     }
@@ -48,12 +43,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // PERFIL
-    if (btnPerfil && popupPerfil) {
-        btnPerfil.addEventListener('click', () => {
-            const estaOculto = popupPerfil.classList.contains('oculto');
-            cerrarTodosLosPopups();
-            if (estaOculto) popupPerfil.classList.remove('oculto');
-            else popupPerfil.classList.add('oculto');
+
+    if (btnPerfil && contenido) {
+        btnPerfil.addEventListener("click", function (e) {
+            e.preventDefault(); // evita que el enlace recargue la página
+            cerrarTodosLosPopups(); // cierra los submenús abiertos si los hay
+
+            fetch("./VerPerfilServlet")
+                .then(response => {
+                    if (!response.ok) throw new Error("Error al obtener perfil");
+                    return response.text();
+                })
+                .then(html => {
+                    const contenido = document.querySelector('.contenido');
+                    contenido.innerHTML = html;
+                })
+                .catch(error => console.error("Error al cargar el perfil:", error));
         });
     }
 
@@ -74,37 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
             cerrarTodosLosPopups();
             if (estaOculto) popupOtros.classList.remove('oculto');
             else popupOtros.classList.add('oculto');
-        });
-    }
-
-    /* ======================================================
-       SUBMENÚ PERFIL
-    ====================================================== */
-    if (btnVerPerfil && contenido) {
-        btnVerPerfil.addEventListener('click', () => {
-            cerrarTodosLosPopups();
-            // TODO: implementar ver perfil
-        });
-    }
-
-    if (btnCambiarDatos && contenido) {
-        btnCambiarDatos.addEventListener('click', () => {
-            cerrarTodosLosPopups();
-            // TODO: implementar cambiar datos
-        });
-    }
-
-    if (btnCambiarContrasena && contenido) {
-        btnCambiarContrasena.addEventListener('click', () => {
-            cerrarTodosLosPopups();
-            // TODO: implementar cambiar contraseña
-        });
-    }
-
-    if (btnEliminarCuenta && contenido) {
-        btnEliminarCuenta.addEventListener('click', () => {
-            cerrarTodosLosPopups();
-            // TODO: implementar eliminar cuenta
         });
     }
 
@@ -168,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // si el click no es en la barra lateral ni en ninguno de los popups, cerramos todo
         const barra = document.querySelector('.barraLateral');
         if (!barra) return;
-        if (!barra.contains(e.target) && ![popupEquipos, popupPerfil, popupReservas, popupOtros].some(p => p && p.contains(e.target))) {
+        if (!barra.contains(e.target) && ![popupEquipos, popupReservas, popupOtros].some(p => p && p.contains(e.target))) {
             cerrarTodosLosPopups();
         }
     });

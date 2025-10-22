@@ -27,12 +27,11 @@
 <div class="contenedorPrincipal">
     <aside class="barraLateral">
         <div class="perfil">
-            <i class="fa-solid fa-user-circle iconoPerfil"></i>
+            <a href="#" id="opciones-perfil"><i class="fa-solid fa-user-circle iconoPerfil"></i></a>
             <h2 class="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
         <nav class="menu">
-            <button id="opciones-perfil"><i class="fa-solid fa-user"></i> Perfil</button>
             <button id="opciones-reserva"><i class="fa-solid fa-calendar-days"></i> Reservas</button>
             <button id="opciones-equipos"><i class="fa-solid fa-laptop"></i> Equipos</button>
             <button id="opciones-otros"><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
@@ -47,19 +46,6 @@
         <div class="flechaAzul"></div>
         <div class="rectAzul">
             <button id="btnListarEquipos" class="btnVerde">Listar Equipos</button>
-        </div>
-    </div>
-
-    <!-- Popup Perfil -->
-    <div id="popupPerfil" class="popup oculto">
-        <div class="flechaAzul"></div>
-        <div class="rectAzul">
-            <div class="submenu-vertical">
-                <button id="btnVerPerfil" class="btnVerde">Ver perfil</button>
-                <button id="btnCambiarDatos" class="btnVerde">Cambiar mis datos</button>
-                <button id="btnCambiarContraseña" class="btnVerde">Cambiar contraseña</button>
-                <button id="btnEliminarCuenta" class="btnVerde">Eliminar cuenta</button>
-            </div>
         </div>
     </div>
 
