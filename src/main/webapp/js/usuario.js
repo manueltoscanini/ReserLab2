@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(html => {
                     const contenido = document.querySelector('.contenido');
                     contenido.innerHTML = html;
+                    inicializarPerfilListeners();
                 })
                 .catch(error => console.error("Error al cargar el perfil:", error));
         });
@@ -396,6 +397,53 @@ document.addEventListener("click", (e) => {
     }
 });
 
+function inicializarPerfilListeners() {
+    const btnEliminar = document.getElementById("btnEliminarCuenta");
+    const modal = document.getElementById("eliminarCuentaModal");
+    const btnCancelar = document.getElementById("cancelarEliminarCuenta");
+    const btnConfirmar = document.getElementById("confirmarEliminarCuenta");
+
+    if (!btnEliminar || !modal) return;
+
+    // 🔹 Mostrar modal
+    btnEliminar.addEventListener("click", () => {
+        modal.style.display = "flex";
+    });
+
+    // 🔹 Cancelar
+    if (btnCancelar) {
+        btnCancelar.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+    }
+
+    // 🔹 Confirmar eliminación
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener("click", () => {
+            fetch("EliminarCuentaServlet", { method: "POST" })
+                .then(res => res.text())
+                .then(resp => {
+                    if (resp.includes("exito")) {
+                        window.location.href = "login.jsp?msg=cuentaDesactivada";
+                    } else {
+                        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error al eliminar cuenta:", err);
+                    mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+                });
+        });
+    }
+
+    // 🔹 Cerrar modal al hacer clic fuera
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            modal.style.display = "none";
+        }
+    });
+}
+
 
 /*==========================================================================================
     Código específico para la gestión de reservas activas
@@ -556,6 +604,97 @@ function editarReserva(idActividad) {
     alert('Funcionalidad de edición en desarrollo');
 }
 
+
+/* ------------------------ */
+
+// Función para cargar el historial de reservas al inicio (sin cambiar el contenido completo)
+function cargarHistorialInicio() {
+    fetch('HistorialReservasServlet', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        mostrarHistorialInicio(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarErrorHistorialInicio('Error al cargar el historial de reservas');
+    });
+}
+
+// Función para mostrar el historial en el inicio (solo actualiza la sección del historial)
+function mostrarHistorialInicio(reservas) {
+    console.log('Reservas recibidas:', reservas);
+    const contenedorHistorial = document.getElementById('contenedor-historial');
+    
+    if (!contenedorHistorial) {
+        console.error('No se encontró el contenedor de historial');
+        return;
+    }
+    
+    if (reservas.length === 0) {
+        contenedorHistorial.innerHTML = `
+            <div class="sin-reservas">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <p>No tienes reservas en tu historial</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    reservas.forEach(reserva => {
+        const fecha = formatearFecha(reserva.fecha);
+        const horaInicio = formatearHora(reserva.horaInicio);
+        const horaFin = formatearHora(reserva.horaFin);
+        
+        html += `
+            <div class="tarjeta-reserva">
+                <div class="icono-reserva">
+                    <i class="fa-solid fa-flask"></i>
+                </div>
+                <div class="detalles-reserva">
+                    <div class="detalle">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>${fecha}</span>
+                    </div>
+                    <div class="detalle">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>${horaInicio} - ${horaFin}</span>
+                    </div>
+                    <div class="detalle">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="estado estado-${reserva.estado.toLowerCase()}">${reserva.estado}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    contenedorHistorial.innerHTML = html;
+}
+
+// Función para mostrar error en el historial del inicio
+function mostrarErrorHistorialInicio(mensaje) {
+    const contenedorHistorial = document.getElementById('contenedor-historial');
+    if (contenedorHistorial) {
+        contenedorHistorial.innerHTML = `
+            <div class="error-mensaje">
+                <i class="fa-solid fa-exclamation-triangle"></i>
+                <p>${mensaje}</p>
+            </div>
+        `;
+    }
+}
 
 /* ------------------------ */
 

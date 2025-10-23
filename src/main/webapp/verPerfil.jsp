@@ -50,6 +50,18 @@
         <button id="btnEditarDatos" type="button" onclick="abrirEditarPerfil()">Editar datos</button>
         <button id="btnCambiarContrasenia">Cambiar contraseña</button>
         <button class="eliminar" id="btnEliminarCuenta">Eliminar cuenta</button>
+
+        <!-- Modal para confirmar eliminación -->
+        <div id="eliminarCuentaModal" class="modal-overlay" style="display:none;">
+            <div class="modal">
+                <h2 id="Pregunta">¿Estás seguro de que quieres eliminar tu cuenta?</h2>
+                <p id="Pregunta">Tu cuenta será desactivada y no podrás volver a iniciar sesión.</p>
+                <div class="modal-botones">
+                    <button id="confirmarEliminarCuenta" class="btn-confirmar">Sí, eliminar</button>
+                    <button id="cancelarEliminarCuenta" class="btn-cancelar">Cancelar</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

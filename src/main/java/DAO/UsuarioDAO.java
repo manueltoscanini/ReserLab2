@@ -343,4 +343,19 @@ public class UsuarioDAO {
             return false;
         }
     }
+
+    public boolean estaActivo(String cedula) {
+        String sql = "SELECT activo FROM Cliente WHERE ci_Usuario = ?";
+        try (Connection con = ConnectionDB.getInstancia().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, cedula);
+            var rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getBoolean("activo");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return true; // por defecto, lo consideramos activo
+    }
 }

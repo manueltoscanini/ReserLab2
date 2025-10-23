@@ -36,6 +36,14 @@ public class LoginServlet extends HttpServlet {
             Usuario usuario = usuarioDAO.autenticarUsuario(email, password);
 
             if (usuario != null) {
+
+                // 🔹 Verificar si es cliente y está activo
+                boolean activo = usuarioDAO.estaActivo(usuario.getCedula());
+                if (!activo) {
+                    response.sendRedirect("login.jsp?msg=cuentaDesactivada");
+                    return;
+                }
+
                 System.out.println("Usuario autenticado exitosamente: " + usuario.getNombre());
 
                 // ✅ Crear sesión y guardar datos del usuario
