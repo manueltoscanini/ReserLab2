@@ -149,6 +149,166 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /*==========================================================================================
+    Código para el popup de edición de perfil
+============================================================================================*/
+function abrirEditarPerfil() {
+    // En lugar de cargar el JSP directo, llamamos al Servlet para que envíe los datos
+    fetch("EditarPerfilServlet")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error al cargar el formulario de edición");
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Agregamos el modal al body
+            document.body.insertAdjacentHTML("beforeend", html);
+            const modal = document.getElementById("editarPerfilModal");
+            modal.style.display = "flex";
+
+            // Mostrar/ocultar carrera según el tipo de cliente actual
+            const tipoSelect = document.getElementById("tipo_cliente");
+            const divCarrera = document.getElementById("divCarrera");
+            const carreraSelect = document.getElementById("carrera");
+
+            if (tipoSelect && divCarrera) {
+                // Función para manejar el cambio de tipo
+                const manejarCambioTipo = () => {
+                    if (tipoSelect.value === "estudiante") {
+                        divCarrera.style.display = "block";
+                        carreraSelect.required = true;
+                    } else {
+                        divCarrera.style.display = "none";
+                        carreraSelect.required = false;
+                        carreraSelect.value = "";
+                    }
+                };
+
+                // Agregar el listener
+                tipoSelect.addEventListener("change", manejarCambioTipo);
+
+                // Ejecutar una vez para establecer el estado inicial
+                manejarCambioTipo();
+            }
+
+            // Capturar el envío del formulario sin recargar la página
+            const form = document.getElementById("formEditarPerfil");
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+                
+                // Validación básica
+                const nombre = document.getElementById("nombre").value.trim();
+                const tipo = document.getElementById("tipo_cliente").value;
+                
+                if (!nombre) {
+                    alert("Por favor, ingrese su nombre completo.");
+                    return;
+                }
+                
+                if (!tipo) {
+                    alert("Por favor, seleccione un tipo de cliente.");
+                    return;
+                }
+                
+                if (tipo === "estudiante") {
+                    const carrera = document.getElementById("carrera").value;
+                    if (!carrera) {
+                        alert("Por favor, seleccione una carrera.");
+                        return;
+                    }
+                }
+                
+                // Crear FormData y agregar todos los campos
+                const formData = new FormData();
+                formData.append("nombre", nombre);
+                formData.append("tipo_cliente", tipo);
+                
+                if (tipo === "estudiante") {
+                    const carrera = document.getElementById("carrera").value;
+                    formData.append("carrera", carrera);
+                } else {
+                    formData.append("carrera", "");
+                }
+                
+                console.log("Enviando datos:", {
+                    nombre: nombre,
+                    tipo_cliente: tipo,
+                    carrera: tipo === "estudiante" ? document.getElementById("carrera").value : ""
+                });
+                
+                guardarCambiosPerfil(formData);
+            });
+
+            // Cerrar modal al hacer click fuera de él
+            modal.addEventListener("click", function(e) {
+                if (e.target === modal) {
+                    cerrarModal();
+                }
+            });
+
+            // Cerrar modal con tecla Escape
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") {
+                    cerrarModal();
+                }
+            });
+        })
+        .catch(err => {
+            console.error("Error al abrir el editor de perfil:", err);
+            alert("Error al cargar el formulario de edición. Por favor, inténtalo de nuevo.");
+        });
+}
+
+function guardarCambiosPerfil(formData) {
+    fetch("EditarPerfilServlet", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error en la respuesta del servidor");
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Cerramos el modal
+            cerrarModal();
+            // Actualizamos el contenido del perfil sin recargar toda la página
+            const contenido = document.querySelector(".contenido");
+            contenido.innerHTML = html;
+
+            // Mostrar mensaje de éxito si existe
+            const mensajeExito = contenido.querySelector('.mensaje-exito');
+            if (mensajeExito) {
+                // Scroll al mensaje para que sea visible
+                mensajeExito.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Ocultar el mensaje después de 3 segundos
+                setTimeout(() => {
+                    mensajeExito.style.opacity = '0';
+                    setTimeout(() => mensajeExito.remove(), 300);
+                }, 3000);
+            }
+        })
+        .catch(error => {
+            console.error("Error al guardar cambios:", error);
+            alert("Error al guardar los cambios. Por favor, inténtalo de nuevo.");
+        });
+}
+
+function cerrarModal() {
+    const modal = document.getElementById("editarPerfilModal");
+    if (modal) {
+        // Agregar animación de salida
+        modal.style.opacity = "0";
+        modal.style.transform = "translateY(-20px) scale(0.95)";
+
+        setTimeout(() => {
+            modal.remove();
+        }, 200);
+    }
+}
+
+/*==========================================================================================
     Código específico para la gestión de reservas activas
 ============================================================================================*/
 // Función para cargar reservas activas
