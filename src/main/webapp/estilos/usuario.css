@@ -1344,3 +1344,88 @@ body {
     background-color: #f8d7da;
     color: #721c24;
 }
+
+/* ======== Equipos ======== */
+.equipos-section {
+    grid-column: 1 / -1;
+}
+
+.equipos-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #f9f9f9;
+}
+
+.equipos-header {
+    margin-bottom: 16px;
+}
+
+.btn-agregar-equipo {
+    background-color: #027b8e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.btn-agregar-equipo:hover {
+    background-color: #025a6b;
+}
+
+.equipos-seleccionados {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.equipo-seleccionado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.equipo-info {
+    flex: 1;
+}
+
+.equipo-nombre {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.equipo-tipo {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.equipo-uso {
+    color: #555;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.btn-eliminar-equipo {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.3s;
+}
+
+.btn-eliminar-equipo:hover {
+    background-color: #c82333;
+}
