@@ -21,14 +21,23 @@ public class ReservasServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            // Obtener parámetros de paginación
+            // Obtener parámetros de paginación y filtro
             String pageParam = request.getParameter("page");
+            String fechaParam = request.getParameter("fecha");
             int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
             int pageSize = 3; // 3 reservas por página
             int offset = (page - 1) * pageSize;
 
-            // Obtener todas las reservas
-            List<Actividad> todasLasReservas = actividadDAO.getTodas();
+            // Obtener todas las reservas o filtradas por fecha
+            List<Actividad> todasLasReservas;
+            if (fechaParam != null && !fechaParam.isEmpty()) {
+                // Filtrar por fecha
+                java.time.LocalDate fecha = java.time.LocalDate.parse(fechaParam);
+                todasLasReservas = actividadDAO.getPorFecha(fecha);
+            } else {
+                // Obtener todas las reservas
+                todasLasReservas = actividadDAO.getTodas();
+            }
 
             // Calcular información de paginación
             int totalReservas = todasLasReservas.size();
@@ -48,8 +57,8 @@ public class ReservasServlet extends HttpServlet {
             request.setAttribute("hasNextPage", page < totalPages);
             request.setAttribute("hasPrevPage", page > 1);
 
-            // Redirigir a admin.jsp con los datos
-            request.getRequestDispatcher("admin.jsp").forward(request, response);
+            // Redirigir a admin.jsp con los datos y la sección reservas
+            request.getRequestDispatcher("/admin.jsp").forward(request, response);
 
         } catch (Exception e) {
             System.err.println("Error en ReservasServlet: " + e.getMessage());

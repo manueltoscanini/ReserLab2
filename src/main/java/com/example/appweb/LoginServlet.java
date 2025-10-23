@@ -42,6 +42,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("usuario", usuario);
                 session.setAttribute("nombreUsuario", usuario.getNombre());  // usado en usuario.jsp
                 session.setAttribute("ciUsuario", usuario.getCedula());      // opcional, útil para consultas
+                session.setAttribute("fotoUsuario", usuario.getFotoUsuario()); // URL de la foto
 
                 // Redirigir según su rol
                 if (usuario.getEsAdmin()) {

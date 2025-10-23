@@ -18,7 +18,8 @@
         for (Equipo eq : equipos) {
     %>
     <div class="tarjeta-equipo">
-        <div class="imagen-equipo">Imagen del equipo</div>
+        <div class="imagen-equipo"><img src="eq.getFotoEquipo">
+        </div>
         <p><strong>Nombre:</strong> <%= eq.getNombre() %></p>
         <p><strong>Tipo:</strong> <%= eq.getTipo() %></p>
         <p><strong>Precauciones:</strong> <%= eq.getPrecauciones() == null ? "No hay" : eq.getPrecauciones() %></p>

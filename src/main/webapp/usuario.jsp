@@ -7,6 +7,7 @@
 
     // Obtiene el nombre de usuario de la sesión
     String nombreUsuario = (String) session.getAttribute("nombreUsuario");
+    String fotoUsuario = (String) session.getAttribute("fotoUsuario");
 
     // Si no hay usuario logueado, redirige al login
     if (nombreUsuario == null) {
@@ -27,7 +28,17 @@
 <div class="contenedorPrincipal">
     <aside class="barraLateral">
         <div class="perfil">
-            <i class="fa-solid fa-user-circle iconoPerfil"></i>
+            <div class="foto-perfil-container">
+                <% if (fotoUsuario != null && !fotoUsuario.isEmpty()) { %>
+                    <img src="<%= fotoUsuario %>" alt="Foto de perfil" class="fotoPerfil" id="fotoPerfil">
+                <% } else { %>
+                    <i class="fa-solid fa-user-circle iconoPerfil" id="iconoPerfil"></i>
+                <% } %>
+                <button class="btn-cambiar-foto" id="btnCambiarFoto" title="Cambiar foto">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+                <input type="file" id="inputFoto" accept="image/*" style="display: none;">
+            </div>
             <h2 class="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
