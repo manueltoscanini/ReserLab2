@@ -69,7 +69,13 @@ public class ReservasActivasServlet extends HttpServlet {
             // Obtener las reservas activas (estado "aceptada")
             System.out.println("DEBUG: Consultando reservas activas para cédula: " + cedulaUsuario);
             List<Actividad> reservasActivas = actividadDAO.reservasActivasPorCi(cedulaUsuario, "aceptada");
-            System.out.println("DEBUG: Número de reservas encontradas: " + reservasActivas.size());
+            System.out.println("DEBUG: Número de reservas encontradas: " + (reservasActivas != null ? reservasActivas.size() : "null"));
+            
+            // Validar que la lista no sea nula
+            if (reservasActivas == null) {
+                System.out.println("WARNING: reservasActivas es null, enviando array vacío");
+                reservasActivas = new java.util.ArrayList<>();
+            }
             
             // Convertir a JSON y enviar respuesta
             String jsonResponse = gson.toJson(reservasActivas);
@@ -81,9 +87,10 @@ public class ReservasActivasServlet extends HttpServlet {
             
         } catch (Exception e) {
             System.err.println("ERROR en ReservasActivasServlet: " + e.getMessage());
+            System.err.println("Stack trace completo:");
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Error interno del servidor: " + e.getMessage() + "\"}");
+            response.getWriter().write("{\"error\": \"Error interno del servidor\", \"message\": \"" + e.getMessage().replace("\"", "\\\"" ) + "\"}");
         }
     }
 }

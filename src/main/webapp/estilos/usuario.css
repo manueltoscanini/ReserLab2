@@ -30,10 +30,53 @@ body {
     margin-bottom: 40px;
 }
 
+.foto-perfil-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.fotoPerfil {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #06295a;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 .iconoPerfil {
     font-size: 68px;
     color: #06295a;
 }
+
+.btn-cambiar-foto {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #027b8e;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-cambiar-foto:hover {
+    background-color: #045777;
+    transform: scale(1.1);
+}
+
+.btn-cambiar-foto i {
+    font-size: 14px;
+    color: white;
+}
+
 .nombreUsuario {
     margin-top: 10px;
     font-size: 18px;
@@ -154,6 +197,8 @@ body {
     margin: 10px;
     border: 1px solid #b5c9ef;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+    overflow-y: auto;
+    min-height: 0;
 }
 
 /* ======== Botón Cerrar sesión ======== */
@@ -232,6 +277,13 @@ body {
     font-size: 48px;
     color: #027b8e;
     position: relative;
+}
+
+.icono-reserva .logo-ficha {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
 }
 
 .icono-calendario {
@@ -554,6 +606,7 @@ body {
 /* ======== Contenido de Reservas ======== */
 .contenido-reservas {
     padding: 20px;
+    padding-bottom: 40px;
 }
 
 .titulo-seccion {
@@ -896,39 +949,55 @@ body {
     padding: 12px 16px;
     margin: 15px 0;
     font-weight: 500;
+
+}
+/* ======== Header Reservas con Botón Crear ======== */
+.header-reservas {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     gap: 8px;
     transition: opacity 0.3s ease;
 }
 
-.mensaje-exito::before {
-    content: "✓";
-    font-weight: bold;
-    font-size: 16px;
-}
 
+.header-reservas .titulo-seccion {
+    margin-bottom: 0;
+    margin-right: 20px;
+}
 .mensaje-error {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
+}
+.btn-crear-reserva {
+    background-color: #027b8e;
+    color: white;
+    border: none;
     border-radius: 8px;
     padding: 12px 16px;
     margin: 15px 0;
     font-weight: 500;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.mensaje-error::before {
-    content: "⚠";
-    font-weight: bold;
-    font-size: 16px;
+.btn-crear-reserva:hover {
+    background-color: #045777;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* ======== Mejoras del modal ======== */
-.modal-overlay {
+/* ======== Modal ======== */
+.modal {
+    display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
@@ -937,36 +1006,70 @@ body {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
+    align-items: center;
+    justify-content: center;
 }
 
-.modal {
-    background: #fff;
+.modal-content {
+    background-color: white;
     border-radius: 12px;
-    padding: 30px;
-    width: 450px;
-    max-width: 90vw;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    animation: modalSlideIn 0.3s ease-out;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: modalFadeIn 0.3s ease;
 }
 
-@keyframes modalSlideIn {
+@keyframes modalFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-20px) scale(0.95);
+        transform: translateY(-50px);
     }
     to {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
 }
 
-.modal h2 {
-    text-align: center;
-    color: #06295a;
-    margin-bottom: 25px;
+.modal-header {
+    background: linear-gradient(135deg, #027b8e, #045777);
+    color: white;
+    padding: 20px 24px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-cerrar-modal {
+    background: none;
+    border: none;
+    color: white;
     font-size: 24px;
-    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
 }
 
 .modal p {
@@ -1023,69 +1126,272 @@ body {
 .form-row {
     margin-bottom: 20px;
 }
-
-.form-row label {
-    display: block;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-    font-size: 14px;
+.btn-cerrar-modal:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
-.form-row input, .form-row select {
-    width: 100%;
-    padding: 12px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
+/* ======== Formulario ======== */
+#formCrearReserva {
+    padding: 24px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+/* Grid específico para formulario de usuario - 2 columnas */
+.form-grid-usuario {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px; /* Vertical gap: 28px, Horizontal gap: 20px */
+    margin-bottom: 24px;
+}
+
+@media (max-width: 600px) {
+    .form-grid-usuario {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 80px; /* Ensure minimum height to prevent overlap */
+}
+
+.form-group label {
+    color: #333;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-group label i {
+    color: #027b8e;
+}
+
+.form-group input,
+.form-group select {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
     font-size: 14px;
     transition: border-color 0.2s ease;
-    box-sizing: border-box;
+    width: 100%; /* Ensure full width */
+    box-sizing: border-box; /* Include padding in width calculation */
 }
 
-.form-row input:focus, .form-row select:focus {
+.form-group input:focus,
+.form-group select:focus {
     outline: none;
     border-color: #027b8e;
     box-shadow: 0 0 0 3px rgba(2, 123, 142, 0.1);
 }
 
-.acciones {
-    text-align: center;
-    margin-top: 25px;
-    display: flex;
-    gap: 15px;
-    justify-content: center;
+.form-group small {
+    color: #666;
+    font-size: 12px;
 }
 
-.acciones button {
-    padding: 12px 24px;
+/* ======== Footer del Modal ======== */
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancelar,
+.btn-guardar {
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     transition: all 0.2s ease;
-    min-width: 120px;
 }
 
-.acciones button[type="submit"] {
-    background-color: #027b8e;
-    color: white;
-}
-
-.acciones button[type="submit"]:hover {
-    background-color: #045777;
-    transform: translateY(-1px);
-}
-
-.acciones button[type="button"] {
+.btn-cancelar {
     background-color: #6c757d;
     color: white;
 }
 
-.acciones button[type="button"]:hover {
+.btn-cancelar:hover {
     background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-guardar {
+    background-color: #027b8e;
+    color: white;
+}
+
+.btn-guardar:hover {
+    background-color: #045777;
     transform: translateY(-1px);
 }
 
 
 
+/* ======== Mensajes de Éxito y Error ======== */
+.mensaje-exito,
+.mensaje-error {
+    padding: 14px 18px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mensaje-exito {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.mensaje-exito i {
+    color: #28a745;
+    font-size: 18px;
+}
+
+.mensaje-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.mensaje-error i {
+    color: #dc3545;
+    font-size: 18px;
+}
+
+/* ======== Página de Inicio Usuario ======== */
+.inicio-usuario {
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.header-inicio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #027b8e;
+}
+
+.header-inicio h1 {
+    color: #06295a;
+    font-size: 28px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.seccion-historial {
+    margin-top: 30px;
+}
+
+.seccion-historial h2 {
+    color: #06295a;
+    font-size: 22px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.seccion-historial h2 i {
+    color: #027b8e;
+}
+
+.subtitulo-seccion {
+    color: #06295a;
+    font-size: 20px;
+    margin-bottom: 20px;
+    margin-top: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    border-top: 2px solid #e0e7ff;
+    padding-top: 20px;
+}
+
+.subtitulo-seccion i {
+    color: #027b8e;
+}
+
+/* Estado de cargando */
+.cargando {
+    text-align: center;
+    padding: 40px 20px;
+    color: #027b8e;
+    grid-column: 1 / -1;
+}
+
+.cargando i {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.cargando p {
+    font-size: 16px;
+    color: #666;
+    margin: 10px 0 0 0;
+}
+
+/* Estilos para estados de reserva */
+.estado {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.estado-aceptada,
+.estado-aprobada {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.estado-pendiente,
+.estado-en-espera {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.estado-rechazada,
+.estado-cancelada {
+    background-color: #f8d7da;
+    color: #721c24;
+}
