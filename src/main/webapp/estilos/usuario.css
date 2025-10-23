@@ -997,6 +997,14 @@ body {
     transition: background-color 0.2s ease;
 }
 
+.modal label { display: block; margin-top: 10px; }
+.modal input {
+    width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.form-row {
+    margin-bottom: 20px;
 .btn-cerrar-modal:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }
@@ -1095,6 +1103,8 @@ body {
     background-color: #045777;
     transform: translateY(-1px);
 }
+
+
 
 /* ======== Mensajes de Éxito y Error ======== */
 .mensaje-exito,

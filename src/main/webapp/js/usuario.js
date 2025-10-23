@@ -312,12 +312,12 @@ function guardarCambiosPerfil(formData) {
 }
 
 function cerrarModal() {
-    const modal = document.getElementById("editarPerfilModal");
+    // Buscar cualquier modal abierto
+    const modal = document.querySelector(".modal-overlay");
     if (modal) {
-        // Agregar animación de salida
+        modal.style.transition = "all 0.2s ease";
         modal.style.opacity = "0";
         modal.style.transform = "translateY(-20px) scale(0.95)";
-
         setTimeout(() => {
             modal.remove();
         }, 200);
@@ -341,6 +341,61 @@ function mostrarMensajeTemporal(texto, tipo = "exito") {
         setTimeout(() => mensaje.remove(), 800);
     }, 3000);
 }
+
+// ======================================================
+// CAMBIAR CONTRASEÑA
+// ======================================================
+document.addEventListener("click", (e) => {
+    if (e.target && e.target.id === "btnCambiarContrasenia") {
+        fetch("CambiarContraseniaServlet")
+            .then(res => res.text())
+            .then(html => {
+
+                const modalPrevio = document.getElementById("editarPerfilModal");
+                if (modalPrevio) modalPrevio.remove();
+
+                document.body.insertAdjacentHTML("beforeend", html);
+                const modal = document.getElementById("cambiarContraseniaModal");
+                modal.style.display = "flex";
+
+                const form = document.getElementById("formCambiarContrasenia");
+                form.addEventListener("submit", async (ev) => {
+                    ev.preventDefault();
+                    const formData = new FormData(form);
+                    const params = new URLSearchParams(formData);
+
+                    const resp = await fetch("CambiarContraseniaServlet", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: params
+                    });
+
+                    const mensaje = await resp.text();
+                    const [tipo, texto] = mensaje.split(":");
+                    cerrarModal();
+                    mostrarMensajeTemporal(texto, tipo === "exito" ? "exito" : "error");
+                });
+                // Cerrar modal al hacer click fuera de él
+                modal.addEventListener("click", function(e) {
+                    if (e.target === modal) {
+                        cerrarModal();
+                    }
+                });
+
+                // Cerrar modal con tecla Escape
+                document.addEventListener("keydown", function(e) {
+                    if (e.key === "Escape") {
+                        cerrarModal();
+                    }
+                });
+            })
+            .catch(err => {
+                console.error("Error al cargar el cambio de contraseña:", err);
+                mostrarMensajeTemporal("Error al cargar el formulario.", "error");
+            });
+    }
+});
+
 
 /*==========================================================================================
     Código específico para la gestión de reservas activas
