@@ -108,14 +108,10 @@ public class ClienteDAO {
             return filas > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Error al desactivar cliente", e);
+        }
+    }
     public String[] obtenerDatosClienteEstructurado(String cedula) {
-        String sql = """
-        SELECT u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera
-        FROM cliente c
-        JOIN usuario u ON u.cedula = c.ci_usuario
-        LEFT JOIN carrera ca ON ca.id_carrera = c.id_carrera
-        WHERE c.ci_usuario = ?
-    """;
+        String sql = " SELECT u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera FROM cliente c JOIN usuario u ON u.cedula = c.ci_usuario  LEFT JOIN carrera ca ON ca.id_carrera = c.id_carrera WHERE c.ci_usuario = ?";
 
         try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
             ps.setString(1, cedula);

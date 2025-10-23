@@ -370,7 +370,11 @@ public class UsuarioDAO {
             return filas > 0;
         } catch (Exception e) {
             System.err.println("Error al actualizar foto de usuario: " + e.getMessage());
-    // Actualiza todos los datos del usuario: nombre, cédula y email
+            // Actualiza todos los datos del usuario: nombre, cédula y email
+            return false;
+        }
+
+    }
     public boolean actualizarUsuarioCompleto(String emailActual, String nuevoNombre, String nuevaCedula, String nuevoEmail) {
         String sql = "UPDATE usuario SET nombre = ?, cedula = ?, email = ? WHERE email = ?";
         try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {

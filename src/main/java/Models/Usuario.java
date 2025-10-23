@@ -50,9 +50,9 @@ public class Usuario {
     public boolean getEsAdmin(){
         return this.es_admin;
     }
-    public String getFotoUsuario(){
+    public String getFotoUsuario() {
         return this.fotoUsuario;
-    
+    }
     public boolean isEsadmin(){
         return this.es_admin;
     }
