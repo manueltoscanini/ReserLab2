@@ -1,3 +1,4 @@
+/* usuario.js: */
 /*==========================================================================================
     Código general para la interfaz de usuario (barra lateral, popups, carga dinámica)
 ============================================================================================*/
@@ -146,6 +147,16 @@ document.addEventListener("DOMContentLoaded", () => {
             cerrarTodosLosPopups();
         }
     });
+
+    // 🔹 Ocultar mensajes de JSP automáticamente
+    const mensajes = document.querySelectorAll(".mensaje-exito, .mensaje-error");
+    mensajes.forEach(msg => {
+        setTimeout(() => {
+            msg.style.transition = "opacity 0.8s";
+            msg.style.opacity = "0";
+            setTimeout(() => msg.remove(), 800);
+        }, 3000);
+    });
 });
 
 /*==========================================================================================
@@ -161,6 +172,9 @@ function abrirEditarPerfil() {
             return response.text();
         })
         .then(html => {
+            const modalPrevio = document.getElementById("editarPerfilModal");
+            if (modalPrevio) modalPrevio.remove();
+
             // Agregamos el modal al body
             document.body.insertAdjacentHTML("beforeend", html);
             const modal = document.getElementById("editarPerfilModal");
@@ -260,34 +274,36 @@ function abrirEditarPerfil() {
 }
 
 function guardarCambiosPerfil(formData) {
+    const params = new URLSearchParams();
+    for (const [key, value] of formData.entries()) {
+        params.append(key, value);
+    }
+
     fetch("EditarPerfilServlet", {
         method: "POST",
-        body: formData
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: params
     })
         .then(response => {
-            if (!response.ok) {
-                throw new Error("Error en la respuesta del servidor");
-            }
+            if (!response.ok) throw new Error("Error en la respuesta del servidor");
             return response.text();
         })
         .then(html => {
-            // Cerramos el modal
             cerrarModal();
-            // Actualizamos el contenido del perfil sin recargar toda la página
             const contenido = document.querySelector(".contenido");
             contenido.innerHTML = html;
 
-            // Mostrar mensaje de éxito si existe
-            const mensajeExito = contenido.querySelector('.mensaje-exito');
-            if (mensajeExito) {
-                // Scroll al mensaje para que sea visible
-                mensajeExito.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Ocultar el mensaje después de 3 segundos
-                setTimeout(() => {
-                    mensajeExito.style.opacity = '0';
-                    setTimeout(() => mensajeExito.remove(), 300);
-                }, 3000);
+            // 🔹 Actualizar el nombre mostrado en la barra lateral
+            const nuevoNombre = document.getElementById("nombre").value.trim();
+            const nombreLateral = document.getElementById("nombreUsuario");
+            if (nombreLateral && nuevoNombre) {
+                nombreLateral.textContent = nuevoNombre;
             }
+
+            // 🔹 Mostrar mensaje temporal de éxito (lo hacemos abajo)
+            mostrarMensajeTemporal("Datos actualizados correctamente.", "exito");
         })
         .catch(error => {
             console.error("Error al guardar cambios:", error);
@@ -306,6 +322,24 @@ function cerrarModal() {
             modal.remove();
         }, 200);
     }
+}
+
+// 🔹 Función para mostrar mensajes temporales (éxito o error)
+function mostrarMensajeTemporal(texto, tipo = "exito") {
+    const mensaje = document.createElement("div");
+    mensaje.className = tipo === "exito" ? "mensaje-exito" : "mensaje-error";
+    mensaje.textContent = texto;
+
+    // Lo agregamos al contenido principal
+    const contenido = document.querySelector(".contenido") || document.body;
+    contenido.prepend(mensaje);
+
+    // Desvanecer después de 3 segundos
+    setTimeout(() => {
+        mensaje.style.transition = "opacity 0.8s";
+        mensaje.style.opacity = "0";
+        setTimeout(() => mensaje.remove(), 800);
+    }, 3000);
 }
 
 /*==========================================================================================

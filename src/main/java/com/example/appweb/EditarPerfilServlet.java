@@ -1,3 +1,4 @@
+//EditarPerfilServlet.java:
 package com.example.appweb;
 
 import DAO.ClienteDAO;
@@ -74,12 +75,6 @@ public class EditarPerfilServlet extends HttpServlet {
         String nuevoTipo = request.getParameter("tipo_cliente");
         String nuevaCarrera = request.getParameter("carrera");
 
-        System.out.println("---- DEBUG EditarPerfilServlet ----");
-        System.out.println("nuevoNombre: " + nuevoNombre);
-        System.out.println("usuario.getNombre(): " + usuario.getNombre());
-        System.out.println("nuevoTipo: " + nuevoTipo);
-        System.out.println("nuevaCarrera: " + nuevaCarrera);
-
         try {
             boolean actualizado = false;
 
@@ -125,12 +120,6 @@ public class EditarPerfilServlet extends HttpServlet {
                 
                 actualizado = true;
             }
-
-            System.out.println("---- DEBUG EditarPerfilServlet ----");
-            System.out.println("nuevoNombre: " + nuevoNombre);
-            System.out.println("usuario.getNombre(): " + usuario.getNombre());
-            System.out.println("nuevoTipo: " + nuevoTipo);
-            System.out.println("nuevaCarrera: " + nuevaCarrera);
 
             if (actualizado) {
                 // Actualizar la sesión con los datos modificados

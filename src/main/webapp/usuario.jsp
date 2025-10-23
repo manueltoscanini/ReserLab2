@@ -1,3 +1,4 @@
+<%--usuario.jsp: --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
     // Evita que se guarde en caché (por seguridad)
@@ -28,7 +29,7 @@
     <aside class="barraLateral">
         <div class="perfil">
             <a href="#" id="opciones-perfil"><i class="fa-solid fa-user-circle iconoPerfil"></i></a>
-            <h2 class="nombreUsuario"><%= nombreUsuario %></h2>
+            <h2 id="nombreUsuario" class="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
         <nav class="menu">
