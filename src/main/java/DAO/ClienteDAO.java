@@ -15,9 +15,15 @@ public class ClienteDAO {
         try (PreparedStatement ps =
                      ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
 
-            ps.setInt(1, id_carrera);
+            // Manejar id_carrera que puede ser null
+            if (id_carrera != null) {
+                ps.setInt(1, id_carrera);
+            } else {
+                ps.setNull(1, java.sql.Types.INTEGER);
+            }
             ps.setString(2, cedula);
-            ps.executeUpdate();
+            int filasAfectadas = ps.executeUpdate();
+            System.out.println("Filas afectadas en actualizarCarrera: " + filasAfectadas);
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al actualizar carrera", e);
@@ -102,6 +108,28 @@ public class ClienteDAO {
             return filas > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Error al desactivar cliente", e);
+    public String[] obtenerDatosClienteEstructurado(String cedula) {
+        String sql = """
+        SELECT u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera
+        FROM cliente c
+        JOIN usuario u ON u.cedula = c.ci_usuario
+        LEFT JOIN carrera ca ON ca.id_carrera = c.id_carrera
+        WHERE c.ci_usuario = ?
+    """;
+
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, cedula);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String nombre = rs.getString("nombre");
+                String email = rs.getString("email");
+                String tipo = rs.getString("tipo_cliente");
+                String carrera = rs.getString("carrera");
+                return new String[]{nombre, email, tipo, carrera};
+            }
+            return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener datos del cliente", e);
         }
     }
 }

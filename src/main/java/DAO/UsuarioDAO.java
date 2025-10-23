@@ -1,9 +1,12 @@
+//UsuarioDAO.java:
 package DAO;
 
 import ConectionDB.ConnectionDB;
 import Models.Actividad;
+import Models.Sede;
 import Models.Usuario;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -367,6 +370,18 @@ public class UsuarioDAO {
             return filas > 0;
         } catch (Exception e) {
             System.err.println("Error al actualizar foto de usuario: " + e.getMessage());
+    // Actualiza todos los datos del usuario: nombre, cédula y email
+    public boolean actualizarUsuarioCompleto(String emailActual, String nuevoNombre, String nuevaCedula, String nuevoEmail) {
+        String sql = "UPDATE usuario SET nombre = ?, cedula = ?, email = ? WHERE email = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, nuevoNombre);
+            ps.setString(2, nuevaCedula);
+            ps.setString(3, nuevoEmail);
+            ps.setString(4, emailActual);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (Exception e) {
+            System.err.println("Error al actualizar usuario: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

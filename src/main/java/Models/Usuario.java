@@ -1,3 +1,4 @@
+//Usuario.java:
 package Models;
 
 public class Usuario {
@@ -51,6 +52,9 @@ public class Usuario {
     }
     public String getFotoUsuario(){
         return this.fotoUsuario;
+    
+    public boolean isEsadmin(){
+        return this.es_admin;
     }
 
 
