@@ -548,10 +548,27 @@ function formatearHora(hora) {
 
 // Funciones para los botones de acción
 function cancelarReserva(idActividad) {
-    if (confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
-        // Aquí implementarías la lógica para cancelar la reserva
-        alert('Funcionalidad de cancelación en desarrollo');
-    }
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Estás seguro de que quieres cancelar esta reserva?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Sí, cancelar',
+        cancelButtonText: 'No, mantener',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Aquí implementarías la lógica para cancelar la reserva
+            Swal.fire({
+                title: 'Funcionalidad en desarrollo',
+                text: 'La funcionalidad de cancelación está en desarrollo',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        }
+    });
 }
 
 function editarReserva(idActividad) {
