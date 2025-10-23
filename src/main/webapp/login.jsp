@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Iniciar sesión - ReserLab</title>
-    <link rel="stylesheet" type="text/css" href="estilos/login.css">
+    <link rel="stylesheet" type="text/css" href="estilos/login.css?v=1.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 <main>
@@ -20,6 +21,12 @@
 
             <input type="submit" value="Iniciar sesión">
         </form>
+
+        <div class="btn-volver-container">
+            <button type="button" class="btn-volver" onclick="window.location.href='index.jsp'">
+                <i class="fa-solid fa-arrow-left"></i> Volver al inicio
+            </button>
+        </div>
 
 
         <!-- <p><a href="registro.jsp">¿No tienes cuenta? Regístrate</a></p> -->

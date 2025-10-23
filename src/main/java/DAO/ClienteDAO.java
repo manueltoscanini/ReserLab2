@@ -99,6 +99,15 @@ public class ClienteDAO {
         }
     }
 
+    public boolean desactivarCliente(String cedula) {
+        String sql = "UPDATE cliente SET activo = 0 WHERE ci_usuario = ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setString(1, cedula);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al desactivar cliente", e);
     public String[] obtenerDatosClienteEstructurado(String cedula) {
         String sql = """
         SELECT u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera

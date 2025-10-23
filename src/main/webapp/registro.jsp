@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Registro - ReserLab</title>
-    <link rel="stylesheet" href="estilos/registro.css?v=1.0">
+    <link rel="stylesheet" href="estilos/registro.css?v=1.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
@@ -72,6 +73,12 @@
             <button type="button" onclick="window.location.href='login.jsp'">Ya tengo cuenta</button>
         </div>
     </form>
+
+    <div class="btn-volver-container">
+        <button type="button" class="btn-volver" onclick="window.location.href='index.jsp'">
+            <i class="fa-solid fa-arrow-left"></i> Volver al inicio
+        </button>
+    </div>
 </div>
 
 <script>

@@ -28,6 +28,80 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnHistorialReservas = document.getElementById('btnHistorialReservas');
     const btnReclamo = document.getElementById('btnReclamo');
 
+    // --- Foto de perfil ---
+    const btnCambiarFoto = document.getElementById('btnCambiarFoto');
+    const inputFoto = document.getElementById('inputFoto');
+    const fotoPerfil = document.getElementById('fotoPerfil');
+    const iconoPerfil = document.getElementById('iconoPerfil');
+
+    if (btnCambiarFoto && inputFoto) {
+        btnCambiarFoto.addEventListener('click', () => {
+            inputFoto.click();
+        });
+
+        inputFoto.addEventListener('change', async (e) => {
+            const archivo = e.target.files[0];
+            if (!archivo) return;
+
+            // Validar que sea una imagen
+            if (!archivo.type.startsWith('image/')) {
+                alert('Por favor selecciona un archivo de imagen válido');
+                return;
+            }
+
+            // Validar tamaño (máximo 10MB)
+            if (archivo.size > 10 * 1024 * 1024) {
+                alert('La imagen no debe superar los 10MB');
+                return;
+            }
+
+            // Mostrar indicador de carga
+            btnCambiarFoto.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btnCambiarFoto.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('foto', archivo);
+
+                const response = await fetch('SubirFotoServlet', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    // Actualizar la imagen en la interfaz
+                    if (fotoPerfil) {
+                        fotoPerfil.src = resultado.fotoUrl;
+                    } else if (iconoPerfil) {
+                        // Reemplazar el icono con la imagen
+                        const container = document.querySelector('.foto-perfil-container');
+                        iconoPerfil.style.display = 'none';
+                        const nuevaImg = document.createElement('img');
+                        nuevaImg.src = resultado.fotoUrl;
+                        nuevaImg.alt = 'Foto de perfil';
+                        nuevaImg.className = 'fotoPerfil';
+                        nuevaImg.id = 'fotoPerfil';
+                        container.insertBefore(nuevaImg, container.firstChild);
+                    }
+                    alert('Foto actualizada correctamente');
+                } else {
+                    alert('Error al subir la foto: ' + resultado.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al subir la foto. Por favor intenta de nuevo.');
+            } finally {
+                // Restaurar el botón
+                btnCambiarFoto.innerHTML = '<i class="fa-solid fa-camera"></i>';
+                btnCambiarFoto.disabled = false;
+                // Limpiar el input para permitir subir la misma imagen nuevamente
+                inputFoto.value = '';
+            }
+        });
+    }
+
     // --- Función utilitaria para cerrar todos los popups ---
     function cerrarTodosLosPopups() {
         [popupEquipos, popupReservas, popupOtros].forEach(p => {
@@ -405,35 +479,57 @@ document.addEventListener("click", (e) => {
 ============================================================================================*/
 // Función para cargar reservas activas
 function cargarReservasActivas() {
+    const contenido = document.querySelector('.contenido');
+    
+    // Mostrar indicador de carga
+    contenido.innerHTML = `
+        <div class="contenido-reservas">
+            <h1>Cargando reservas activas...</h1>
+            <div class="sin-reservas">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+            </div>
+        </div>
+    `;
+    
     fetch('ReservasActivasServlet', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            mostrarReservasActivas(data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarError('Error al cargar las reservas activas');
-        });
+    .then(response => {
+      
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor (Status: ' + response.status + ')');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        // Verificar si hay error en la respuesta
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        mostrarReservasActivas(data);
+    })
+    .catch(error => {
+        console.error('Error completo:', error);
+        mostrarError('Error al cargar las reservas activas: ' + error.message);
+    });
 }
 
 // Función para mostrar las reservas activas en el contenido
 function mostrarReservasActivas(reservas) {
-    console.log('Reserva recibida:', reservas);
-    const fecha = formatearFecha(reservas.fecha);
-    const horaInicio = formatearHora(reservas.horaInicio);
-    const horaFin = formatearHora(reservas.horaFin);
+    console.log('Reservas recibidas:', reservas);
     const contenido = document.querySelector('.contenido');
-
+    
+    // Verificar si reservas es un array válido
+    if (!Array.isArray(reservas)) {
+        console.error('Las reservas no son un array:', reservas);
+        mostrarError('Error: Formato de datos inválido');
+        return;
+    }
+    
     if (reservas.length === 0) {
         contenido.innerHTML = `
             <div class="contenido-reservas">
@@ -682,34 +778,56 @@ function mostrarErrorHistorialInicio(mensaje) {
 
 // Función para cargar reservas activas
 function cargarHistorialReservas() {
+    const contenido = document.querySelector('.contenido');
+    
+    // Mostrar indicador de carga
+    contenido.innerHTML = `
+        <div class="contenido-reservas">
+            <h1>Cargando historial...</h1>
+            <div class="sin-reservas">
+                <i class="fa-solid fa-spinner fa-spin"></i>
+            </div>
+        </div>
+    `;
+    
     fetch('HistorialReservasServlet', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
         }
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-        })
-        .then(data => {
-            mostrarHistorial(data);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            mostrarError('Error al cargar historial');
-        });
+    .then(response => {
+        console.log('Response status:', response.status);
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor (Status: ' + response.status + ')');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Datos recibidos:', data);
+        // Verificar si hay error en la respuesta
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        mostrarHistorial(data);
+    })
+    .catch(error => {
+        console.error('Error completo:', error);
+        mostrarError('Error al cargar historial: ' + error.message);
+    });
 }
 
-// Función para mostrar las reservas activas en el contenido
+// Función para mostrar el historial de reservas
 function mostrarHistorial(reservas) {
-    console.log('Reserva recibida:', reservas);
-    const fecha = formatearFecha(reservas.fecha);
-    const horaInicio = formatearHora(reservas.horaInicio);
-    const horaFin = formatearHora(reservas.horaFin);
+    console.log('Historial recibido:', reservas);
     const contenido = document.querySelector('.contenido');
+    
+    // Verificar si reservas es un array válido
+    if (!Array.isArray(reservas)) {
+        console.error('El historial no es un array:', reservas);
+        mostrarError('Error: Formato de datos inválido');
+        return;
+    }
 
     if (reservas.length === 0) {
         contenido.innerHTML = `

@@ -2,6 +2,7 @@
 package DAO;
 
 import ConectionDB.ConnectionDB;
+import Models.Actividad;
 import Models.Sede;
 import Models.Usuario;
 
@@ -9,6 +10,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import Models.Hashed;
 public class UsuarioDAO {
@@ -32,7 +35,7 @@ public class UsuarioDAO {
         }
     }
     public void crearUsuario(String nombre, String email, String cedula, String contrasenia) {
-        String consulta = "INSERT INTO usuario(nombre, email, cedula, contrasenia) VALUES (?, ?, ?, ?)";
+        String consulta = "INSERT INTO usuario(nombre, email, cedula, contrasenia,foto_usuario) VALUES (?, ?, ?, ?,?)";
         try {
             PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(consulta);
 
@@ -40,6 +43,7 @@ public class UsuarioDAO {
             ps.setString(2, email);
             ps.setString(3, cedula);
             ps.setString(4, contrasenia);
+            ps.setString(5, "https://res.cloudinary.com/dsqanvus6/image/upload/v1761176773/usuario_lybesa.png");
 
 
             int filas = ps.executeUpdate();
@@ -49,6 +53,31 @@ public class UsuarioDAO {
             e.printStackTrace(); // Ver error real
             throw new RuntimeException("Error al crear usuario", e);
         }
+    }
+    public List<Usuario> getTodos() {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT u.nombre, u.email, u.cedula, u.contrasenia, u.es_admin, u.foto_usuario FROM usuario u LEFT JOIN cliente c ON u.cedula = c.ci_usuario  WHERE u.es_admin = 1 OR c.activo = 1 OR c.activo IS NULL ORDER BY u.nombre";
+
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Usuario user = new Usuario(
+                        rs.getString("nombre"),
+                        rs.getString("email"),
+                        rs.getString("cedula"),
+                        rs.getString("contrasenia"),
+                        rs.getBoolean("es_admin"),
+                        rs.getString("foto_usuario")
+                );
+                lista.add(user);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuarios: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al obtener usuarios", e);
+        }
+        return lista;
     }
 
     public Usuario autenticarUsuario(String correo, String contrasenia) {
@@ -76,7 +105,8 @@ public class UsuarioDAO {
                                 rs.getString("email"),
                                 rs.getString("cedula"),
                                 rs.getString("contrasenia"),
-                                esAdmin
+                                esAdmin,
+                                rs.getString("foto_usuario")
                             );
                         }
                     }
@@ -102,7 +132,8 @@ public class UsuarioDAO {
                         rs.getString("email"),
                         rs.getString("cedula"),
                         rs.getString("contrasenia"),
-                        rs.getBoolean("es_admin")
+                        rs.getBoolean("es_admin"),
+                        rs.getString("foto_usuario")
                 ));
             }
         } catch (Exception e) {
@@ -124,7 +155,8 @@ public class UsuarioDAO {
                         rs.getString("email"),
                         rs.getString("cedula"),
                         rs.getString("contrasenia"),
-                        rs.getBoolean("es_admin")
+                        rs.getBoolean("es_admin"),
+                        rs.getString("foto_usuario")
                 );
             }
             return null;
@@ -253,7 +285,8 @@ public class UsuarioDAO {
                             rs.getString("email"),
                             rs.getString("cedula"),
                             rs.getString("contrasenia"),
-                            rs.getBoolean("es_admin")
+                            rs.getBoolean("es_admin"),
+                            rs.getString("foto_usuario")
                     );
                 }
                 return null;
@@ -327,6 +360,16 @@ public class UsuarioDAO {
         }
     }
 
+    // Método para actualizar la foto de usuario
+    public boolean actualizarFotoUsuario(String email, String fotoUrl) {
+        String sql = "UPDATE usuario SET foto_usuario = ? WHERE email = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, fotoUrl);
+            ps.setString(2, email);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (Exception e) {
+            System.err.println("Error al actualizar foto de usuario: " + e.getMessage());
     // Actualiza todos los datos del usuario: nombre, cédula y email
     public boolean actualizarUsuarioCompleto(String emailActual, String nuevoNombre, String nuevaCedula, String nuevoEmail) {
         String sql = "UPDATE usuario SET nombre = ?, cedula = ?, email = ? WHERE email = ?";

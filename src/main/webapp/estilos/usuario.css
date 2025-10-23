@@ -30,10 +30,53 @@ body {
     margin-bottom: 40px;
 }
 
+.foto-perfil-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.fotoPerfil {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #06295a;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
 .iconoPerfil {
     font-size: 68px;
     color: #06295a;
 }
+
+.btn-cambiar-foto {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #027b8e;
+    border: 2px solid white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.btn-cambiar-foto:hover {
+    background-color: #045777;
+    transform: scale(1.1);
+}
+
+.btn-cambiar-foto i {
+    font-size: 14px;
+    color: white;
+}
+
 .nombreUsuario {
     margin-top: 10px;
     font-size: 18px;
