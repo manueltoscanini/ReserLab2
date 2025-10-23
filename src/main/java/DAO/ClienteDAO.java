@@ -15,9 +15,15 @@ public class ClienteDAO {
         try (PreparedStatement ps =
                      ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
 
-            ps.setInt(1, id_carrera);
+            // Manejar id_carrera que puede ser null
+            if (id_carrera != null) {
+                ps.setInt(1, id_carrera);
+            } else {
+                ps.setNull(1, java.sql.Types.INTEGER);
+            }
             ps.setString(2, cedula);
-            ps.executeUpdate();
+            int filasAfectadas = ps.executeUpdate();
+            System.out.println("Filas afectadas en actualizarCarrera: " + filasAfectadas);
 
         } catch (SQLException e) {
             throw new RuntimeException("Error al actualizar carrera", e);
