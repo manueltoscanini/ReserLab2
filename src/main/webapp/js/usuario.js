@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnReclamo && contenido) {
         btnReclamo.addEventListener('click', () => {
             cerrarTodosLosPopups();
-            // TODO: implementar reclamos
+            cargarFormularioConsultas();
         });
     }
 
@@ -736,4 +736,210 @@ function mostrarHistorial(reservas) {
     `;
 
     contenido.innerHTML = html;
+}
+
+/*==========================================================================================
+    Código específico para consultas y reclamos
+============================================================================================*/
+function cargarFormularioConsultas() {
+    const contenido = document.querySelector('.contenido');
+    
+    // Pantalla 1: Botón inicial
+    contenido.innerHTML = `
+        <div class="contenedor-consultas">
+            <div class="pantalla-inicial" id="pantallaInicial">
+                <button class="btn-iniciar-consulta" id="btnIniciar">
+                    Enviar consulta o reclamo
+                </button>
+            </div>
+            
+            <div class="pantalla-seleccion" id="pantallaSeleccion">
+                <h2>Seleccione el tipo de comunicación:</h2>
+                <div class="botones-tipo">
+                    <button class="btn-tipo" data-tipo="consulta">
+                        Consulta
+                    </button>
+                    <button class="btn-tipo" data-tipo="queja">
+                        Queja/Reclamo
+                    </button>
+                </div>
+                
+                <div class="rect-azul-consultas" id="formularioConsulta">
+                    <h2 id="tituloFormulario">Enviar Consulta o Reclamo por email</h2>
+                    
+                    <form id="formConsultaReclamo">
+                        <input type="hidden" id="tipoMensaje" name="tipo" value="">
+                        
+                        <div class="form-group">
+                            <label>Destinatario:</label>
+                            <select id="selectAdmin" name="admin" required>
+                                <option value="">Cargando administradores...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Descripcion:</label>
+                            <textarea id="descripcion" name="descripcion" required></textarea>
+                        </div>
+                        
+                        <div class="btn-enviar-container">
+                            <button type="submit" class="btn-enviar">Enviar</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mensaje-estado" id="mensajeEstado"></div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Inicializar eventos
+    inicializarConsultas();
+}
+
+function inicializarConsultas() {
+    const btnIniciar = document.getElementById('btnIniciar');
+    const pantallaInicial = document.getElementById('pantallaInicial');
+    const pantallaSeleccion = document.getElementById('pantallaSeleccion');
+    const botonesType = document.querySelectorAll('.btn-tipo');
+    const formulario = document.getElementById('formularioConsulta');
+    const tipoMensajeInput = document.getElementById('tipoMensaje');
+    const tituloFormulario = document.getElementById('tituloFormulario');
+    const form = document.getElementById('formConsultaReclamo');
+    
+    // Botón inicial - ir a pantalla de selección
+    if (btnIniciar) {
+        btnIniciar.addEventListener('click', function() {
+            pantallaInicial.style.display = 'none';
+            pantallaSeleccion.classList.add('visible');
+        });
+    }
+    
+    // Cargar administradores inmediatamente
+    cargarAdministradoresConsulta();
+    
+    // Manejar selección de tipo
+    botonesType.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remover clase activo de todos
+            botonesType.forEach(b => b.classList.remove('activo'));
+            // Agregar clase activo al seleccionado
+            this.classList.add('activo');
+            
+            const tipo = this.dataset.tipo;
+            tipoMensajeInput.value = tipo;
+            
+            // Actualizar título y mostrar formulario
+            if (tipo === 'consulta') {
+                tituloFormulario.textContent = 'Formulario de Consulta';
+            } else {
+                tituloFormulario.textContent = 'Formulario de Queja/Reclamo';
+            }
+            
+            formulario.classList.add('visible');
+        });
+    });
+    
+    // Manejar envío del formulario
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const tipo = tipoMensajeInput.value;
+            const selectAdmin = document.getElementById('selectAdmin');
+            const descripcion = document.getElementById('descripcion').value;
+            const btnEnviar = form.querySelector('.btn-enviar');
+            
+            if (!tipo) {
+                mostrarMensajeConsulta('Por favor seleccione el tipo de comunicación', 'error');
+                return;
+            }
+            
+            if (!selectAdmin.value) {
+                mostrarMensajeConsulta('Por favor seleccione un administrador', 'error');
+                return;
+            }
+            
+            // Deshabilitar botón durante el envío
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'Enviando...';
+            
+            try {
+                const adminData = JSON.parse(selectAdmin.value);
+                
+                const formData = new URLSearchParams();
+                formData.append('tipo', tipo);
+                formData.append('adminEmail', adminData.email);
+                formData.append('adminNombre', adminData.nombre);
+                formData.append('descripcion', descripcion);
+                
+                const response = await fetch('ConsultaReclamoServlet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    mostrarMensajeConsulta('Su mensaje ha sido enviado exitosamente', 'exito');
+                    form.reset();
+                    tipoMensajeInput.value = '';
+                    formulario.classList.remove('visible');
+                    botonesType.forEach(b => b.classList.remove('activo'));
+                } else {
+                    mostrarMensajeConsulta(result.mensaje || 'Error al enviar el mensaje', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarMensajeConsulta('Error de conexión. Por favor intente nuevamente.', 'error');
+            } finally {
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = 'Enviar';
+            }
+        });
+    }
+}
+
+async function cargarAdministradoresConsulta() {
+    const selectAdmin = document.getElementById('selectAdmin');
+    
+    if (!selectAdmin) return;
+    
+    try {
+        const response = await fetch('ConsultaReclamoServlet');
+        const administradores = await response.json();
+        
+        selectAdmin.innerHTML = '<option value="">-- Seleccione un administrador --</option>';
+        
+        administradores.forEach(admin => {
+            const option = document.createElement('option');
+            option.value = JSON.stringify({
+                email: admin.email,
+                nombre: admin.nombre
+            });
+            option.textContent = `${admin.nombre} (${admin.email})`;
+            selectAdmin.appendChild(option);
+        });
+        
+    } catch (error) {
+        console.error('Error al cargar administradores:', error);
+        selectAdmin.innerHTML = '<option value="">Error al cargar administradores</option>';
+    }
+}
+
+function mostrarMensajeConsulta(mensaje, tipo) {
+    const mensajeEstado = document.getElementById('mensajeEstado');
+    if (!mensajeEstado) return;
+    
+    mensajeEstado.textContent = mensaje;
+    mensajeEstado.className = `mensaje-estado ${tipo} visible`;
+    
+    // Ocultar después de 5 segundos
+    setTimeout(() => {
+        mensajeEstado.classList.remove('visible');
+    }, 5000);
 }
