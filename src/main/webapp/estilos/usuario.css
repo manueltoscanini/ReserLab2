@@ -967,6 +967,12 @@ body {
     font-weight: 600;
 }
 
+.modal label { display: block; margin-top: 10px; }
+.modal input {
+    width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
 .form-row {
     margin-bottom: 20px;
 }
@@ -1033,4 +1039,6 @@ body {
     background-color: #5a6268;
     transform: translateY(-1px);
 }
+
+
 
