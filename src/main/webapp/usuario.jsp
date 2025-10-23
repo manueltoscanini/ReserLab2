@@ -187,7 +187,7 @@
             </button>
         </div>
         <form id="formCrearReserva" action="reserva_cliente" method="post">
-            <div class="form-grid">
+            <div class="form-grid-usuario">
 
 
                 <div class="form-group">
@@ -216,7 +216,7 @@
                         <i class="fa-solid fa-users"></i> Cantidad de Participantes
                     </label>
                     <input type="number" id="cantidadParticipantes" name="cantidadParticipantes"
-                           min="1" max="50" required>
+                           min="1" max="10" required>
                 </div>
 
             </div>
