@@ -1,3 +1,4 @@
+<%-- verPerfil.jsp: --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="java.util.List" %><%--
   Created by IntelliJ IDEA.
@@ -19,13 +20,6 @@
 <body>
 <div class="perfil-container">
     <div class="perfil-header">Mi perfil</div>
-
-    <c:if test="${not empty mensaje}">
-        <div class="mensaje-exito">${mensaje}</div>
-    </c:if>
-    <c:if test="${not empty error}">
-        <div class="mensaje-error">${error}</div>
-    </c:if>
 
     <div class="perfil-datos">
         <div class="fila">
