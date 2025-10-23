@@ -559,6 +559,97 @@ function editarReserva(idActividad) {
 
 /* ------------------------ */
 
+// Función para cargar el historial de reservas al inicio (sin cambiar el contenido completo)
+function cargarHistorialInicio() {
+    fetch('HistorialReservasServlet', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+        }
+        return response.json();
+    })
+    .then(data => {
+        mostrarHistorialInicio(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarErrorHistorialInicio('Error al cargar el historial de reservas');
+    });
+}
+
+// Función para mostrar el historial en el inicio (solo actualiza la sección del historial)
+function mostrarHistorialInicio(reservas) {
+    console.log('Reservas recibidas:', reservas);
+    const contenedorHistorial = document.getElementById('contenedor-historial');
+    
+    if (!contenedorHistorial) {
+        console.error('No se encontró el contenedor de historial');
+        return;
+    }
+    
+    if (reservas.length === 0) {
+        contenedorHistorial.innerHTML = `
+            <div class="sin-reservas">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <p>No tienes reservas en tu historial</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '';
+    
+    reservas.forEach(reserva => {
+        const fecha = formatearFecha(reserva.fecha);
+        const horaInicio = formatearHora(reserva.horaInicio);
+        const horaFin = formatearHora(reserva.horaFin);
+        
+        html += `
+            <div class="tarjeta-reserva">
+                <div class="icono-reserva">
+                    <i class="fa-solid fa-flask"></i>
+                </div>
+                <div class="detalles-reserva">
+                    <div class="detalle">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>${fecha}</span>
+                    </div>
+                    <div class="detalle">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>${horaInicio} - ${horaFin}</span>
+                    </div>
+                    <div class="detalle">
+                        <i class="fa-solid fa-bell"></i>
+                        <span class="estado estado-${reserva.estado.toLowerCase()}">${reserva.estado}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    contenedorHistorial.innerHTML = html;
+}
+
+// Función para mostrar error en el historial del inicio
+function mostrarErrorHistorialInicio(mensaje) {
+    const contenedorHistorial = document.getElementById('contenedor-historial');
+    if (contenedorHistorial) {
+        contenedorHistorial.innerHTML = `
+            <div class="error-mensaje">
+                <i class="fa-solid fa-exclamation-triangle"></i>
+                <p>${mensaje}</p>
+            </div>
+        `;
+    }
+}
+
+/* ------------------------ */
+
 // Función para cargar reservas activas
 function cargarHistorialReservas() {
     fetch('HistorialReservasServlet', {

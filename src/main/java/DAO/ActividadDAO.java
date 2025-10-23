@@ -353,8 +353,8 @@ public class ActividadDAO {
                 "JOIN Usuario u ON c.ci_Usuario = u.cedula " +
                 "LEFT JOIN Carrera ca ON c.id_carrera = ca.id_carrera " +
                 "LEFT JOIN Sede s ON ca.id_sede = s.id_sede " +
-                "WHERE a.ci_cliente = ? AND a.estado != 'aceptada'" +
-                "ORDER BY a.fecha, a.hora_inicio";
+                "WHERE a.ci_cliente = ? " +
+                "ORDER BY a.fecha ASC, a.hora_inicio ASC";
 
         try {
             PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
