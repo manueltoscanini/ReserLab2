@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnEquipos = document.getElementById('opciones-equipos');
     const btnOtros   = document.getElementById('opciones-otros');
     const btnPerfil  = document.getElementById('opciones-perfil');
+    
+    // Cargar reservas activas al inicio
+    cargarReservasActivas();
 
     // Popups
     const popupEquipos  = document.getElementById('popupEquipos');

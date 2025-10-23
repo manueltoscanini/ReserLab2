@@ -23,11 +23,11 @@
     // Obtener el usuario completo de la sesión
     Usuario usuario = (Usuario) session.getAttribute("usuario");
     
-    // Cargar las reservas del usuario desde la base de datos
-    List<Actividad> reservas = null;
+    // Cargar las reservas activas del usuario desde la base de datos
+    List<Actividad> reservasActivas = null;
     if (usuario != null) {
         ActividadDAO actividadDAO = new ActividadDAO();
-        reservas = actividadDAO.historialReservasPorCi(usuario.getCedula());
+        reservasActivas = actividadDAO.reservasActivasPorCi(usuario.getCedula(), "aceptada");
     }
 %>
 <!DOCTYPE html>
@@ -93,7 +93,7 @@
         <main class="contenido">
             <div class="contenido-reservas">
                 <div class="header-reservas">
-                    <h2 class="titulo-seccion">Historial de Reservas completo</h2>
+                    <h2 class="titulo-seccion">Reservas activas</h2>
                     <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
                         <i class="fa-solid fa-plus"></i> Crear Reserva
                     </button>
@@ -125,26 +125,25 @@
                 }
             %>
 
-            <%-- Sección de Todas las Reservas (Historial) --%>
-            <div class="seccion-historial">
+            <%-- Sección de Reservas Activas --%>
+            <div class="seccion-reservas-activas">
 
-                <div id="contenedor-historial" class="grid-reservas">
+                <div id="contenedor-reservas-activas" class="grid-reservas">
                     <%
-                        if (reservas == null || reservas.isEmpty()) {
+                        if (reservasActivas == null || reservasActivas.isEmpty()) {
                     %>
                     <div class="sin-reservas">
                         <i class="fa-solid fa-calendar-xmark"></i>
-                        <p>No tienes reservas en tu historial</p>
+                        <p>No tienes reservas activas en este momento</p>
                     </div>
                     <%
                         } else {
                             DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                            for (Actividad reserva : reservas) {
+                            for (Actividad reserva : reservasActivas) {
                                 String fecha = reserva.getFecha().format(dateFormatter);
                                 String horaInicio = reserva.getHoraInicio().toString().substring(0, 5);
                                 String horaFin = reserva.getHoraFin().toString().substring(0, 5);
-                                String estado = reserva.getEstado();
-                                String estadoClass = "estado-" + estado.toLowerCase().replace("_", "-");
+                                String sede = reserva.getCarreraCliente() != null ? reserva.getCarreraCliente() : "Sede no disponible";
                     %>
                     <div class="tarjeta-reserva">
                         <div class="icono-reserva">
@@ -160,9 +159,17 @@
                                 <span><%= horaInicio %> - <%= horaFin %></span>
                             </div>
                             <div class="detalle">
-                                <i class="fa-solid fa-bell"></i>
-                                <span class="estado <%= estadoClass %>"><%= estado %></span>
+                                <i class="fa-solid fa-map-marker-alt"></i>
+                                <span><%= sede %></span>
                             </div>
+                        </div>
+                        <div class="botones-reserva">
+                            <button class="btn-cancelar" onclick="cancelarReserva(<%= reserva.getIdActividad() %>)">
+                                Cancelar
+                            </button>
+                            <button class="btn-editar" onclick="editarReserva(<%= reserva.getIdActividad() %>)">
+                                Editar reserva
+                            </button>
                         </div>
                     </div>
                     <%
