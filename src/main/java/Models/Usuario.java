@@ -40,6 +40,10 @@ public class Usuario {
     public boolean getEsAdmin(){
         return this.es_admin;
     }
+    
+    public boolean isEsadmin(){
+        return this.es_admin;
+    }
 
 
     public void setNombre(String nombre){
