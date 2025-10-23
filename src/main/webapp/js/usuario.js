@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnEquipos = document.getElementById('opciones-equipos');
     const btnOtros   = document.getElementById('opciones-otros');
     const btnPerfil  = document.getElementById('opciones-perfil');
-    
+
     // Cargar reservas activas al inicio
     cargarReservasActivas();
 
@@ -212,21 +212,21 @@ function abrirEditarPerfil() {
             const form = document.getElementById("formEditarPerfil");
             form.addEventListener("submit", function (e) {
                 e.preventDefault();
-                
+
                 // Validación básica
                 const nombre = document.getElementById("nombre").value.trim();
                 const tipo = document.getElementById("tipo_cliente").value;
-                
+
                 if (!nombre) {
                     alert("Por favor, ingrese su nombre completo.");
                     return;
                 }
-                
+
                 if (!tipo) {
                     alert("Por favor, seleccione un tipo de cliente.");
                     return;
                 }
-                
+
                 if (tipo === "estudiante") {
                     const carrera = document.getElementById("carrera").value;
                     if (!carrera) {
@@ -234,25 +234,25 @@ function abrirEditarPerfil() {
                         return;
                     }
                 }
-                
+
                 // Crear FormData y agregar todos los campos
                 const formData = new FormData();
                 formData.append("nombre", nombre);
                 formData.append("tipo_cliente", tipo);
-                
+
                 if (tipo === "estudiante") {
                     const carrera = document.getElementById("carrera").value;
                     formData.append("carrera", carrera);
                 } else {
                     formData.append("carrera", "");
                 }
-                
+
                 console.log("Enviando datos:", {
                     nombre: nombre,
                     tipo_cliente: tipo,
                     carrera: tipo === "estudiante" ? document.getElementById("carrera").value : ""
                 });
-                
+
                 guardarCambiosPerfil(formData);
             });
 
@@ -411,19 +411,19 @@ function cargarReservasActivas() {
             'Content-Type': 'application/json',
         }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        mostrarReservasActivas(data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarError('Error al cargar las reservas activas');
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            mostrarReservasActivas(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarError('Error al cargar las reservas activas');
+        });
 }
 
 // Función para mostrar las reservas activas en el contenido
@@ -433,11 +433,16 @@ function mostrarReservasActivas(reservas) {
     const horaInicio = formatearHora(reservas.horaInicio);
     const horaFin = formatearHora(reservas.horaFin);
     const contenido = document.querySelector('.contenido');
-    
+
     if (reservas.length === 0) {
         contenido.innerHTML = `
             <div class="contenido-reservas">
-                <h1>Reservas activas</h1>
+                <div class="header-reservas">
+                    <h2 class="titulo-seccion">Reservas activas</h2>
+                    <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                        <i class="fa-solid fa-plus"></i> Crear Reserva
+                    </button>
+                </div>
                 <div class="sin-reservas">
                     <i class="fa-solid fa-calendar-xmark"></i>
                     <p>No tienes reservas activas en este momento</p>
@@ -446,18 +451,23 @@ function mostrarReservasActivas(reservas) {
         `;
         return;
     }
-    
+
     let html = `
         <div class="contenido-reservas">
-            <h1>Reservas activas</h1>
+            <div class="header-reservas">
+                <h2 class="titulo-seccion">Reservas activas</h2>
+                <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                    <i class="fa-solid fa-plus"></i> Crear Reserva
+                </button>
+            </div>
             <div class="grid-reservas">
     `;
-    
+
     reservas.forEach(reserva => {
         const fecha = formatearFecha(reserva.fecha);
         const horaInicio = formatearHora(reserva.horaInicio);
         const horaFin = formatearHora(reserva.horaFin);
-        
+
         html += `
             <div class="tarjeta-reserva">
                 <div class="icono-reserva">
@@ -488,12 +498,12 @@ function mostrarReservasActivas(reservas) {
             </div>
         `;
     });
-    
+
     html += `
             </div>
         </div>
     `;
-    
+
     contenido.innerHTML = html;
 }
 
@@ -587,31 +597,31 @@ function cargarHistorialInicio() {
             'Content-Type': 'application/json',
         }
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Error en la respuesta del servidor');
-        }
-        return response.json();
-    })
-    .then(data => {
-        mostrarHistorialInicio(data);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        mostrarErrorHistorialInicio('Error al cargar el historial de reservas');
-    });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.json();
+        })
+        .then(data => {
+            mostrarHistorialInicio(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            mostrarErrorHistorialInicio('Error al cargar el historial de reservas');
+        });
 }
 
 // Función para mostrar el historial en el inicio (solo actualiza la sección del historial)
 function mostrarHistorialInicio(reservas) {
     console.log('Reservas recibidas:', reservas);
     const contenedorHistorial = document.getElementById('contenedor-historial');
-    
+
     if (!contenedorHistorial) {
         console.error('No se encontró el contenedor de historial');
         return;
     }
-    
+
     if (reservas.length === 0) {
         contenedorHistorial.innerHTML = `
             <div class="sin-reservas">
@@ -621,14 +631,14 @@ function mostrarHistorialInicio(reservas) {
         `;
         return;
     }
-    
+
     let html = '';
-    
+
     reservas.forEach(reserva => {
         const fecha = formatearFecha(reserva.fecha);
         const horaInicio = formatearHora(reserva.horaInicio);
         const horaFin = formatearHora(reserva.horaFin);
-        
+
         html += `
             <div class="tarjeta-reserva">
                 <div class="icono-reserva">
@@ -651,7 +661,7 @@ function mostrarHistorialInicio(reservas) {
             </div>
         `;
     });
-    
+
     contenedorHistorial.innerHTML = html;
 }
 
@@ -704,10 +714,15 @@ function mostrarHistorial(reservas) {
     if (reservas.length === 0) {
         contenido.innerHTML = `
             <div class="contenido-reservas">
-                <h1>Reservas activas</h1>
+                <div class="header-reservas">
+                    <h2 class="titulo-seccion">Historial de reservas</h2>
+                    <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                        <i class="fa-solid fa-plus"></i> Crear Reserva
+                    </button>
+                </div>
                 <div class="sin-reservas">
                     <i class="fa-solid fa-calendar-xmark"></i>
-                    <p>No tienes reservas activas en este momento</p>
+                    <p>No tienes reservas en tu historial</p>
                 </div>
             </div>
         `;
@@ -716,7 +731,12 @@ function mostrarHistorial(reservas) {
 
     let html = `
         <div class="contenido-reservas">
-            <h1>Historial de reservas</h1>
+            <div class="header-reservas">
+                <h2 class="titulo-seccion">Historial de reservas</h2>
+                <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                    <i class="fa-solid fa-plus"></i> Crear Reserva
+                </button>
+            </div>
             <div class="grid-reservas">
     `;
 
@@ -763,7 +783,7 @@ function mostrarHistorial(reservas) {
 ============================================================================================*/
 function cargarFormularioConsultas() {
     const contenido = document.querySelector('.contenido');
-    
+
     // Pantalla 1: Botón inicial
     contenido.innerHTML = `
         <div class="contenedor-consultas">
@@ -812,7 +832,7 @@ function cargarFormularioConsultas() {
             </div>
         </div>
     `;
-    
+
     // Inicializar eventos
     inicializarConsultas();
 }
@@ -826,7 +846,7 @@ function inicializarConsultas() {
     const tipoMensajeInput = document.getElementById('tipoMensaje');
     const tituloFormulario = document.getElementById('tituloFormulario');
     const form = document.getElementById('formConsultaReclamo');
-    
+
     // Botón inicial - ir a pantalla de selección
     if (btnIniciar) {
         btnIniciar.addEventListener('click', function() {
@@ -834,10 +854,10 @@ function inicializarConsultas() {
             pantallaSeleccion.classList.add('visible');
         });
     }
-    
+
     // Cargar administradores inmediatamente
     cargarAdministradoresConsulta();
-    
+
     // Manejar selección de tipo
     botonesType.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -845,54 +865,54 @@ function inicializarConsultas() {
             botonesType.forEach(b => b.classList.remove('activo'));
             // Agregar clase activo al seleccionado
             this.classList.add('activo');
-            
+
             const tipo = this.dataset.tipo;
             tipoMensajeInput.value = tipo;
-            
+
             // Actualizar título y mostrar formulario
             if (tipo === 'consulta') {
                 tituloFormulario.textContent = 'Formulario de Consulta';
             } else {
                 tituloFormulario.textContent = 'Formulario de Queja/Reclamo';
             }
-            
+
             formulario.classList.add('visible');
         });
     });
-    
+
     // Manejar envío del formulario
     if (form) {
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const tipo = tipoMensajeInput.value;
             const selectAdmin = document.getElementById('selectAdmin');
             const descripcion = document.getElementById('descripcion').value;
             const btnEnviar = form.querySelector('.btn-enviar');
-            
+
             if (!tipo) {
                 mostrarMensajeConsulta('Por favor seleccione el tipo de comunicación', 'error');
                 return;
             }
-            
+
             if (!selectAdmin.value) {
                 mostrarMensajeConsulta('Por favor seleccione un administrador', 'error');
                 return;
             }
-            
+
             // Deshabilitar botón durante el envío
             btnEnviar.disabled = true;
             btnEnviar.textContent = 'Enviando...';
-            
+
             try {
                 const adminData = JSON.parse(selectAdmin.value);
-                
+
                 const formData = new URLSearchParams();
                 formData.append('tipo', tipo);
                 formData.append('adminEmail', adminData.email);
                 formData.append('adminNombre', adminData.nombre);
                 formData.append('descripcion', descripcion);
-                
+
                 const response = await fetch('ConsultaReclamoServlet', {
                     method: 'POST',
                     headers: {
@@ -900,9 +920,9 @@ function inicializarConsultas() {
                     },
                     body: formData
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     mostrarMensajeConsulta('Su mensaje ha sido enviado exitosamente', 'exito');
                     form.reset();
@@ -912,7 +932,7 @@ function inicializarConsultas() {
                 } else {
                     mostrarMensajeConsulta(result.mensaje || 'Error al enviar el mensaje', 'error');
                 }
-                
+
             } catch (error) {
                 console.error('Error:', error);
                 mostrarMensajeConsulta('Error de conexión. Por favor intente nuevamente.', 'error');
@@ -926,15 +946,15 @@ function inicializarConsultas() {
 
 async function cargarAdministradoresConsulta() {
     const selectAdmin = document.getElementById('selectAdmin');
-    
+
     if (!selectAdmin) return;
-    
+
     try {
         const response = await fetch('ConsultaReclamoServlet');
         const administradores = await response.json();
-        
+
         selectAdmin.innerHTML = '<option value="">-- Seleccione un administrador --</option>';
-        
+
         administradores.forEach(admin => {
             const option = document.createElement('option');
             option.value = JSON.stringify({
@@ -944,7 +964,7 @@ async function cargarAdministradoresConsulta() {
             option.textContent = `${admin.nombre} (${admin.email})`;
             selectAdmin.appendChild(option);
         });
-        
+
     } catch (error) {
         console.error('Error al cargar administradores:', error);
         selectAdmin.innerHTML = '<option value="">Error al cargar administradores</option>';
@@ -954,10 +974,10 @@ async function cargarAdministradoresConsulta() {
 function mostrarMensajeConsulta(mensaje, tipo) {
     const mensajeEstado = document.getElementById('mensajeEstado');
     if (!mensajeEstado) return;
-    
+
     mensajeEstado.textContent = mensaje;
     mensajeEstado.className = `mensaje-estado ${tipo} visible`;
-    
+
     // Ocultar después de 5 segundos
     setTimeout(() => {
         mensajeEstado.classList.remove('visible');
