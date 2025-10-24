@@ -34,6 +34,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const fotoPerfil = document.getElementById('fotoPerfil');
     const iconoPerfil = document.getElementById('iconoPerfil');
 
+    // --- Clic en la foto o icono para abrir el perfil ---
+    if (fotoPerfil) {
+        fotoPerfil.addEventListener('click', () => {
+            fetch("./VerPerfilServlet")
+                .then(response => {
+                    if (!response.ok) throw new Error("Error al obtener perfil");
+                    return response.text();
+                })
+                .then(html => {
+                    const contenido = document.querySelector('.contenido');
+                    contenido.innerHTML = html;
+                    inicializarPerfilListeners();
+                })
+                .catch(error => console.error("Error al cargar el perfil:", error));
+        });
+    }
+
+    if (iconoPerfil) {
+        iconoPerfil.addEventListener('click', () => {
+            fetch("./VerPerfilServlet")
+                .then(response => {
+                    if (!response.ok) throw new Error("Error al obtener perfil");
+                    return response.text();
+                })
+                .then(html => {
+                    const contenido = document.querySelector('.contenido');
+                    contenido.innerHTML = html;
+                    inicializarPerfilListeners();
+                })
+                .catch(error => console.error("Error al cargar el perfil:", error));
+        });
+    }
+
     if (btnCambiarFoto && inputFoto) {
         btnCambiarFoto.addEventListener('click', () => {
             inputFoto.click();
@@ -195,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (popupEquipos) popupEquipos.classList.add('oculto');
 
             try {
-                const resp = await fetch("EquiposServlet");
+                const resp = await fetch("ListarEquiposServlet");
                 if (!resp.ok) throw new Error('Error al cargar equipos');
                 const html = await resp.text();
                 contenido.innerHTML = html;
@@ -475,52 +508,61 @@ document.addEventListener("click", (e) => {
 });
 
 function inicializarPerfilListeners() {
-    const btnEliminar = document.getElementById("btnEliminarCuenta");
-    const modal = document.getElementById("eliminarCuentaModal");
-    const btnCancelar = document.getElementById("cancelarEliminarCuenta");
-    const btnConfirmar = document.getElementById("confirmarEliminarCuenta");
-
-    if (!btnEliminar || !modal) return;
-
-    // 🔹 Mostrar modal
-    btnEliminar.addEventListener("click", () => {
-        modal.style.display = "flex";
+    // Usar event delegation para que funcione siempre, sin importar cuándo se agregue el contenido
+    document.addEventListener("click", (e) => {
+        // Botón eliminar cuenta
+        if (e.target && e.target.id === "btnEliminarCuenta") {
+            const modalEliminar = document.getElementById("eliminarCuentaModal");
+            if (modalEliminar) {
+                modalEliminar.style.display = "flex";
+            }
+        }
+        
+        // Botón cancelar eliminar
+        if (e.target && e.target.id === "cancelarEliminarCuenta") {
+            const modalEliminar = document.getElementById("eliminarCuentaModal");
+            if (modalEliminar) {
+                modalEliminar.style.display = "none";
+            }
+        }
+        
+        // Botón confirmar eliminar
+        if (e.target && e.target.id === "confirmarEliminarCuenta") {
+            eliminarCuenta();
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        if (e.target && e.target.id === "eliminarCuentaModal") {
+            e.target.style.display = "none";
+        }
     });
 
-    // 🔹 Cancelar
-    if (btnCancelar) {
-        btnCancelar.addEventListener("click", () => {
-            modal.style.display = "none";
-        });
-    }
-
-    // 🔹 Confirmar eliminación
-    if (btnConfirmar) {
-        btnConfirmar.addEventListener("click", () => {
-            fetch("EliminarCuentaServlet", { method: "POST" })
-                .then(res => res.text())
-                .then(resp => {
-                    if (resp.includes("exito")) {
-                        window.location.href = "login.jsp?msg=cuentaDesactivada";
-                    } else {
-                        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
-                    }
-                })
-                .catch(err => {
-                    console.error("Error al eliminar cuenta:", err);
-                    mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
-                });
-        });
-    }
-
-    // 🔹 Cerrar modal al hacer clic fuera
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) {
-            modal.style.display = "none";
+    // Cerrar modal con Escape
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            const modalEliminar = document.getElementById("eliminarCuentaModal");
+            if (modalEliminar && modalEliminar.style.display === "flex") {
+                modalEliminar.style.display = "none";
+            }
         }
     });
 }
 
+// Función separada para eliminar cuenta
+async function eliminarCuenta() {
+    try {
+        const res = await fetch("EliminarCuentaServlet", { method: "POST" });
+        const texto = await res.text();
+        if (texto.includes("exito")) {
+            window.location.href = "login.jsp?msg=cuentaEliminada";
+        } else {
+            mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+        }
+    } catch (err) {
+        console.error(err);
+        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+    }
+}
 
 /*==========================================================================================
     Código específico para la gestión de reservas activas

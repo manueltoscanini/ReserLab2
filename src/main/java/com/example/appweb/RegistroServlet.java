@@ -65,6 +65,13 @@ public class RegistroServlet extends HttpServlet {
             return;
         }
 
+        // Reglas básicas de seguridad
+        if (password.length() < 8 || !password.matches(".*[A-Z].*") ||
+                !password.matches(".*[a-z].*") || !password.matches(".*\\d.*")) {
+            response.getWriter().write("error:La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
+            return;
+        }
+
         try {
             // Crear usuario (no admin)
             usuarioDAO.crearUsuario(nombre, email, cedula, Hashed.encriptarContra(password));

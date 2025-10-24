@@ -1,3 +1,4 @@
+//SubirFotoServlet.java:
 package com.example.appweb;
 
 import jakarta.servlet.ServletException;
@@ -16,6 +17,7 @@ import Models.Usuario;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.Map;
 
 @WebServlet(name = "SubirFotoServlet", value = "/SubirFotoServlet")

@@ -26,6 +26,7 @@ public class Usuario {
         this.es_admin=es_admin;
         this.fotoUsuario=fotoUsuario;
     }
+
     public Usuario(){
         this.nombre=null;
         this.email=null;
@@ -53,6 +54,7 @@ public class Usuario {
     public String getFotoUsuario() {
         return this.fotoUsuario;
     }
+
     public boolean isEsadmin(){
         return this.es_admin;
     }

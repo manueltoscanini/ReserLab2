@@ -48,16 +48,21 @@
         <div class="perfil">
             <div class="foto-perfil-container">
                 <% if (fotoUsuario != null && !fotoUsuario.isEmpty()) { %>
-                    <img src="<%= fotoUsuario %>" alt="Foto de perfil" class="fotoPerfil" id="fotoPerfil">
+                <img src="<%= fotoUsuario %>" alt="Foto de perfil"
+                     class="fotoPerfil" id="fotoPerfil"
+                     title="Ver mi perfil">
                 <% } else { %>
-                    <i class="fa-solid fa-user-circle iconoPerfil" id="iconoPerfil"></i>
+                <i class="fa-solid fa-user-circle iconoPerfil"
+                   id="iconoPerfil" title="Ver mi perfil"></i>
                 <% } %>
+
                 <button class="btn-cambiar-foto" id="btnCambiarFoto" title="Cambiar foto">
                     <i class="fa-solid fa-camera"></i>
                 </button>
                 <input type="file" id="inputFoto" accept="image/*" style="display: none;">
             </div>
-            <h2 class="nombreUsuario"><%= nombreUsuario %></h2>
+
+            <h2 class="nombreUsuario" id="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
         <nav class="menu">

@@ -19,6 +19,7 @@
 </head>
 <body>
 <div class="perfil-container">
+
     <div class="perfil-header">Mi perfil</div>
 
     <div class="perfil-datos">
@@ -54,11 +55,13 @@
         <!-- Modal para confirmar eliminación -->
         <div id="eliminarCuentaModal" class="modal-overlay" style="display:none;">
             <div class="modal">
-                <h2 id="Pregunta">¿Estás seguro de que quieres eliminar tu cuenta?</h2>
-                <p id="Pregunta">Tu cuenta será desactivada y no podrás volver a iniciar sesión.</p>
-                <div class="modal-botones">
-                    <button id="confirmarEliminarCuenta" class="btn-confirmar">Sí, eliminar</button>
-                    <button id="cancelarEliminarCuenta" class="btn-cancelar">Cancelar</button>
+                <h2>¿Estás seguro de que quieres eliminar tu cuenta?</h2>
+                <p style="text-align: center; color: #666; margin: 20px 0; line-height: 1.5;">
+                    Tu cuenta será desactivada y no podrás volver a iniciar sesión. Esta acción no se puede deshacer.
+                </p>
+                <div class="acciones">
+                    <button id="confirmarEliminarCuenta" type="button" style="background: var(--danger); color: white;">Sí, eliminar</button>
+                    <button id="cancelarEliminarCuenta" type="button">Cancelar</button>
                 </div>
             </div>
         </div>
