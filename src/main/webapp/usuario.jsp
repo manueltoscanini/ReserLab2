@@ -238,6 +238,22 @@
                            min="1" max="10" required>
                 </div>
 
+                <div class="form-group equipos-section">
+                    <label>
+                        <i class="fa-solid fa-laptop"></i> Equipos de Laboratorio
+                    </label>
+                    <div class="equipos-container">
+                        <div class="equipos-header">
+                            <button type="button" id="btnAgregarEquipo" class="btn-agregar-equipo">
+                                <i class="fa-solid fa-plus"></i> Agregar Equipo
+                            </button>
+                        </div>
+                        <div id="equiposSeleccionados" class="equipos-seleccionados">
+                            <!-- Los equipos seleccionados se mostrarán aquí -->
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="modal-footer">
@@ -249,6 +265,43 @@
                 </button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Modal para seleccionar equipos -->
+<div id="modalSeleccionarEquipo" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-laptop"></i> Seleccionar Equipo</h3>
+            <button class="btn-cerrar-modal" onclick="cerrarModalSeleccionarEquipo()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="selectEquipo">
+                    <i class="fa-solid fa-laptop"></i> Equipo
+                </label>
+                <select id="selectEquipo" required>
+                    <option value="">Seleccione un equipo...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="usoEquipo">
+                    <i class="fa-solid fa-comment"></i> ¿Para qué va a usar este equipo?
+                </label>
+                <textarea id="usoEquipo" placeholder="Describa el propósito de uso del equipo..." 
+                          rows="3" required></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancelar" onclick="cerrarModalSeleccionarEquipo()">
+                <i class="fa-solid fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn-guardar" onclick="agregarEquipoSeleccionado()">
+                <i class="fa-solid fa-plus"></i> Agregar Equipo
+            </button>
+        </div>
     </div>
 </div>
 
@@ -281,6 +334,170 @@
         if (horaInicio && horaFin && horaInicio >= horaFin) {
             e.preventDefault();
             alert('La hora de fin debe ser posterior a la hora de inicio');
+            return;
+        }
+        
+        // Agregar equipos seleccionados al formulario
+        agregarEquiposAlFormulario();
+    });
+
+    // Variables globales para equipos
+    let equiposDisponibles = [];
+    let equiposSeleccionados = [];
+
+    // Cargar equipos disponibles al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarEquiposDisponibles();
+    });
+
+    // Función para cargar equipos desde el servidor
+    async function cargarEquiposDisponibles() {
+        try {
+            console.log('Solicitando equipos desde: equipos?formato=json');
+            const response = await fetch('equipos?formato=json');
+            console.log('Respuesta recibida:', response.status, response.statusText);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('Datos JSON recibidos:', data);
+            equiposDisponibles = data;
+            console.log('Equipos cargados:', equiposDisponibles);
+        } catch (error) {
+            console.error('Error al cargar equipos:', error);
+            alert('Error al cargar equipos: ' + error.message);
+        }
+    }
+
+    // Mostrar modal para seleccionar equipo
+    document.getElementById('btnAgregarEquipo').addEventListener('click', function() {
+        mostrarModalSeleccionarEquipo();
+    });
+
+    function mostrarModalSeleccionarEquipo() {
+        const modal = document.getElementById('modalSeleccionarEquipo');
+        const select = document.getElementById('selectEquipo');
+        
+        console.log('Mostrando modal de equipos');
+        console.log('Equipos disponibles:', equiposDisponibles);
+        console.log('Equipos ya seleccionados:', equiposSeleccionados);
+        
+        // Limpiar opciones anteriores
+        select.innerHTML = '<option value="">Seleccione un equipo...</option>';
+        
+        if (!equiposDisponibles || equiposDisponibles.length === 0) {
+            console.warn('No hay equipos disponibles');
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No hay equipos disponibles';
+            select.appendChild(option);
+        } else {
+            // Agregar equipos disponibles (excluyendo los ya seleccionados)
+            equiposDisponibles.forEach(equipo => {
+                if (!equiposSeleccionados.some(e => e.id === equipo.id)) {
+                    const option = document.createElement('option');
+                    option.value = equipo.id;
+                    option.textContent = `${equipo.nombre} (${equipo.tipo})`;
+                    select.appendChild(option);
+                }
+            });
+        }
+        
+        // Limpiar campos
+        document.getElementById('usoEquipo').value = '';
+        
+        modal.style.display = 'flex';
+    }
+
+    function cerrarModalSeleccionarEquipo() {
+        document.getElementById('modalSeleccionarEquipo').style.display = 'none';
+    }
+
+    function agregarEquipoSeleccionado() {
+        const select = document.getElementById('selectEquipo');
+        const uso = document.getElementById('usoEquipo').value.trim();
+        
+        if (!select.value) {
+            alert('Por favor seleccione un equipo');
+            return;
+        }
+        
+        if (!uso) {
+            alert('Por favor describa para qué va a usar el equipo');
+            return;
+        }
+        
+        const equipoId = parseInt(select.value);
+        const equipo = equiposDisponibles.find(e => e.id === equipoId);
+        
+        if (equipo) {
+            equiposSeleccionados.push({
+                id: equipo.id,
+                nombre: equipo.nombre,
+                tipo: equipo.tipo,
+                uso: uso
+            });
+            
+            actualizarEquiposSeleccionados();
+            cerrarModalSeleccionarEquipo();
+        }
+    }
+
+    function actualizarEquiposSeleccionados() {
+        const container = document.getElementById('equiposSeleccionados');
+        container.innerHTML = '';
+        
+        equiposSeleccionados.forEach((equipo, index) => {
+            const equipoDiv = document.createElement('div');
+            equipoDiv.className = 'equipo-seleccionado';
+            equipoDiv.innerHTML = `
+                <div class="equipo-info">
+                    <div class="equipo-nombre">${equipo.nombre}</div>
+                    <div class="equipo-tipo">${equipo.tipo}</div>
+                    <div class="equipo-uso">Uso: ${equipo.uso}</div>
+                </div>
+                <button type="button" class="btn-eliminar-equipo" onclick="eliminarEquipo(${index})">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+            container.appendChild(equipoDiv);
+        });
+    }
+
+    function eliminarEquipo(index) {
+        equiposSeleccionados.splice(index, 1);
+        actualizarEquiposSeleccionados();
+    }
+
+    function agregarEquiposAlFormulario() {
+        // Eliminar inputs de equipos anteriores
+        const inputsAnteriores = document.querySelectorAll('input[name="equiposIds"], input[name="equiposUsos"]');
+        inputsAnteriores.forEach(input => input.remove());
+        
+        // Agregar inputs para cada equipo seleccionado
+        equiposSeleccionados.forEach(equipo => {
+            const inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'equiposIds';
+            inputId.value = equipo.id;
+            
+            const inputUso = document.createElement('input');
+            inputUso.type = 'hidden';
+            inputUso.name = 'equiposUsos';
+            inputUso.value = equipo.uso;
+            
+            document.getElementById('formCrearReserva').appendChild(inputId);
+            document.getElementById('formCrearReserva').appendChild(inputUso);
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    window.addEventListener('click', function(event) {
+        const modalEquipos = document.getElementById('modalSeleccionarEquipo');
+        if (event.target === modalEquipos) {
+            cerrarModalSeleccionarEquipo();
         }
     });
 

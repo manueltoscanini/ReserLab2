@@ -2,6 +2,7 @@ package com.example.appweb;
 
 import DAO.EquipoDAO;
 import Models.Equipo;
+import com.google.gson.Gson;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -12,12 +13,32 @@ import java.util.List;
 public class EquiposServlet extends HttpServlet {
     
     private EquipoDAO equipoDAO = new EquipoDAO();
+    private Gson gson = new Gson();
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         try {
+            // Verificar si se solicita JSON (para reservas)
+            String formato = request.getParameter("formato");
+            
+            if ("json".equals(formato)) {
+                // Devolver equipos como JSON para las reservas
+                List<Equipo> equipos = equipoDAO.obtenerEquipos();
+                
+                System.out.println("EquiposServlet - Equipos encontrados: " + equipos.size());
+                for (Equipo equipo : equipos) {
+                    System.out.println("Equipo: ID=" + equipo.getId() + ", Nombre=" + equipo.getNombre() + ", Tipo=" + equipo.getTipo());
+                }
+                
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write(gson.toJson(equipos));
+                return;
+            }
+            
+            // Comportamiento original para la vista HTML
             // Obtener parámetros de paginación
             String pageParam = request.getParameter("page");
             int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
