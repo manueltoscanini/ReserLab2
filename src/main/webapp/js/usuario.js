@@ -924,7 +924,7 @@ function mostrarHistorial(reservas) {
             <div class="contenido-reservas">
                 <div class="header-reservas">
                     <h2 class="titulo-seccion">Historial de reservas</h2>
-                    <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                    <button class="btn-crear-reserva-2" onclick="mostrarModalCrearReserva()">
                         <i class="fa-solid fa-plus"></i> Crear Reserva
                     </button>
                 </div>
@@ -941,7 +941,7 @@ function mostrarHistorial(reservas) {
         <div class="contenido-reservas">
             <div class="header-reservas">
                 <h2 class="titulo-seccion">Historial de reservas</h2>
-                <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+                <button class="btn-crear-reserva-2" onclick="mostrarModalCrearReserva()">
                     <i class="fa-solid fa-plus"></i> Crear Reserva
                 </button>
             </div>
