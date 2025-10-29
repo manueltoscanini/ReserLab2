@@ -202,7 +202,7 @@
 <script src="js/usuario.js?v=1.0" defer></script>
 
 <!-- Modal para crear reserva -->
-<div id="modalCrearReserva" class="modal">
+<div id="modalCrearReserva" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h3><i class="fa-solid fa-calendar-plus"></i> Crear Nueva Reserva</h3>
@@ -274,7 +274,7 @@
 </div>
 
 <!-- Modal para seleccionar equipos -->
-<div id="modalSeleccionarEquipo" class="modal">
+<div id="modalSeleccionarEquipo" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h3><i class="fa-solid fa-laptop"></i> Seleccionar Equipo</h3>
@@ -404,7 +404,7 @@
                 if (!equiposSeleccionados.some(e => e.id === equipo.id)) {
                     const option = document.createElement('option');
                     option.value = equipo.id;
-                    option.textContent = `${equipo.nombre} (${equipo.tipo})`;
+                    option.textContent = equipo.nombre;
                     select.appendChild(option);
                 }
             });
