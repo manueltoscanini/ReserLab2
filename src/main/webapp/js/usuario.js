@@ -655,7 +655,7 @@ function mostrarReservasActivas(reservas) {
         const horaFin = formatearHora(reserva.horaFin);
 
         html += `
-            <div class="tarjeta-reserva">
+            <div class="tarjeta-reserva" data-fecha="${reserva.fecha}" data-horainicio="${reserva.horaInicio}" data-horafin="${reserva.horaFin}">
                 <div class="icono-reserva">
                      <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
                 </div>
@@ -756,13 +756,46 @@ function cancelarReserva(idActividad) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Aquí implementarías la lógica para cancelar la reserva
-            Swal.fire({
-                title: 'Funcionalidad en desarrollo',
-                text: 'La funcionalidad de cancelación está en desarrollo',
-                icon: 'info',
-                confirmButtonText: 'Entendido'
-            });
+            // Buscar la tarjeta correspondiente para obtener fecha y horas mostradas
+            const tarjeta = document.querySelector(`.btn-cancelar[onclick="cancelarReserva(${idActividad})"]`)?.closest('.tarjeta-reserva');
+            if (!tarjeta) {
+                Swal.fire('Error', 'No se encontraron los datos de la reserva.', 'error');
+                return;
+            }
+
+            // Recuperar valores ya renderizados en la tarjeta
+            // El HTML muestra fecha formateada y rango de horas; necesitamos los atributos crudos si están disponibles
+            // Preferir data-attrs si existen
+            const fechaRaw = tarjeta.getAttribute('data-fecha');
+            const inicioRaw = tarjeta.getAttribute('data-horainicio');
+            const finRaw = tarjeta.getAttribute('data-horafin');
+
+            if (!fechaRaw || !inicioRaw || !finRaw) {
+                Swal.fire('Error', 'Faltan datos internos de la reserva para cancelar.', 'error');
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append('idActividad', String(idActividad));
+            params.append('fecha', fechaRaw);          // yyyy-MM-dd
+            params.append('horaInicio', inicioRaw);    // HH:mm:ss
+            params.append('horaFin', finRaw);          // HH:mm:ss
+
+            fetch('CancelarReservaServlet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data && data.ok) {
+                    Swal.fire('Cancelada', 'La reserva fue cancelada.', 'success');
+                    cargarReservasActivas();
+                } else {
+                    Swal.fire('Error', (data && data.msg) || 'No se pudo cancelar.', 'error');
+                }
+            })
+            .catch(() => Swal.fire('Error', 'Error al comunicarse con el servidor.', 'error'));
         }
     });
 }
