@@ -45,7 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(html => {
                     const contenido = document.querySelector('.contenido');
                     contenido.innerHTML = html;
-                    inicializarPerfilListeners();
                 })
                 .catch(error => console.error("Error al cargar el perfil:", error));
         });
@@ -61,7 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(html => {
                     const contenido = document.querySelector('.contenido');
                     contenido.innerHTML = html;
-                    inicializarPerfilListeners();
                 })
                 .catch(error => console.error("Error al cargar el perfil:", error));
         });
@@ -168,7 +166,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 .then(html => {
                     const contenido = document.querySelector('.contenido');
                     contenido.innerHTML = html;
-                    inicializarPerfilListeners();
                 })
                 .catch(error => console.error("Error al cargar el perfil:", error));
         });
@@ -422,19 +419,117 @@ function guardarCambiosPerfil(formData) {
         });
 }
 
-function cerrarModal() {
-    // Buscar cualquier modal abierto
-    const modal = document.querySelector(".modal-overlay");
-    if (modal) {
-        modal.style.transition = "all 0.2s ease";
-        modal.style.opacity = "0";
-        modal.style.transform = "translateY(-20px) scale(0.95)";
-        setTimeout(() => {
-            modal.remove();
-        }, 200);
-    }
+// ======================================================
+// CAMBIAR CONTRASEÑA
+// ======================================================
+function abrirCambiarContrasenia() {
+    fetch("CambiarContraseniaServlet")
+        .then(res => res.text())
+        .then(html => {
+
+            const modalPrevio = document.getElementById("editarPerfilModal");
+            if (modalPrevio) modalPrevio.remove();
+
+            document.body.insertAdjacentHTML("beforeend", html);
+            const modal = document.getElementById("cambiarContraseniaModal");
+            modal.style.display = "flex";
+
+            const form = document.getElementById("formCambiarContrasenia");
+            form.addEventListener("submit", async (ev) => {
+                ev.preventDefault();
+                const formData = new FormData(form);
+                const params = new URLSearchParams(formData);
+
+                const resp = await fetch("CambiarContraseniaServlet", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: params
+                });
+
+                const mensaje = await resp.text();
+                const [tipo, texto] = mensaje.split(":");
+                cerrarModal();
+                mostrarMensajeTemporal(texto, tipo === "exito" ? "exito" : "error");
+            });
+            // Cerrar modal al hacer click fuera de él
+            modal.addEventListener("click", function(e) {
+                if (e.target === modal) {
+                    cerrarModal();
+                }
+            });
+
+            // Cerrar modal con tecla Escape
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") {
+                    cerrarModal();
+                }
+            });
+        })
+        .catch(err => {
+            console.error("Error al cargar el cambio de contraseña:", err);
+            mostrarMensajeTemporal("Error al cargar el formulario.", "error");
+        });
 }
 
+function abrirEliminarCuenta() {
+    fetch("eliminarCuenta.jsp")
+        .then(res => res.text())
+        .then(html => {
+            // Insertar el modal en el body
+            document.body.insertAdjacentHTML("beforeend", html);
+            const modal = document.getElementById("eliminarCuentaModal");
+            modal.style.display = "flex";
+
+            // Botón confirmar
+            const btnConfirmar = modal.querySelector("button[type='submit']");
+            btnConfirmar.addEventListener("click", async () => {
+                try {
+                    const res = await fetch("EliminarCuentaServlet", { method: "POST" });
+                    const texto = await res.text();
+                    if (texto.includes("exito")) {
+                        window.location.href = "login.jsp?msg=cuentaEliminada";
+                    } else {
+                        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+                }
+            });
+
+            // Botón cancelar
+            const btnCancelar = modal.querySelector("button[onclick='cerrarModal()']");
+            btnCancelar.addEventListener("click", cerrarModal);
+
+            // Cerrar al hacer click fuera
+            modal.addEventListener("click", e => {
+                if (e.target === modal) cerrarModal();
+            });
+        })
+        .catch(err => {
+            console.error("Error al cargar el modal de eliminación:", err);
+            mostrarMensajeTemporal("Error al cargar el formulario.", "error");
+        });
+}
+
+// Función separada para eliminar cuenta
+async function eliminarCuenta() {
+    try {
+        const res = await fetch("EliminarCuentaServlet", { method: "POST" });
+        const texto = await res.text();
+        if (texto.includes("exito")) {
+            window.location.href = "login.jsp?msg=cuentaEliminada";
+        } else {
+            mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+        }
+    } catch (err) {
+        console.error(err);
+        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+    }
+}
+/*==========================================================================================
+    Funciones generales para modales y mensajes
+============================================================================================*/
 // 🔹 Función para mostrar mensajes temporales (éxito o error)
 function mostrarMensajeTemporal(texto, tipo = "exito") {
     const mensaje = document.createElement("div");
@@ -453,114 +548,16 @@ function mostrarMensajeTemporal(texto, tipo = "exito") {
     }, 3000);
 }
 
-// ======================================================
-// CAMBIAR CONTRASEÑA
-// ======================================================
-document.addEventListener("click", (e) => {
-    if (e.target && e.target.id === "btnCambiarContrasenia") {
-        fetch("CambiarContraseniaServlet")
-            .then(res => res.text())
-            .then(html => {
-
-                const modalPrevio = document.getElementById("editarPerfilModal");
-                if (modalPrevio) modalPrevio.remove();
-
-                document.body.insertAdjacentHTML("beforeend", html);
-                const modal = document.getElementById("cambiarContraseniaModal");
-                modal.style.display = "flex";
-
-                const form = document.getElementById("formCambiarContrasenia");
-                form.addEventListener("submit", async (ev) => {
-                    ev.preventDefault();
-                    const formData = new FormData(form);
-                    const params = new URLSearchParams(formData);
-
-                    const resp = await fetch("CambiarContraseniaServlet", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: params
-                    });
-
-                    const mensaje = await resp.text();
-                    const [tipo, texto] = mensaje.split(":");
-                    cerrarModal();
-                    mostrarMensajeTemporal(texto, tipo === "exito" ? "exito" : "error");
-                });
-                // Cerrar modal al hacer click fuera de él
-                modal.addEventListener("click", function(e) {
-                    if (e.target === modal) {
-                        cerrarModal();
-                    }
-                });
-
-                // Cerrar modal con tecla Escape
-                document.addEventListener("keydown", function(e) {
-                    if (e.key === "Escape") {
-                        cerrarModal();
-                    }
-                });
-            })
-            .catch(err => {
-                console.error("Error al cargar el cambio de contraseña:", err);
-                mostrarMensajeTemporal("Error al cargar el formulario.", "error");
-            });
-    }
-});
-
-function inicializarPerfilListeners() {
-    // Usar event delegation para que funcione siempre, sin importar cuándo se agregue el contenido
-    document.addEventListener("click", (e) => {
-        // Botón eliminar cuenta
-        if (e.target && e.target.id === "btnEliminarCuenta") {
-            const modalEliminar = document.getElementById("eliminarCuentaModal");
-            if (modalEliminar) {
-                modalEliminar.style.display = "flex";
-            }
-        }
-        
-        // Botón cancelar eliminar
-        if (e.target && e.target.id === "cancelarEliminarCuenta") {
-            const modalEliminar = document.getElementById("eliminarCuentaModal");
-            if (modalEliminar) {
-                modalEliminar.style.display = "none";
-            }
-        }
-        
-        // Botón confirmar eliminar
-        if (e.target && e.target.id === "confirmarEliminarCuenta") {
-            eliminarCuenta();
-        }
-        
-        // Cerrar modal al hacer clic fuera
-        if (e.target && e.target.id === "eliminarCuentaModal") {
-            e.target.style.display = "none";
-        }
-    });
-
-    // Cerrar modal con Escape
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-            const modalEliminar = document.getElementById("eliminarCuentaModal");
-            if (modalEliminar && modalEliminar.style.display === "flex") {
-                modalEliminar.style.display = "none";
-            }
-        }
-    });
-}
-
-// Función separada para eliminar cuenta
-async function eliminarCuenta() {
-    try {
-        const res = await fetch("EliminarCuentaServlet", { method: "POST" });
-        const texto = await res.text();
-        if (texto.includes("exito")) {
-            window.location.href = "login.jsp?msg=cuentaEliminada";
-        } else {
-            mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
-        }
-    } catch (err) {
-        console.error(err);
-        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
+function cerrarModal() {
+    // Buscar cualquier modal abierto
+    const modal = document.querySelector(".modal-overlay");
+    if (modal) {
+        modal.style.transition = "all 0.2s ease";
+        modal.style.opacity = "0";
+        modal.style.transform = "translateY(-20px) scale(0.95)";
+        setTimeout(() => {
+            modal.remove();
+        }, 200);
     }
 }
 
