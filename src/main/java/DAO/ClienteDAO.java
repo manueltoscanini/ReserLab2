@@ -6,6 +6,8 @@ import ConectionDB.ConnectionDB;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class ClienteDAO {
             throw new RuntimeException("Error al actualizar carrera", e);
         }
     }
+
     public List<String> listarCarreras() {
         String sql = "SELECT nombre FROM carrera ORDER BY nombre";
         List<String> carreras = new ArrayList<>();
@@ -73,7 +76,7 @@ public class ClienteDAO {
             } else {
                 ps.setNull(3, java.sql.Types.INTEGER);
             }
-            ps.setString(4,"1");
+            ps.setString(4, "1");
             int filas = ps.executeUpdate();
             return filas > 0;
         } catch (SQLException e) {
@@ -128,6 +131,20 @@ public class ClienteDAO {
             return null;
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener datos del cliente", e);
+        }
+    }
+
+    public boolean cancelarReserva(String cedula, int idActividad, LocalDate fecha, Time horaInicio, Time horaFin) {
+        // Nota: usamos id y cédula para evitar errores por formato exacto de hora/fecha
+        String sql = "UPDATE actividad SET estado = 'desactivada' WHERE id_actividad = ? AND ci_cliente = ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setInt(1, idActividad);
+            ps.setString(2, cedula);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al cancelar la reserva", e);
         }
     }
 }

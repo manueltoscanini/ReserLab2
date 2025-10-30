@@ -1,3 +1,4 @@
+@@ -0,0 +1,22 @@
 <%-- eliminarCuenta.jsp: --%>
 <%--
   Created by IntelliJ IDEA.
