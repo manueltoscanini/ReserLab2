@@ -49,24 +49,11 @@
 
     <div class="perfil-botones">
         <button id="btnEditarDatos" type="button" onclick="abrirEditarPerfil()">Editar datos</button>
-        <button id="btnCambiarContrasenia">Cambiar contraseña</button>
-        <button class="eliminar" id="btnEliminarCuenta">Eliminar cuenta</button>
-
-        <!-- Modal para confirmar eliminación -->
-        <div id="eliminarCuentaModal" class="modal-overlay" style="display:none;">
-            <div class="modal">
-                <h2>¿Estás seguro de que quieres eliminar tu cuenta?</h2>
-                <p style="text-align: center; color: #666; margin: 20px 0; line-height: 1.5;">
-                    Tu cuenta será desactivada y no podrás volver a iniciar sesión. Esta acción no se puede deshacer.
-                </p>
-                <div class="acciones">
-                    <button id="confirmarEliminarCuenta" type="button" style="background: var(--danger); color: white;">Sí, eliminar</button>
-                    <button id="cancelarEliminarCuenta" type="button">Cancelar</button>
-                </div>
-            </div>
-        </div>
+        <button id="btnCambiarContrasena" type="button" onclick="abrirCambiarContrasenia()">Cambiar contraseña</button>
+        <button class="btnRojo" id="btnEliminarCuenta" type="button" onclick="abrirEliminarCuenta()">Eliminar cuenta</button>
     </div>
 </div>
 </body>
+<script src="scripts/usuario.js?v=1.0"></script>
 </html>
 

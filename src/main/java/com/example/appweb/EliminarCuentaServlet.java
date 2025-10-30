@@ -2,6 +2,7 @@
 package com.example.appweb;
 
 import ConectionDB.ConnectionDB;
+import Models.Usuario;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -18,12 +19,13 @@ public class EliminarCuentaServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("ciUsuario") == null) {
+        if (session == null || session.getAttribute("usuario") == null) {
             response.getWriter().write("error:sesionInvalida");
             return;
         }
 
-        String ciUsuario = (String) session.getAttribute("ciUsuario");
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        String ciUsuario = usuario.getCedula();
 
         try (Connection conn = ConnectionDB.getInstancia().getConnection()) {
             String sql = "UPDATE Cliente SET activo = 0 WHERE ci_Usuario = ?";
@@ -32,11 +34,10 @@ public class EliminarCuentaServlet extends HttpServlet {
             int filas = ps.executeUpdate();
 
             if (filas > 0) {
-                // Cerrar sesión
                 session.invalidate();
-                response.getWriter().write("exito:cuentaDesactivada");
+                response.getWriter().write("exito:cuentaEliminada");
             } else {
-                response.getWriter().write("error:noSeActualizo");
+                response.getWriter().write("error:noEliminada");
             }
 
         } catch (SQLException e) {

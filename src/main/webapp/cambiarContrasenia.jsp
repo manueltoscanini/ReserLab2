@@ -8,7 +8,7 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<div id="cambiarContraseniaModal" class="modal-overlay">
+<div id="cambiarContraseniaModal" class="modal-overlay" style="display:none;">
     <div class="modal">
         <h2>Cambiar contraseña</h2>
         <form id="formCambiarContrasenia" method="post">
