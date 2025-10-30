@@ -426,8 +426,10 @@ function abrirCambiarContrasenia() {
     fetch("CambiarContraseniaServlet")
         .then(res => res.text())
         .then(html => {
+
             const modalPrevio = document.getElementById("editarPerfilModal");
             if (modalPrevio) modalPrevio.remove();
+
             document.body.insertAdjacentHTML("beforeend", html);
             const modal = document.getElementById("cambiarContraseniaModal");
             modal.style.display = "flex";
@@ -437,37 +439,45 @@ function abrirCambiarContrasenia() {
                 ev.preventDefault();
                 const formData = new FormData(form);
                 const params = new URLSearchParams(formData);
+
                 const resp = await fetch("CambiarContraseniaServlet", {
                     method: "POST",
                     headers: { "Content-Type": "application/x-www-form-urlencoded" },
                     body: params
                 });
-            const mensaje = await resp.text();
-            const [tipo, texto] = mensaje.split(":");
-            cerrarModal();
-            mostrarMensajeTemporal(texto, tipo === "exito" ? "exito" : "error");
-        });
-    // Cerrar modal al hacer click fuera de él
-    modal.addEventListener("click", function(e) {
-        if (e.target === modal) {
-            cerrarModal();
-        }
-    });
 
-    // Cerrar modal con tecla Escape
-    document.addEventListener("keydown", function(e) {
-        if (e.key === "Escape") {
-            cerrarModal();
-        }
-    });
-})
-.catch(err => {
-    console.error("Error al cargar el cambio de contraseña:", err);
-    mostrarMensajeTemporal("Error al cargar el formulario.", "error");
-});
+                const mensaje = await resp.text();
+                const [tipo, texto] = mensaje.split(":");
+                cerrarModal();
+                mostrarMensajeTemporal(texto, tipo === "exito" ? "exito" : "error");
+            });
+            // Cerrar modal al hacer click fuera de él
+            modal.addEventListener("click", function(e) {
+                if (e.target === modal) {
+                    cerrarModal();
+                }
+            });
+
+            // Cerrar modal con tecla Escape
+            document.addEventListener("keydown", function(e) {
+                if (e.key === "Escape") {
+                    cerrarModal();
+                }
+            });
+        })
+        .catch(err => {
+            console.error("Error al cargar el cambio de contraseña:", err);
+            mostrarMensajeTemporal("Error al cargar el formulario.", "error");
+        });
 }
 
 function abrirEliminarCuenta() {
+    let modalExistente = document.getElementById("eliminarCuentaModal");
+    if (modalExistente) {
+        modalExistente.style.display = "flex";
+        return;
+    }
+
     fetch("eliminarCuenta.jsp")
         .then(res => res.text())
         .then(html => {
@@ -492,9 +502,11 @@ function abrirEliminarCuenta() {
                     mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
                 }
             });
+
             // Botón cancelar
             const btnCancelar = modal.querySelector("button[onclick='cerrarModal()']");
             btnCancelar.addEventListener("click", cerrarModal);
+
             // Cerrar al hacer click fuera
             modal.addEventListener("click", e => {
                 if (e.target === modal) cerrarModal();
@@ -504,23 +516,6 @@ function abrirEliminarCuenta() {
             console.error("Error al cargar el modal de eliminación:", err);
             mostrarMensajeTemporal("Error al cargar el formulario.", "error");
         });
-
-}
-
-// Función separada para eliminar cuenta
-async function eliminarCuenta() {
-    try {
-        const res = await fetch("EliminarCuentaServlet", { method: "POST" });
-        const texto = await res.text();
-        if (texto.includes("exito")) {
-            window.location.href = "login.jsp?msg=cuentaEliminada";
-        } else {
-            mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
-        }
-    } catch (err) {
-        console.error(err);
-        mostrarMensajeTemporal("Error al eliminar la cuenta.", "error");
-    }
 }
 
 /*==========================================================================================
@@ -648,7 +643,7 @@ function mostrarReservasActivas(reservas) {
         const horaFin = formatearHora(reserva.horaFin);
 
         html += `
-            <div class="tarjeta-reserva" data-fecha="${reserva.fecha}" data-horainicio="${reserva.horaInicio}" data-horafin="${reserva.horaFin}">
+            <div class="tarjeta-reserva">
                 <div class="icono-reserva">
                      <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
                 </div>
@@ -749,46 +744,13 @@ function cancelarReserva(idActividad) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Buscar la tarjeta correspondiente para obtener fecha y horas mostradas
-            const tarjeta = document.querySelector(`.btn-cancelar[onclick="cancelarReserva(${idActividad})"]`)?.closest('.tarjeta-reserva');
-            if (!tarjeta) {
-                Swal.fire('Error', 'No se encontraron los datos de la reserva.', 'error');
-                return;
-            }
-
-            // Recuperar valores ya renderizados en la tarjeta
-            // El HTML muestra fecha formateada y rango de horas; necesitamos los atributos crudos si están disponibles
-            // Preferir data-attrs si existen
-            const fechaRaw = tarjeta.getAttribute('data-fecha');
-            const inicioRaw = tarjeta.getAttribute('data-horainicio');
-            const finRaw = tarjeta.getAttribute('data-horafin');
-
-            if (!fechaRaw || !inicioRaw || !finRaw) {
-                Swal.fire('Error', 'Faltan datos internos de la reserva para cancelar.', 'error');
-                return;
-            }
-
-            const params = new URLSearchParams();
-            params.append('idActividad', String(idActividad));
-            params.append('fecha', fechaRaw);          // yyyy-MM-dd
-            params.append('horaInicio', inicioRaw);    // HH:mm:ss
-            params.append('horaFin', finRaw);          // HH:mm:ss
-
-            fetch('CancelarReservaServlet', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params.toString()
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data && data.ok) {
-                    Swal.fire('Cancelada', 'La reserva fue cancelada.', 'success');
-                    cargarReservasActivas();
-                } else {
-                    Swal.fire('Error', (data && data.msg) || 'No se pudo cancelar.', 'error');
-                }
-            })
-            .catch(() => Swal.fire('Error', 'Error al comunicarse con el servidor.', 'error'));
+            // Aquí implementarías la lógica para cancelar la reserva
+            Swal.fire({
+                title: 'Funcionalidad en desarrollo',
+                text: 'La funcionalidad de cancelación está en desarrollo',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
         }
     });
 }

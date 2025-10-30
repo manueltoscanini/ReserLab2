@@ -1,3 +1,4 @@
+// registroServlet.java:
 package com.example.appweb;
 
 import DAO.ClienteDAO;
@@ -66,9 +67,13 @@ public class RegistroServlet extends HttpServlet {
         }
 
         // Reglas básicas de seguridad
-        if (password.length() < 8 || !password.matches(".*[A-Z].*") ||
-                !password.matches(".*[a-z].*") || !password.matches(".*\\d.*")) {
-            response.getWriter().write("error:La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
+        if (password.length() < 8 ||
+                !password.matches(".*[A-Z].*") ||
+                !password.matches(".*[a-z].*") ||
+                !password.matches(".*\\d.*")) {
+
+            request.setAttribute("error", "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
+            doGet(request, response);
             return;
         }
 
@@ -100,7 +105,8 @@ public class RegistroServlet extends HttpServlet {
             }
 
             // Éxito: redirigir a login
-            response.sendRedirect(request.getContextPath() + "/login.jsp");
+            request.setAttribute("exito", "Registro exitoso. Ahora podés iniciar sesión.");
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
         } catch (Exception e) {
             request.setAttribute("error", "Error al registrar: " + e.getMessage());
             doGet(request, response);

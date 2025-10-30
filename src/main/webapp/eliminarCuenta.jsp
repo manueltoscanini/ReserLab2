@@ -16,7 +16,7 @@
             Tu cuenta será desactivada y no podrás volver a iniciar sesión.
         </p>
         <div class="acciones">
-            <button class="btnRojo" >Sí, eliminar</button>
+            <button class="btnRojo" type="submit">Sí, eliminar</button>
             <button type="button" onclick="cerrarModal()">Cancelar</button>
         </div>
     </div>
