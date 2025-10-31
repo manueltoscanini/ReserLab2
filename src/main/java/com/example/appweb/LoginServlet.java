@@ -63,15 +63,12 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect("usuario.jsp");
                 }
             } else {
-                System.out.println("Autenticación fallida para: " + email);
-                response.getWriter().println("<h3>Email o contraseña incorrectos</h3>");
+                response.sendRedirect("login.jsp?error=credenciales");
             }
 
         } catch (Exception e) {
-            System.err.println("Error en LoginServlet: " + e.getMessage());
             e.printStackTrace();
-            response.getWriter().println("<h3>Error al iniciar sesión: " + e.getMessage() + "</h3>");
-            response.getWriter().println("<p>Detalles del error: " + e.getClass().getSimpleName() + "</p>");
+            response.sendRedirect("login.jsp?error=servidor");
         }
     }
 }

@@ -47,6 +47,12 @@ public class RegistroServlet extends HttpServlet {
             return;
         }
 
+        if (!validarCedulaUruguaya(cedula)) {
+            request.setAttribute("error", "La cédula ingresada no es válida.");
+            doGet(request, response);
+            return;
+        }
+
         if (!emailValido(email)) {
             request.setAttribute("error", "El formato del email no es válido.");
             doGet(request, response);
@@ -118,6 +124,46 @@ public class RegistroServlet extends HttpServlet {
     private static boolean emailValido(String email) {
         // Validación simple similar a AdministradorMenu.validarEmail
         return email != null && email.contains("@") && email.contains(".");
+    }
+
+    private static boolean validarCedulaUruguaya(String ci) {
+        if (ci == null) return false;
+
+        // 1) sacar puntos y guiones
+        String limpia = ci.replace(".", "").replace("-", "").trim();
+
+        // debe tener 7 u 8 dígitos (7 base + 1 verificador)
+        if (limpia.length() < 7 || limpia.length() > 8) {
+            return false;
+        }
+
+        // si tiene 7, le agregamos 0 adelante (casos viejos)
+        if (limpia.length() == 7) {
+            limpia = "0" + limpia;
+        }
+
+        // ahora sí son 8
+        // primeros 7 = cuerpo, último = dígito verificador
+        String cuerpo = limpia.substring(0, 7);
+        int digitoVerificador;
+        try {
+            digitoVerificador = Integer.parseInt(limpia.substring(7));
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        int[] pesos = {2, 9, 8, 7, 6, 3, 4};
+        int suma = 0;
+
+        for (int i = 0; i < 7; i++) {
+            int dig = Character.getNumericValue(cuerpo.charAt(i));
+            suma += dig * pesos[i];
+        }
+
+        int resto = suma % 10;
+        int dvCalculado = (10 - resto) % 10;
+
+        return dvCalculado == digitoVerificador;
     }
 }
 

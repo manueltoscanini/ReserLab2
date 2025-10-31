@@ -202,7 +202,7 @@
 <script src="js/usuario.js?v=1.0" defer></script>
 
 <!-- Modal para crear reserva -->
-<div id="modalCrearReserva" class="modal" style="display: none;">
+<div id="modalCrearReserva" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h3><i class="fa-solid fa-calendar-plus"></i> Crear Nueva Reserva</h3>
@@ -312,24 +312,35 @@
 
 <script>
     function mostrarModalCrearReserva() {
-        document.getElementById('modalCrearReserva').style.display = 'flex';
-        // Establecer fecha mínima como hoy
+        const modal = document.getElementById('modalCrearReserva');
+        if (!modal) return;
+        modal.style.display = 'flex';
+
+        // fecha mínima hoy
         const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fecha').setAttribute('min', hoy);
+        const inputFecha = document.getElementById('fecha');
+        if (inputFecha) {
+            inputFecha.setAttribute('min', hoy);
+        }
     }
 
     function cerrarModalCrearReserva() {
-        document.getElementById('modalCrearReserva').style.display = 'none';
-        document.getElementById('formCrearReserva').reset();
+        const modal = document.getElementById('modalCrearReserva');
+        if (!modal) return;
+        modal.style.display = 'none';
+
+        const form = document.getElementById('formCrearReserva');
+        if (form) form.reset();
     }
 
-    // Cerrar modal al hacer clic fuera de él
-    window.onclick = function(event) {
+    // cerrar al clickear afuera
+    document.addEventListener('click', function (e) {
         const modal = document.getElementById('modalCrearReserva');
-        if (event.target === modal) {
+        if (!modal) return;
+        if (modal.style.display !== 'none' && e.target === modal) {
             cerrarModalCrearReserva();
         }
-    }
+    });
 
     // Validar que hora fin sea mayor que hora inicio
     document.getElementById('formCrearReserva').addEventListener('submit', function(e) {

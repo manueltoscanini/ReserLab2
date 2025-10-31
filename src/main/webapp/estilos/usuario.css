@@ -1601,3 +1601,7 @@ button.btnRojo {
 .btn-eliminar-equipo:hover {
     background-color: #c82333;
 }
+
+#modalCrearReserva.modal-overlay {
+    z-index: 3000; /* más alto que los popups (10) y que la barra */
+}
