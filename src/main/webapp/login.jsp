@@ -13,8 +13,20 @@
 <main>
     <div id="contenedorLogin">
 
+        <c:if test="${param.error == 'credenciales'}">
+            <div class="mensaje-error">Correo o contraseña incorrectos.</div>
+        </c:if>
+
+        <c:if test="${param.error == 'camposVacios'}">
+            <div class="mensaje-error">Por favor, complete todos los campos.</div>
+        </c:if>
+
+        <c:if test="${param.error == 'servidor'}">
+            <div class="mensaje-error">Error interno del servidor. Intente nuevamente más tarde.</div>
+        </c:if>
+
         <c:if test="${param.msg == 'cuentaDesactivada'}">
-            <div class="mensaje-error">Tu cuenta ha sido desactivada. Contacta al administrador si deseas reactivarla.</div>
+            <div class="mensaje-error">Tu cuenta ha sido desactivada. Contacta al administrador.</div>
         </c:if>
 
         <h2>Iniciar sesión</h2>

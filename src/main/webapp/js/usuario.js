@@ -286,6 +286,7 @@ function abrirEditarPerfil() {
             // Agregamos el modal al body
             document.body.insertAdjacentHTML("beforeend", html);
             const modal = document.getElementById("editarPerfilModal");
+            modal.setAttribute("data-dynamic", "true");
             modal.style.display = "flex";
 
             // Mostrar/ocultar carrera según el tipo de cliente actual
@@ -432,6 +433,7 @@ function abrirCambiarContrasenia() {
 
             document.body.insertAdjacentHTML("beforeend", html);
             const modal = document.getElementById("cambiarContraseniaModal");
+            modal.setAttribute("data-dynamic", "true");
             modal.style.display = "flex";
 
             const form = document.getElementById("formCambiarContrasenia");
@@ -484,6 +486,7 @@ function abrirEliminarCuenta() {
             // Insertar el modal en el body
             document.body.insertAdjacentHTML("beforeend", html);
             const modal = document.getElementById("eliminarCuentaModal");
+            modal.setAttribute("data-dynamic", "true");
             modal.style.display = "flex";
 
             // Botón confirmar
@@ -540,16 +543,30 @@ function mostrarMensajeTemporal(texto, tipo = "exito") {
 }
 
 function cerrarModal() {
-    // Buscar cualquier modal abierto
-    const modal = document.querySelector(".modal-overlay");
-    if (modal) {
-        modal.style.transition = "all 0.2s ease";
-        modal.style.opacity = "0";
-        modal.style.transform = "translateY(-20px) scale(0.95)";
-        setTimeout(() => {
-            modal.remove();
-        }, 200);
+    // Traemos TODOS los overlays que estén visibles
+    const overlays = Array.from(document.querySelectorAll(".modal-overlay"))
+        .filter(m => getComputedStyle(m).display !== "none");
+
+    if (overlays.length === 0) return;
+
+    // Tomamos el ÚLTIMO que está visible (el que se abrió más recientemente)
+    const modal = overlays[overlays.length - 1];
+
+    // Si es el de crear reserva, NO lo removemos del DOM, solo lo ocultamos
+    if (modal.id === "modalCrearReserva") {
+        modal.style.display = "none";
+        modal.style.opacity = "1";
+        modal.style.transform = "none";
+        return;
     }
+
+    // Para los demás (los que vienen por fetch) sí los podemos animar y remover
+    modal.style.transition = "all 0.2s ease";
+    modal.style.opacity = "0";
+    modal.style.transform = "translateY(-20px) scale(0.95)";
+    setTimeout(() => {
+        modal.remove();
+    }, 200);
 }
 
 /*==========================================================================================
