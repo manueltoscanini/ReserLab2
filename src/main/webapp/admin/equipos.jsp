@@ -167,10 +167,6 @@ function mostrarModalNuevoEquipo() {
     alert('Funcionalidad de agregar equipo en desarrollo');
 }
 
-function editarEquipo(idEquipo) {
-    alert('Funcionalidad de editar equipo en desarrollo');
-}
-
 function eliminarEquipo(idEquipo) {
     if (confirm('¿Estás seguro de que deseas eliminar este equipo?')) {
         alert('Funcionalidad de eliminar equipo en desarrollo');

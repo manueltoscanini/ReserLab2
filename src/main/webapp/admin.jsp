@@ -25,10 +25,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Interfaz Admin - ReserLab</title>
-    <link rel="stylesheet" href="estilos/usuario2.css?v=1.0">
+    <link rel="stylesheet" href="estilos/usuario2.css?v=1.2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
+<body data-context="<%= request.getContextPath() %>">
 
 <div class="contenedorPrincipal">
     <aside class="barraLateral">
@@ -82,9 +82,35 @@
         <% } %>
     </main>
 </div>
+<!-- 1) defino el contexto global ANTES de cargar admin.js -->
+<script>
+    window.CTX = '<%= request.getContextPath() %>';
+</script>
 
+<!-- 2) ahora sí cargo el JS -->
+<script src="<%= request.getContextPath() %>/js/admin.js?v=1.1" defer></script>
 
-<script src="js/admin.js?v=1.0" defer></script>
+<!-- Toast global fijo -->
+<div id="toast-reserlab" class="toast-reserlab"></div>
+
+<script>
+    window.mostrarToast = function (mensaje, esError = false) {
+        const toast = document.getElementById('toast-reserlab');
+        if (!toast) {
+            console.log('toast no encontrado, muestro alert');
+            alert(mensaje);
+            return;
+        }
+        toast.textContent = mensaje;
+        toast.className = 'toast-reserlab' + (esError ? ' error' : '');
+        // forzar reflow
+        void toast.offsetWidth;
+        toast.classList.add('show');
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2500);
+    };
+</script>
 </body>
 </html>
-@

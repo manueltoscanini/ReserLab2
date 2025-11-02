@@ -71,17 +71,13 @@ public class EquipoDAO {
             ps.setString(2, nuevoTipo);
             ps.setString(3, nuevasPrecauciones);
             ps.setInt(4, id);
-
             int filas = ps.executeUpdate();
+            System.out.println("[EquipoDAO] UPDATE filas=" + filas + " para id=" + id);
             if (filas > 0) {
-                System.out.println("✓ Equipo actualizado correctamente.");
                 return true;
-            } else {
-                System.out.println("✗ No se encontró un equipo con ese ID.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("Error al actualizar equipo.");
         }
         return false;
     }
@@ -106,28 +102,25 @@ public class EquipoDAO {
         return false;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public Equipo obtenerEquipoPorId(int id) {
+        String sql = "SELECT * FROM EquipoLaboratorio WHERE id_equipo = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    System.out.println("Equipo obtenida correctamente.");
+                    return new Equipo(
+                            rs.getInt("id_equipo"),
+                            rs.getString("nombre"),
+                            rs.getString("tipo"),
+                            rs.getString("precauciones"),
+                            rs.getString("foto_equipo")
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
