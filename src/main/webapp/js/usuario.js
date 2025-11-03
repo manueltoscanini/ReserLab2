@@ -783,6 +783,17 @@ function cancelarReserva(idActividad) {
                 return;
             }
 
+            // Verificar que la reserva sea al menos 24 horas en el futuro (cliente-side validation)
+            const now = new Date();
+            const reservationDate = new Date(fechaRaw + 'T' + inicioRaw);
+            const timeDiff = reservationDate.getTime() - now.getTime();
+            const hoursDiff = timeDiff / (1000 * 3600);
+
+            if (hoursDiff < 24) {
+                Swal.fire('Error', 'No se puede cancelar la reserva con menos de 24 horas de anticipación.', 'error');
+                return;
+            }
+
             const params = new URLSearchParams();
             params.append('idActividad', String(idActividad));
             params.append('fecha', fechaRaw);          // yyyy-MM-dd

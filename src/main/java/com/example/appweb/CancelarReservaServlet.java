@@ -48,6 +48,18 @@ public class CancelarReservaServlet extends HttpServlet {
             Time horaInicio = parseTimeFlexible(horaInicioParam);
             Time horaFin = parseTimeFlexible(horaFinParam);
 
+            // Verificar que la reserva sea al menos 24 horas en el futuro
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            java.time.LocalDateTime reservationDateTime = java.time.LocalDateTime.of(fecha, horaInicio.toLocalTime());
+            java.time.Duration duration = java.time.Duration.between(now, reservationDateTime);
+            
+            // Si la diferencia es menor a 24 horas (86400 segundos), no permitir cancelación
+            if (duration.getSeconds() < 86400) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.getWriter().write("{\"ok\":false,\"msg\":\"No se puede cancelar la reserva con menos de 24 horas de anticipación\"}");
+                return;
+            }
+
             boolean exito = clienteDAO.cancelarReserva(cedula, idActividad, fecha, horaInicio, horaFin);
             if (exito) {
                 response.getWriter().write("{\"ok\":true}");
