@@ -33,8 +33,16 @@ public class Hashed {
     
     public static boolean verificarContra(String contraseniaPlana, String contraseniaEncriptada) {
         try {
+            // Limpiar y validar el string Base64
+            if (contraseniaEncriptada == null || contraseniaEncriptada.trim().isEmpty()) {
+                return false;
+            }
+            
+            // Remover caracteres no válidos para Base64
+            String cleanBase64 = contraseniaEncriptada.replaceAll("[^A-Za-z0-9+/=]", "");
+            
             // Decodificar la contraseña encriptada
-            byte[] combined = Base64.getDecoder().decode(contraseniaEncriptada);
+            byte[] combined = Base64.getDecoder().decode(cleanBase64);
             
             // Extraer salt (primeros 16 bytes)
             byte[] salt = new byte[16];
@@ -52,6 +60,13 @@ public class Hashed {
             return MessageDigest.isEqual(hashedPassword, storedHash);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error al verificar contraseña", e);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Error de decodificación Base64: " + e.getMessage());
+            System.err.println("String problemático: " + contraseniaEncriptada);
+            return false;
+        } catch (Exception e) {
+            System.err.println("Error inesperado al verificar contraseña: " + e.getMessage());
+            return false;
         }
     }
 }
