@@ -1811,6 +1811,160 @@ button.btnRojo {
     z-index: 3000; /* más alto que los popups (10) y que la barra */
 }
 
+/* ======= BOTÓN MODO OSCURO ======= */
+.modoOscuroContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.btnModoOscuro {
+    width: 80%;
+    background-color: #0b3954;
+    color: #eaf6ff;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px 0;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: transform var(--transition), background-color var(--transition);
+    box-shadow: var(--shadow-sm);
+}
+.btnModoOscuro:hover {
+    background-color: #082e45;
+    transform: translateY(-2px);
+}
+
+/* ======= TEMA OSCURO ======= */
+body[data-theme="dark"] {
+    /* paleta oscura */
+    --bg-page: #0f172a;        /* fondo general */
+    --panel-bg: #111827;       /* paneles */
+    --accent: #0ea5e9;         /* cian */
+    --accent-600: #0284c7;
+    --dark: #e2e8f0;           /* texto principal */
+    --white: #1f2937;          /* “blanco” oscuro para cards */
+    --muted: #94a3b8;
+    --danger: #f43f5e;
+    --danger-700: #e11d48;
+    --success: #22c55e;
+    background: var(--bg-page);
+    color: var(--dark);
+}
+
+/* barra lateral más oscura */
+body[data-theme="dark"] .barraLateral {
+    background: #0f172a;
+    border-right: 1px solid rgba(148, 163, 184, 0.15);
+}
+body[data-theme="dark"] .nombreUsuario {
+    color: #e2e8f0;
+}
+
+/* botones de menú en oscuro */
+body[data-theme="dark"] .menu button {
+    background: rgba(15, 23, 42, 0.35);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    color: #e2e8f0;
+}
+body[data-theme="dark"] .menu button:hover,
+body[data-theme="dark"] .menu button.activo {
+    background: rgba(14, 165, 233, 0.18);
+    border-color: rgba(14, 165, 233, 0.5);
+}
+
+/* contenedor principal de la derecha */
+body[data-theme="dark"] .contenido {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+/* tarjetas y listados */
+body[data-theme="dark"] .tarjeta-reserva,
+body[data-theme="dark"] .tarjeta-equipo,
+body[data-theme="dark"] .ficha-reserva {
+    background: #1f2937;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+}
+body[data-theme="dark"] .detalle,
+body[data-theme="dark"] .detalle-equipo {
+    color: #e2e8f0;
+}
+body[data-theme="dark"] .detalle i,
+body[data-theme="dark"] .detalle-equipo i {
+    color: var(--accent);
+}
+
+/* ====== PERFIL (el que sale en tu captura) ====== */
+body[data-theme="dark"] .perfil-container {
+    background: linear-gradient(180deg, rgba(148,163,184,0.05) 0%, #0f172a 45%, #0f172a 100%);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.55);
+}
+body[data-theme="dark"] .perfil-header {
+    border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+body[data-theme="dark"] .perfil-container .etiqueta {
+    background: rgba(14, 165, 233, 0.16);
+    border: 1px solid rgba(14, 165, 233, 0.3);
+    color: #e2e8f0;
+}
+body[data-theme="dark"] .perfil-container .valor {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    color: #e2e8f0;
+}
+
+/* botones dentro del perfil */
+body[data-theme="dark"] .perfil-botones button {
+    background: #0ea5e9;
+    color: #0f172a;
+}
+body[data-theme="dark"] .perfil-botones button:hover {
+    background: #0284c7;
+}
+body[data-theme="dark"] .perfil-botones .eliminar {
+    background: #f43f5e;
+    color: #fff;
+}
+
+/* formularios / inputs en modales o secciones cargadas */
+body[data-theme="dark"] input,
+body[data-theme="dark"] select,
+body[data-theme="dark"] textarea {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+    color: #e2e8f0;
+}
+body[data-theme="dark"] input::placeholder,
+body[data-theme="dark"] textarea::placeholder {
+    color: rgba(226, 232, 240, 0.4);
+}
+
+/* mensajes */
+body[data-theme="dark"] .mensaje-exito {
+    background: rgba(34, 197, 94, 0.15);
+    border: 1px solid rgba(34, 197, 94, 0.4);
+    color: #bbf7d0;
+}
+body[data-theme="dark"] .mensaje-error {
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid rgba(244, 63, 94, 0.4);
+    color: #fee2e2;
+}
+
+/* botón de modo */
+body[data-theme="dark"] .btnModoOscuro {
+    background: #020617;
+    color: #e2e8f0;
+}
+body[data-theme="dark"] .btnModoOscuro:hover {
+    background: #111827;
 #modalSeleccionarEquipo.modal-overlay {
     z-index: 3500; /* más alto que el modal de crear reserva */
 }
