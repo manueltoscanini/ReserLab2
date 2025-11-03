@@ -71,6 +71,13 @@
             <button id="opciones-otros"><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
         </nav>
 
+        <!-- Botón de modo oscuro -->
+        <div class="modoOscuroContainer">
+            <button id="btnModoOscuro" class="btnModoOscuro">
+                <i class="fa-solid fa-moon"></i> Modo oscuro
+            </button>
+        </div>
+
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
         </form>

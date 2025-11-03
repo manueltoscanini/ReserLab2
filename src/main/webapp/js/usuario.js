@@ -1196,3 +1196,45 @@ function mostrarMensajeConsulta(mensaje, tipo) {
         mensajeEstado.classList.remove('visible');
     }, 5000);
 }
+
+/* ======================================================
+   🌙 MODO OSCURO / CLARO PERSISTENTE
+====================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    const body = document.body;
+    const btnModoOscuro = document.getElementById("btnModoOscuro");
+
+    // Leer preferencia guardada
+    const temaGuardado = localStorage.getItem("temaUsuario");
+    if (temaGuardado) {
+        body.dataset.theme = temaGuardado;
+        actualizarIconoBoton();
+    }
+
+    if (btnModoOscuro) {
+        btnModoOscuro.addEventListener("click", () => {
+            const temaActual = body.dataset.theme === "dark" ? "light" : "dark";
+            body.dataset.theme = temaActual;
+            localStorage.setItem("temaUsuario", temaActual);
+            actualizarIconoBoton();
+        });
+    }
+
+    function actualizarIconoBoton() {
+        if (!btnModoOscuro) return;
+        if (body.dataset.theme === "dark") {
+            btnModoOscuro.innerHTML = `<i class="fa-solid fa-sun"></i> Modo claro`;
+        } else {
+            btnModoOscuro.innerHTML = `<i class="fa-solid fa-moon"></i> Modo oscuro`;
+        }
+    }
+
+    // 🔁 Cuando se actualiza contenido dinámico (por fetch),
+    // aseguramos que conserve el tema actual
+    const observer = new MutationObserver(() => {
+        if (body.dataset.theme === "dark") {
+            document.body.dataset.theme = "dark";
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+});
