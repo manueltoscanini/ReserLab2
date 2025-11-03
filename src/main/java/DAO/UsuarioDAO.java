@@ -80,6 +80,33 @@ public class UsuarioDAO {
         return lista;
     }
 
+    public List<Usuario> buscarPorNombre(String filtroNombre) {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT u.nombre, u.email, u.cedula, u.contrasenia, u.es_admin, u.foto_usuario FROM usuario u LEFT JOIN cliente c ON u.cedula = c.ci_usuario WHERE (u.es_admin = 1 OR c.activo = 1 OR c.activo IS NULL) AND u.nombre LIKE ? ORDER BY u.nombre";
+
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setString(1, "%" + filtroNombre + "%");
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Usuario user = new Usuario(
+                        rs.getString("nombre"),
+                        rs.getString("email"),
+                        rs.getString("cedula"),
+                        rs.getString("contrasenia"),
+                        rs.getBoolean("es_admin"),
+                        rs.getString("foto_usuario")
+                );
+                lista.add(user);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar usuarios por nombre: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error al buscar usuarios por nombre", e);
+        }
+        return lista;
+    }
+
     public Usuario autenticarUsuario(String correo, String contrasenia) {
         String consulta = """
     SELECT u.*, c.activo

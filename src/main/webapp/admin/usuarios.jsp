@@ -6,11 +6,45 @@
 
 
 <div class="contenido-usuarios">
+    <style>
+    .acciones-usuarios-header { display:flex; gap:12px; align-items:center; }
+    .acciones-usuarios-header .search-input {
+        padding: 8px 12px;
+        border: 1px solid #d0d5dd;
+        border-radius: 8px;
+        background: #fff;
+        outline: none;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .acciones-usuarios-header .search-input::placeholder { color: #98a2b3; }
+    .acciones-usuarios-header .search-input:focus {
+        border-color: #7aa7ff;
+        box-shadow: 0 0 0 3px rgba(122,167,255,.2);
+    }
+    /* Espacios internos en los modales para que botones no queden pegados */
+    #modalEditarUsuario .modal-content, #modalCrearUsuario .modal-content { padding: 24px; border-radius: 12px; }
+    #modalEditarUsuario .modal-header, #modalCrearUsuario .modal-header { margin-bottom: 16px; }
+    #modalEditarUsuario .modal-footer, #modalCrearUsuario .modal-footer {
+        margin-top: 16px;
+        padding-top: 16px;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+    </style>
     <div class="header-reservas">
         <h2 class="titulo-seccion">Usuarios</h2>
-        <button class="btn-crear-usuario" onclick="mostrarModalCrearUsuario()">
-            <i class="fa-solid fa-plus"></i> Crear Usuario
-        </button>
+        <div class="acciones-usuarios-header">
+            <form action="usuarios" method="get" style="display:flex; gap:8px; align-items:center;">
+                <input class="search-input" type="text" name="q" placeholder="Buscar por nombre" value="<%= request.getAttribute("q") != null ? request.getAttribute("q") : "" %>" />
+                <button type="submit" class="btn-crear-usuario" style="padding:8px 12px;">
+                    <i class="fa-solid fa-magnifying-glass"></i> Buscar
+                </button>
+            </form>
+            <button class="btn-crear-usuario" onclick="mostrarModalCrearUsuario()">
+                <i class="fa-solid fa-plus"></i> Crear Usuario
+            </button>
+        </div>
     </div>
     <%
         String mensajeExito = (String) session.getAttribute("exito");
@@ -83,13 +117,17 @@
                 </div>
             </div>
             <div class="acciones-usuario">
-                <button class="btn-editar" onclick="editarUsuario('<%= u.getCedula() %>')" title="Editar usuario">
-                    <i class="fa-solid fa-edit"></i>
-                </button>
-                <% if (!u.getEsAdmin()) { %>
-                <button class="btn-eliminar" onclick="eliminarUsuario('<%= u.getCedula() %>')" title="Eliminar usuario">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <% if (u.getEsAdmin()) { %>
+                    <button class="btn-editar" disabled title="No se puede editar un administrador" style="opacity:.6; cursor:not-allowed;">
+                        <i class="fa-solid fa-edit"></i>
+                    </button>
+                <% } else { %>
+                    <button class="btn-editar" onclick="editarUsuario('<%= u.getCedula() %>')" title="Editar usuario">
+                        <i class="fa-solid fa-edit"></i>
+                    </button>
+                    <button class="btn-eliminar" onclick="confirmarEliminarUsuario('<%= u.getCedula() %>')" title="Eliminar usuario">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 <% } %>
             </div>
         </div>
@@ -106,7 +144,7 @@
         <%
             if (hasPrevPage != null && hasPrevPage) {
         %>
-        <a href="usuarios?page=<%= currentPage - 1 %>" class="btn-paginacion">
+        <a href="usuarios?page=<%= currentPage - 1 %><%= request.getAttribute("q") != null ? "&q=" + java.net.URLEncoder.encode((String)request.getAttribute("q"), java.nio.charset.StandardCharsets.UTF_8) : "" %>" class="btn-paginacion">
             <i class="fa-solid fa-chevron-left"></i> Anterior
         </a>
         <%
@@ -120,7 +158,7 @@
         <%
             if (hasNextPage != null && hasNextPage) {
         %>
-        <a href="usuarios?page=<%= currentPage + 1 %>" class="btn-paginacion">
+        <a href="usuarios?page=<%= currentPage + 1 %><%= request.getAttribute("q") != null ? "&q=" + java.net.URLEncoder.encode((String)request.getAttribute("q"), java.nio.charset.StandardCharsets.UTF_8) : "" %>" class="btn-paginacion">
             Siguiente <i class="fa-solid fa-chevron-right"></i>
         </a>
         <%
@@ -258,6 +296,67 @@
     </div>
 </div>
 
+<!-- Modal confirmación eliminar usuario -->
+<div id="modalConfirmarEliminar" class="modal" style="display:none;">
+    <div class="modal-content modal-crear-usuario">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Confirmar eliminación</h3>
+            <button class="btn-cerrar-modal" onclick="cerrarModalConfirmarEliminar()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>¿Estás seguro de desactivar este usuario? No podrá acceder al sistema.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-cancelar" onclick="cerrarModalConfirmarEliminar()">
+                <i class="fa-solid fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn-guardar" onclick="eliminarUsuarioConfirmado()">
+                <i class="fa-solid fa-trash"></i> Desactivar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar usuario (nombre/email) -->
+<div id="modalEditarUsuario" class="modal" style="display:none;">
+    <div class="modal-content modal-crear-usuario">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-user-pen"></i> Editar usuario</h3>
+            <button class="btn-cerrar-modal" onclick="cerrarModalEditarUsuario()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <form id="formEditarUsuario">
+            <input type="hidden" id="editCedula" name="cedula" />
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="editNombre">
+                        <i class="fa-solid fa-user"></i> Nombre
+                    </label>
+                    <input type="text" id="editNombre" name="nombre" required />
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">
+                        <i class="fa-solid fa-envelope"></i> Email
+                    </label>
+                    <input type="email" id="editEmail" name="email" required />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalEditarUsuario()">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-guardar">
+                    <i class="fa-solid fa-save"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+    
+</div>
+
 <script>
 function mostrarModalCrearUsuario() {
     document.getElementById('modalCrearUsuario').style.display = 'flex';
@@ -304,35 +403,71 @@ function syncCarreraField() {
 }
 
 function editarUsuario(cedula) {
-    // TODO: Implementar edición de usuario
-    alert('Editar usuario con cédula: ' + cedula);
+    // Buscar la ficha del usuario por la cédula y extraer nombre/email actuales
+    const fichas = document.querySelectorAll('.ficha-usuario');
+    let nombre = '';
+    let email = '';
+    fichas.forEach(f => {
+        const ci = f.querySelector('.cedula-usuario span');
+        if (ci && ci.textContent.includes(cedula)) {
+            const nombreEl = f.querySelector('.nombre-usuario span');
+            const emailEl = f.querySelector('.email-usuario span');
+            if (nombreEl) nombre = nombreEl.textContent.trim();
+            if (emailEl) email = emailEl.textContent.trim();
+        }
+    });
+
+    document.getElementById('editCedula').value = cedula;
+    document.getElementById('editNombre').value = nombre;
+    document.getElementById('editEmail').value = email;
+    document.getElementById('modalEditarUsuario').style.display = 'flex';
 }
 
-function eliminarUsuario(cedula) {
-    if (confirm('¿Estás seguro de que quieres desactivar este usuario? El usuario no podrá acceder al sistema.')) {
-        // Enviar solicitud AJAX para desactivar el usuario
-        fetch('eliminar-usuario', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'cedula=' + encodeURIComponent(cedula)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Usuario desactivado correctamente');
-                // Recargar la página para mostrar los cambios
-                window.location.reload();
-            } else {
-                alert('Error: ' + data.message);
+function cerrarModalEditarUsuario() {
+    document.getElementById('modalEditarUsuario').style.display = 'none';
+    document.getElementById('formEditarUsuario').reset();
+}
+
+let cedulaPendienteEliminar = null;
+function confirmarEliminarUsuario(cedula) {
+    cedulaPendienteEliminar = cedula;
+    document.getElementById('modalConfirmarEliminar').style.display = 'flex';
+}
+
+function cerrarModalConfirmarEliminar() {
+    document.getElementById('modalConfirmarEliminar').style.display = 'none';
+    cedulaPendienteEliminar = null;
+}
+
+function eliminarUsuarioConfirmado() {
+    if (!cedulaPendienteEliminar) return;
+    fetch('eliminar-usuario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'cedula=' + encodeURIComponent(cedulaPendienteEliminar)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof showToast === 'function') {
+                showToast('success', 'Usuario desactivado correctamente');
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al desactivar el usuario. Por favor intenta de nuevo.');
-        });
-    }
+            window.location.reload();
+        } else {
+            if (typeof showToast === 'function') {
+                showToast('error', 'Error: ' + (data.message || 'No se pudo desactivar'));
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if (typeof showToast === 'function') {
+            showToast('error', 'Error al desactivar el usuario. Por favor intenta de nuevo.');
+        }
+    })
+    .finally(() => cerrarModalConfirmarEliminar());
 }
 
 // Inicializar eventos
@@ -342,13 +477,54 @@ document.addEventListener('DOMContentLoaded', function() {
         tipoCliente.addEventListener('change', syncCarreraField);
         syncCarreraField(); // Estado inicial
     }
+
+    const formEditar = document.getElementById('formEditarUsuario');
+    if (formEditar) {
+        formEditar.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new URLSearchParams(new FormData(formEditar));
+            try {
+                const resp = await fetch('editar-usuario', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (typeof showToast === 'function') {
+                        showToast('success', 'Usuario actualizado correctamente');
+                    }
+                    window.location.reload();
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast('error', 'Error: ' + (data.message || 'No se pudo actualizar'));
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Error al actualizar el usuario');
+                }
+            }
+        });
+    }
 });
 
 // Cerrar modal al hacer clic fuera de él
 window.onclick = function(event) {
-    const modal = document.getElementById('modalCrearUsuario');
-    if (event.target === modal) {
+    const modalCrear = document.getElementById('modalCrearUsuario');
+    if (event.target === modalCrear) {
         cerrarModalCrearUsuario();
     }
+    const modalEditar = document.getElementById('modalEditarUsuario');
+    if (event.target === modalEditar) {
+        cerrarModalEditarUsuario();
+    }
+    const modalEliminar = document.getElementById('modalConfirmarEliminar');
+    if (event.target === modalEliminar) {
+        cerrarModalConfirmarEliminar();
+    }
+
 }
 </script>
+

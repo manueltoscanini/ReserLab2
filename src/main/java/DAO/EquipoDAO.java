@@ -10,18 +10,21 @@ import java.util.List;
 
 public class EquipoDAO {
 
-    public void agregarEquipo(String nombre, String tipo, String precauciones) {
-        String sql = "INSERT INTO EquipoLaboratorio(nombre, tipo, precauciones, foto_equipo) VALUES (?, ?, ?, ?)";
+    public boolean agregarEquipo(String nombre, String tipo, String precauciones) {
+        String sql = "INSERT INTO EquipoLaboratorio(nombre, tipo, precauciones, foto_equipo, activo) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
             ps.setString(1, nombre);
             ps.setString(2, tipo);
             ps.setString(3, precauciones);
-            ps.setString(4, null); // Initially null, can be updated later
-            ps.executeUpdate();
+            ps.setString(4, "https://res.cloudinary.com/dsqanvus6/image/upload/v1761750756/images_vheoul.png); // Initially null, can be updated later");
+            ps.setInt(5, 1); // activo = 1 por defecto
+            int filas = ps.executeUpdate();
             System.out.println("Equipo agregado correctamente.");
+            return filas > 0;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error al agregar equipo.");
+            return false;
         }
     }
 
@@ -44,7 +47,7 @@ public class EquipoDAO {
 
     public List<Equipo> obtenerEquipos() {
         List<Equipo> lista = new ArrayList<>();
-        String sql = "SELECT * FROM EquipoLaboratorio";
+        String sql = "SELECT * FROM EquipoLaboratorio WHERE activo = 1";
         try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 

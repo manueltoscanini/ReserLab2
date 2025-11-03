@@ -10,7 +10,7 @@ public class ConnectionDB {
     private static ConnectionDB instancia;
     private Connection connection;
 
-    private final String url = "jdbc:mysql://localhost:3306/reserlab";
+    private final String url = "jdbc:mysql://localhost:3306/reserlab?useUnicode=true&characterEncoding=UTF-8&useSSL=false";
     private final String user = "root";
     private final String password = "";
 

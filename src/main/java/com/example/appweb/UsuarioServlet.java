@@ -22,12 +22,15 @@ public class UsuarioServlet extends HttpServlet {
 
         try {
             String pageParam = request.getParameter("page");
+            String query = request.getParameter("q");
             int page = (pageParam != null) ? Integer.parseInt(pageParam) : 1;
             int pageSize = 6; // 6 usuarios por página
             int offset = (page - 1) * pageSize;
 
-            // Obtener todos los usuarios
-            List<Usuario> todosLosUsuarios = usuarioDAO.getTodos();
+            // Obtener usuarios (con o sin búsqueda)
+            List<Usuario> todosLosUsuarios = (query != null && !query.trim().isEmpty())
+                    ? usuarioDAO.buscarPorNombre(query.trim())
+                    : usuarioDAO.getTodos();
             System.out.println("DEBUG: Total de usuarios encontrados: " + todosLosUsuarios.size());
 
             // Calcular información de paginación
@@ -47,6 +50,9 @@ public class UsuarioServlet extends HttpServlet {
             request.setAttribute("totalUsuarios", totalUsuarios);
             request.setAttribute("hasNextPage", page < totalPages);
             request.setAttribute("hasPrevPage", page > 1);
+            if (query != null && !query.trim().isEmpty()) {
+                request.setAttribute("q", query.trim());
+            }
 
             System.out.println("DEBUG: Página " + page + " de " + totalPages + " con " + usuariosPagina.size() + " usuarios");
 
