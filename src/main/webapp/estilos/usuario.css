@@ -1965,6 +1965,8 @@ body[data-theme="dark"] .btnModoOscuro {
 }
 body[data-theme="dark"] .btnModoOscuro:hover {
     background: #111827;
+}
+
 #modalSeleccionarEquipo.modal-overlay {
     z-index: 3500; /* más alto que el modal de crear reserva */
 }
