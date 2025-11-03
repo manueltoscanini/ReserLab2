@@ -168,7 +168,7 @@
                                 String horaFin = reserva.getHoraFin().toString().substring(0, 5);
                                 String sede = reserva.getCarreraCliente() != null ? reserva.getCarreraCliente() : "Sede no disponible";
                     %>
-                    <div class="tarjeta-reserva">
+                    <div class="tarjeta-reserva" data-fecha="<%= reserva.getFecha().toString() %>" data-horainicio="<%= String.format("%tT", reserva.getHoraInicio()) %>" data-horafin="<%= String.format("%tT", reserva.getHoraFin()) %>">
                         <div class="icono-reserva">
                             <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
                         </div>
