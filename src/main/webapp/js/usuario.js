@@ -13,8 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnOtros   = document.getElementById('opciones-otros');
     const btnPerfil  = document.getElementById('opciones-perfil');
 
-    // Cargar reservas activas al inicio
-    cargarReservasActivas();
+    // Removed automatic loading - now handled by JSP server-side rendering
+    // cargarReservasActivas();
 
     // Popups
     const popupEquipos  = document.getElementById('popupEquipos');
@@ -204,15 +204,18 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnMisReservas && contenido) {
         btnMisReservas.addEventListener('click', () => {
             cerrarTodosLosPopups();
-            cargarReservasActivas();
+            // Navigate to the main usuario page
+            window.location.href = 'usuario.jsp';
         });
     }
 
     if (btnHistorialReservas && contenido) {
         btnHistorialReservas.addEventListener('click', () => {
+            console.log('DEBUG: Botón Historial de Reservas clickeado');
             cerrarTodosLosPopups();
-            cargarHistorialReservas();
-            // TODO: implementar historial de reservas
+            // Navigate to the servlet URL which will render the JSP
+            console.log('DEBUG: Navegando a historial-reservas');
+            window.location.href = 'historial-reservas';
         });
     }
 
