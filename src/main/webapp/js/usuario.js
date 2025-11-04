@@ -663,7 +663,7 @@ function mostrarReservasActivas(reservas) {
         const horaFin = formatearHora(reserva.horaFin);
 
         html += `
-            <div class="tarjeta-reserva">
+            <div class="tarjeta-reserva" data-fecha="${reserva.fecha}" data-horainicio="${reserva.horaInicio}" data-horafin="${reserva.horaFin}">
                 <div class="icono-reserva">
                      <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
                 </div>
@@ -764,13 +764,57 @@ function cancelarReserva(idActividad) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Aquí implementarías la lógica para cancelar la reserva
-            Swal.fire({
-                title: 'Funcionalidad en desarrollo',
-                text: 'La funcionalidad de cancelación está en desarrollo',
-                icon: 'info',
-                confirmButtonText: 'Entendido'
-            });
+            // Buscar la tarjeta correspondiente para obtener fecha y horas mostradas
+            const tarjeta = document.querySelector(`.btn-cancelar[onclick="cancelarReserva(${idActividad})"]`)?.closest('.tarjeta-reserva');
+            if (!tarjeta) {
+                Swal.fire('Error', 'No se encontraron los datos de la reserva.', 'error');
+                return;
+            }
+
+            // Recuperar valores ya renderizados en la tarjeta
+            // El HTML muestra fecha formateada y rango de horas; necesitamos los atributos crudos si están disponibles
+            // Preferir data-attrs si existen
+            const fechaRaw = tarjeta.getAttribute('data-fecha');
+            const inicioRaw = tarjeta.getAttribute('data-horainicio');
+            const finRaw = tarjeta.getAttribute('data-horafin');
+
+            if (!fechaRaw || !inicioRaw || !finRaw) {
+                Swal.fire('Error', 'Faltan datos internos de la reserva para cancelar.', 'error');
+                return;
+            }
+
+            // Verificar que la reserva sea al menos 24 horas en el futuro (cliente-side validation)
+            const now = new Date();
+            const reservationDate = new Date(fechaRaw + 'T' + inicioRaw);
+            const timeDiff = reservationDate.getTime() - now.getTime();
+            const hoursDiff = timeDiff / (1000 * 3600);
+
+            if (hoursDiff < 24) {
+                Swal.fire('Error', 'No se puede cancelar la reserva con menos de 24 horas de anticipación.', 'error');
+                return;
+            }
+
+            const params = new URLSearchParams();
+            params.append('idActividad', String(idActividad));
+            params.append('fecha', fechaRaw);          // yyyy-MM-dd
+            params.append('horaInicio', inicioRaw);    // HH:mm:ss
+            params.append('horaFin', finRaw);          // HH:mm:ss
+
+            fetch('CancelarReservaServlet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
+            })
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.ok) {
+                        Swal.fire('Cancelada', 'La reserva fue cancelada.', 'success');
+                        cargarReservasActivas();
+                    } else {
+                        Swal.fire('Error', (data && data.msg) || 'No se pudo cancelar.', 'error');
+                    }
+                })
+                .catch(() => Swal.fire('Error', 'Error al comunicarse con el servidor.', 'error'));
         }
     });
 }
@@ -1202,3 +1246,45 @@ function mostrarMensajeConsulta(mensaje, tipo) {
         mensajeEstado.classList.remove('visible');
     }, 5000);
 }
+
+/* ======================================================
+   🌙 MODO OSCURO / CLARO PERSISTENTE
+====================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+    const body = document.body;
+    const btnModoOscuro = document.getElementById("btnModoOscuro");
+
+    // Leer preferencia guardada
+    const temaGuardado = localStorage.getItem("temaUsuario");
+    if (temaGuardado) {
+        body.dataset.theme = temaGuardado;
+        actualizarIconoBoton();
+    }
+
+    if (btnModoOscuro) {
+        btnModoOscuro.addEventListener("click", () => {
+            const temaActual = body.dataset.theme === "dark" ? "light" : "dark";
+            body.dataset.theme = temaActual;
+            localStorage.setItem("temaUsuario", temaActual);
+            actualizarIconoBoton();
+        });
+    }
+
+    function actualizarIconoBoton() {
+        if (!btnModoOscuro) return;
+        if (body.dataset.theme === "dark") {
+            btnModoOscuro.innerHTML = `<i class="fa-solid fa-sun"></i> Modo claro`;
+        } else {
+            btnModoOscuro.innerHTML = `<i class="fa-solid fa-moon"></i> Modo oscuro`;
+        }
+    }
+
+    // 🔁 Cuando se actualiza contenido dinámico (por fetch),
+    // aseguramos que conserve el tema actual
+    const observer = new MutationObserver(() => {
+        if (body.dataset.theme === "dark") {
+            document.body.dataset.theme = "dark";
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+});

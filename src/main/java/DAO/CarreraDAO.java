@@ -60,6 +60,22 @@ public class CarreraDAO {
         }
         return resultado;
     }
+
+    // Devuelve filas estructuradas: [carrera, sede, departamento]
+    public List<String[]> obtenerCarrerasConSedeTabla() {
+        List<String[]> filas = new ArrayList<>();
+        String sql = "SELECT c.nombre AS carrera, s.nombre AS sede, s.departamento AS departamento FROM Carrera c JOIN Sede s ON c.id_sede = s.id_sede ORDER BY s.nombre, c.nombre";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                filas.add(new String[]{ rs.getString("carrera"), rs.getString("sede"), rs.getString("departamento") });
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al listar carreras con sede", e);
+        }
+        return filas;
+    }
     public boolean eliminarCarrera(int idCarrera) {
         String sql = "DELETE FROM Carrera WHERE id_carrera = ?";
         try {

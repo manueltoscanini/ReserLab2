@@ -103,6 +103,51 @@
     <% } %>
 </div>
 
+<!-- Modal para crear equipo -->
+<div id="modalCrearEquipo" class="modal" style="display:none;">
+    <div class="modal-content modal-crear-usuario">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-laptop"></i> Agregar Nuevo Equipo</h3>
+            <button class="btn-cerrar-modal" onclick="cerrarModalCrearEquipo()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <form id="formCrearEquipo">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="nombreEquipo">
+                        <i class="fa-solid fa-tag"></i> Nombre del equipo
+                    </label>
+                    <input type="text" id="nombreEquipo" name="nombre" placeholder="Ej: Microscopio digital" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipoEquipo">
+                        <i class="fa-solid fa-layer-group"></i> Tipo
+                    </label>
+                    <input type="text" id="tipoEquipo" name="tipo" placeholder="Ej: Óptico, Electrónico" required>
+                </div>
+
+                <div class="form-group" style="grid-column: 1 / -1;">
+                    <label for="precaucionesEquipo">
+                        <i class="fa-solid fa-exclamation-triangle"></i> Precauciones
+                    </label>
+                    <textarea id="precaucionesEquipo" name="precauciones" rows="3" placeholder="Ej: Manejar con cuidado, evitar golpes..."></textarea>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalCrearEquipo()">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-guardar">
+                    <i class="fa-solid fa-save"></i> Crear Equipo
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function cambiarFotoEquipo(idEquipo) {
     document.getElementById('inputFotoEquipo-' + idEquipo).click();
@@ -114,13 +159,17 @@ async function subirFotoEquipo(idEquipo, input) {
 
     // Validar que sea una imagen
     if (!archivo.type.startsWith('image/')) {
-        alert('Por favor selecciona un archivo de imagen válido');
+        if (typeof showToast === 'function') {
+            showToast('error', 'Por favor selecciona un archivo de imagen válido');
+        }
         return;
     }
 
     // Validar tamaño (máximo 10MB)
     if (archivo.size > 10 * 1024 * 1024) {
-        alert('La imagen no debe superar los 10MB');
+        if (typeof showToast === 'function') {
+            showToast('error', 'La imagen no debe superar los 10MB');
+        }
         return;
     }
 
@@ -150,13 +199,19 @@ async function subirFotoEquipo(idEquipo, input) {
                 nuevaImg.id = 'equipo-foto-' + idEquipo;
                 contenedor.parentNode.replaceChild(nuevaImg, contenedor);
             }
-            alert('Foto actualizada correctamente');
+            if (typeof showToast === 'function') {
+                showToast('success', 'Foto actualizada correctamente');
+            }
         } else {
-            alert('Error al subir la foto: ' + resultado.message);
+            if (typeof showToast === 'function') {
+                showToast('error', 'Error al subir la foto: ' + (resultado.message || ''));
+            }
         }
     } catch (error) {
         console.error('Error:', error);
-        alert('Error al subir la foto. Por favor intenta de nuevo.');
+        if (typeof showToast === 'function') {
+            showToast('error', 'Error al subir la foto. Por favor intenta de nuevo.');
+        }
     } finally {
         // Limpiar el input
         input.value = '';
@@ -164,11 +219,12 @@ async function subirFotoEquipo(idEquipo, input) {
 }
 
 function mostrarModalNuevoEquipo() {
-    alert('Funcionalidad de agregar equipo en desarrollo');
+    document.getElementById('modalCrearEquipo').style.display = 'flex';
 }
 
-function editarEquipo(idEquipo) {
-    alert('Funcionalidad de editar equipo en desarrollo');
+function cerrarModalCrearEquipo() {
+    document.getElementById('modalCrearEquipo').style.display = 'none';
+    document.getElementById('formCrearEquipo').reset();
 }
 
 function eliminarEquipo(idEquipo) {
@@ -176,4 +232,48 @@ function eliminarEquipo(idEquipo) {
         alert('Funcionalidad de eliminar equipo en desarrollo');
     }
 }
+
+// Manejar el formulario de crear equipo
+document.addEventListener('DOMContentLoaded', function() {
+    const formCrearEquipo = document.getElementById('formCrearEquipo');
+    if (formCrearEquipo) {
+        formCrearEquipo.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new URLSearchParams(new FormData(formCrearEquipo));
+            
+            try {
+                const resp = await fetch('crear-equipo', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    if (typeof showToast === 'function') {
+                        showToast('success', data.message || 'Equipo creado correctamente');
+                    }
+                    cerrarModalCrearEquipo();
+                    setTimeout(() => window.location.reload(), 1000);
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast('error', data.message || 'No se pudo crear el equipo');
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+                if (typeof showToast === 'function') {
+                    showToast('error', 'Error al crear el equipo');
+                }
+            }
+        });
+    }
+
+    // Cerrar modal al hacer clic fuera
+    window.onclick = function(event) {
+        const modalCrear = document.getElementById('modalCrearEquipo');
+        if (event.target === modalCrear) {
+            cerrarModalCrearEquipo();
+        }
+    }
+});
 </script>

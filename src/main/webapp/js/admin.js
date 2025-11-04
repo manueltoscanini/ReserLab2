@@ -107,3 +107,118 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// util para sacar el context
+function getCtx() {
+    if (window.CTX) return window.CTX;
+    const fromBody = document.body && (document.body.dataset.context || document.body.getAttribute('data-context'));
+    if (fromBody) return fromBody;
+    return '';
+}
+
+// abrir modal de edición de equipo
+async function editarEquipo(idEquipo) {
+    const CTX = getCtx();
+    try {
+        const resp = await fetch(CTX + '/EditarEquipoServlet?id=' + idEquipo, {
+            method: 'GET'
+        });
+
+        if (!resp.ok) {
+            alert('No se pudo cargar el formulario de edición');
+            return;
+        }
+
+        const html = await resp.text();
+
+        // borrar modal viejo
+        const viejo = document.getElementById('modalEditarEquipo');
+        if (viejo) viejo.remove();
+
+        document.body.insertAdjacentHTML('beforeend', html);
+        inicializarModalEdicion();
+
+    } catch (e) {
+        console.error(e);
+        alert('Error al abrir el editor de equipo');
+    }
+}
+
+function cerrarModalEquipo() {
+    const modal = document.getElementById('modalEditarEquipo');
+    if (modal) modal.remove();
+}
+
+async function recargarListaEquiposAdmin(page) {
+    const CTX = getCtx();
+    // ESTE es el servlet que sí pone request.setAttribute("equipos"...)
+    const url = page
+        ? `${CTX}/equipos?page=${page}`
+        : `${CTX}/equipos`;
+
+    try {
+        const resp = await fetch(url, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        const html = await resp.text();
+
+        // parseo el HTML que devolvió el servlet
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // en la respuesta que te manda el servlet, la parte copada es .contenido
+        const nuevoContenido = doc.querySelector('.contenido');
+        const soloEquipos = doc.querySelector('.contenido-equipos');
+
+        // tu admin.jsp tiene <main class="contenido"> ... </main>
+        const actual = document.querySelector('.contenido');
+        if (nuevoContenido && actual) {
+            actual.innerHTML = nuevoContenido.innerHTML;
+        } else if (soloEquipos && actual) {
+            actual.innerHTML = soloEquipos.outerHTML;
+        }
+    } catch (err) {
+        console.error('Error al recargar equipos:', err);
+        mostrarToast('No se pudo recargar la lista de equipos', true);
+    }
+}
+
+function inicializarModalEdicion() {
+    const form = document.getElementById('formEditarEquipo');
+    if (!form) return;
+
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const ctx = getCtx();
+        const params = new URLSearchParams(new FormData(this));
+
+        try {
+            const resp = await fetch(ctx + '/EditarEquipoServlet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                },
+                body: params.toString()
+            });
+
+            const data = await resp.json();
+
+            if (data.success) {
+                if (typeof cerrarModalEquipo === 'function') {
+                    cerrarModalEquipo();
+                }
+                if (typeof recargarListaEquiposAdmin === 'function') {
+                    await recargarListaEquiposAdmin();
+                }
+                mostrarToast('Equipo actualizado correctamente');
+            } else {
+                mostrarToast(data.message || 'No se pudo actualizar el equipo', true);
+            }
+        } catch (err) {
+            console.error('Error en fetch:', err);
+            mostrarToast('Error al contactar el servidor', true);
+        }
+    });
+}
