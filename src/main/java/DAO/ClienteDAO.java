@@ -1,3 +1,4 @@
+// ClienteDAO.java:
 package DAO;
 
 import ConectionDB.ConnectionDB;
@@ -5,6 +6,8 @@ import ConectionDB.ConnectionDB;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,7 +75,7 @@ public class ClienteDAO {
             } else {
                 ps.setNull(3, java.sql.Types.INTEGER);
             }
-            ps.setString(4,"1");
+            ps.setString(4, "1");
             int filas = ps.executeUpdate();
             return filas > 0;
         } catch (SQLException e) {
@@ -99,14 +102,20 @@ public class ClienteDAO {
         }
     }
 
+    public boolean desactivarCliente(String cedula) {
+        String sql = "UPDATE cliente SET activo = 0 WHERE ci_usuario = ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setString(1, cedula);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al desactivar cliente", e);
+        }
+    }
+
     public String[] obtenerDatosClienteEstructurado(String cedula) {
-        String sql = """
-        SELECT u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera
-        FROM cliente c
-        JOIN usuario u ON u.cedula = c.ci_usuario
-        LEFT JOIN carrera ca ON ca.id_carrera = c.id_carrera
-        WHERE c.ci_usuario = ?
-    """;
+        String sql = " SELECT u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera FROM cliente c JOIN usuario u ON u.cedula = c.ci_usuario  LEFT JOIN carrera ca ON ca.id_carrera = c.id_carrera WHERE c.ci_usuario = ?";
 
         try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
             ps.setString(1, cedula);
@@ -121,6 +130,20 @@ public class ClienteDAO {
             return null;
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener datos del cliente", e);
+        }
+    }
+
+    public boolean cancelarReserva(String cedula, int idActividad, LocalDate fecha, Time horaInicio, Time horaFin) {
+        // Nota: usamos id y cédula para evitar errores por formato exacto de hora/fecha
+        String sql = "UPDATE actividad SET estado = 'desactivada' WHERE id_actividad = ? AND ci_cliente = ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setInt(1, idActividad);
+            ps.setString(2, cedula);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al cancelar la reserva", e);
         }
     }
 }

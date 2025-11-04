@@ -4,6 +4,7 @@ package Models;
 public class Usuario {
     private String nombre,email,cedula,contrasenia;
     private boolean es_admin;
+    private String fotoUsuario;
 
 
     public Usuario(String nombre,String email,String cedula,String contrasenia,boolean es_admin ){
@@ -16,6 +17,16 @@ public class Usuario {
 
 
     }
+
+    public Usuario(String nombre,String email,String cedula,String contrasenia,boolean es_admin, String fotoUsuario){
+        this.nombre=nombre;
+        this.email=email;
+        this.cedula=cedula;
+        this.contrasenia=contrasenia;
+        this.es_admin=es_admin;
+        this.fotoUsuario=fotoUsuario;
+    }
+
     public Usuario(){
         this.nombre=null;
         this.email=null;
@@ -40,7 +51,10 @@ public class Usuario {
     public boolean getEsAdmin(){
         return this.es_admin;
     }
-    
+    public String getFotoUsuario() {
+        return this.fotoUsuario;
+    }
+
     public boolean isEsadmin(){
         return this.es_admin;
     }
@@ -55,6 +69,7 @@ public class Usuario {
     public void setEsadmin(Boolean es_admin){this.es_admin=es_admin;}
     public void setCedula(String cedula) {this.cedula=cedula;}
     public void setContrasenia(String contrasenia) {this.contrasenia=contrasenia;}
+    public void setFotoUsuario(String fotoUsuario) {this.fotoUsuario=fotoUsuario;}
 
     public void mostrarInfo(){
         System.out.println("-------------------------");

@@ -75,6 +75,22 @@ public class CrearReservaServlet extends HttpServlet {
             );
 
             if (idActividad != null) {
+                // Procesar equipos seleccionados
+                String[] equiposIds = request.getParameterValues("equiposIds");
+                String[] equiposUsos = request.getParameterValues("equiposUsos");
+                
+                if (equiposIds != null && equiposUsos != null && equiposIds.length == equiposUsos.length) {
+                    for (int i = 0; i < equiposIds.length; i++) {
+                        try {
+                            int equipoId = Integer.parseInt(equiposIds[i]);
+                            String uso = equiposUsos[i];
+                            actividadDAO.vincularEquipoAActividad(idActividad, equipoId, uso);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Error al procesar equipo ID: " + equiposIds[i]);
+                        }
+                    }
+                }
+                
                 request.getSession().setAttribute("exito", 
                     "Reserva creada exitosamente con ID: " + idActividad);
             } else {

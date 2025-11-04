@@ -19,6 +19,7 @@
 </head>
 <body>
 <div class="perfil-container">
+
     <div class="perfil-header">Mi perfil</div>
 
     <div class="perfil-datos">
@@ -48,10 +49,11 @@
 
     <div class="perfil-botones">
         <button id="btnEditarDatos" type="button" onclick="abrirEditarPerfil()">Editar datos</button>
-        <button id="btnCambiarContrasenia">Cambiar contraseña</button>
-        <button class="eliminar" id="btnEliminarCuenta">Eliminar cuenta</button>
+        <button id="btnCambiarContrasena" type="button" onclick="abrirCambiarContrasenia()">Cambiar contraseña</button>
+        <button class="btnRojo" id="btnEliminarCuenta" type="button" onclick="abrirEliminarCuenta()">Eliminar cuenta</button>
     </div>
 </div>
 </body>
+<script src="scripts/usuario.js?v=1.0"></script>
 </html>
 

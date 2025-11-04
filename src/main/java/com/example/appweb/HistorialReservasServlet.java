@@ -19,30 +19,23 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-@WebServlet(name = "HistorialReservasServlet", value = "/HistorialReservasServlet")
+@WebServlet(name = "HistorialReservasServlet", value = "/historial-reservas")
 public class HistorialReservasServlet extends HttpServlet {
 
     private ActividadDAO actividadDAO = new ActividadDAO();
-    private final Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, new JsonSerializer<LocalDate>() {
-                @Override
-                public JsonElement serialize(LocalDate date, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
-                    return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE));
-                }
-            })
-            .create();
+
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        System.out.println("\n========================================");
+        System.out.println("DEBUG: HistorialReservasServlet INVOCADO");
+        System.out.println("========================================\n");
 
         try {
             // Obtener la cédula del usuario desde la sesión
             HttpSession session = request.getSession();
-
             // Debug: mostrar todos los atributos de sesión
             System.out.println("DEBUG: Atributos de sesión disponibles:");
             java.util.Enumeration<String> attributeNames = session.getAttributeNames();
@@ -66,24 +59,30 @@ public class HistorialReservasServlet extends HttpServlet {
             String cedulaUsuario = usuario.getCedula();
             System.out.println("DEBUG: Cédula del usuario: " + cedulaUsuario);
 
-            // Obtener las reservas activas (estado "aceptada")
-            System.out.println("DEBUG: Consultando reservas activas para cédula: " + cedulaUsuario);
-            List<Actividad> reservasActivas = actividadDAO.historialReservasPorCi(cedulaUsuario);
-            System.out.println("DEBUG: Número de reservas encontradas: " + reservasActivas.size());
+            // Obtener el historial de reservas (todos los estados excepto "aceptada")
+            System.out.println("DEBUG: Consultando historial de reservas para cédula: " + cedulaUsuario);
+            List<Actividad> todasLasReservas = actividadDAO.historialReservasPorCi(cedulaUsuario);
+            System.out.println("DEBUG: Número de reservas en historial: " + (todasLasReservas != null ? todasLasReservas.size() : "null"));
 
-            // Convertir a JSON y enviar respuesta
-            String jsonResponse = gson.toJson(reservasActivas);
-            System.out.println("DEBUG: Respuesta JSON: " + jsonResponse);
+            // Validar que la lista no sea nula
+            if (todasLasReservas == null) {
+                System.out.println("WARNING: historial de reservas es null, enviando array vacío");
+                todasLasReservas = new java.util.ArrayList<>();
+            }
 
-            PrintWriter out = response.getWriter();
-            out.print(jsonResponse);
-            out.flush();
+            // Set the reservas data and forward to the history JSP
+            request.setAttribute("historialReservas", todasLasReservas);
+            System.out.println("DEBUG: Redirigiendo a /HistorialDeReservas.jsp");
+            System.out.println("========================================\n");
+            request.getRequestDispatcher("/HistorialDeReservas.jsp").forward(request, response);
+
 
         } catch (Exception e) {
             System.err.println("ERROR en HistorialReservasServlet: " + e.getMessage());
+            System.err.println("Stack trace completo:");
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Error interno del servidor: " + e.getMessage() + "\"}");
+            response.getWriter().write("{\"error\": \"Error interno del servidor\", \"message\": \"" + e.getMessage().replace("\"", "\\\"" ) + "\"}");
         }
     }
 }

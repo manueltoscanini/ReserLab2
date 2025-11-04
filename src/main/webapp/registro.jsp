@@ -1,14 +1,25 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Registro - ReserLab</title>
-    <link rel="stylesheet" href="estilos/registro.css?v=1.0">
+    <link rel="stylesheet" href="estilos/registro.css?v=1.1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
 <div id="contenedorRegistro">
+
+    <c:if test="${not empty error}">
+        <div class="mensaje-error">${error}</div>
+    </c:if>
+
+    <c:if test="${not empty exito}">
+        <div class="mensaje-exito">${exito}</div>
+    </c:if>
+
     <h2>Crear cuenta</h2>
 
     <form action="${pageContext.request.contextPath}/RegistroServlet" method="post">
@@ -72,6 +83,12 @@
             <button type="button" onclick="window.location.href='login.jsp'">Ya tengo cuenta</button>
         </div>
     </form>
+
+    <div class="btn-volver-container">
+        <button type="button" class="btn-volver" onclick="window.location.href='index.jsp'">
+            <i class="fa-solid fa-arrow-left"></i> Volver al inicio
+        </button>
+    </div>
 </div>
 
 <script>

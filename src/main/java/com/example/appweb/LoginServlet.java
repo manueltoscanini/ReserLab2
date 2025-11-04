@@ -36,6 +36,14 @@ public class LoginServlet extends HttpServlet {
             Usuario usuario = usuarioDAO.autenticarUsuario(email, password);
 
             if (usuario != null) {
+
+                // 🔹 Verificar si es cliente y está activo
+                boolean activo = usuarioDAO.estaActivo(usuario.getCedula());
+                if (!activo) {
+                    response.sendRedirect("login.jsp?msg=cuentaDesactivada");
+                    return;
+                }
+
                 System.out.println("Usuario autenticado exitosamente: " + usuario.getNombre());
 
                 // ✅ Crear sesión y guardar datos del usuario
@@ -44,6 +52,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("nombreUsuario", usuario.getNombre());  // usado en usuario.jsp
                 session.setAttribute("emailUsuario", usuario.getEmail());    // usado para consultas/reclamos
                 session.setAttribute("ciUsuario", usuario.getCedula());      // opcional, útil para consultas
+                session.setAttribute("fotoUsuario", usuario.getFotoUsuario()); // URL de la foto
 
                 // Redirigir según su rol
                 if (usuario.getEsAdmin()) {
@@ -54,15 +63,12 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect("usuario.jsp");
                 }
             } else {
-                System.out.println("Autenticación fallida para: " + email);
-                response.getWriter().println("<h3>Email o contraseña incorrectos</h3>");
+                response.sendRedirect("login.jsp?error=credenciales");
             }
 
         } catch (Exception e) {
-            System.err.println("Error en LoginServlet: " + e.getMessage());
             e.printStackTrace();
-            response.getWriter().println("<h3>Error al iniciar sesión: " + e.getMessage() + "</h3>");
-            response.getWriter().println("<p>Detalles del error: " + e.getClass().getSimpleName() + "</p>");
+            response.sendRedirect("login.jsp?error=servidor");
         }
     }
 }

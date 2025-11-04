@@ -1,10 +1,10 @@
-<%--usuario.jsp: --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="DAO.ActividadDAO" %>
+<%@ page import="java.util.List" %>
 <%@ page import="Models.Actividad" %>
 <%@ page import="Models.Usuario" %>
-<%@ page import="java.util.List" %>
 <%@ page import="java.time.format.DateTimeFormatter" %>
+<%@ page import="DAO.ActividadDAO" %>
+
 <%
     // Evita que se guarde en caché (por seguridad)
     response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -20,22 +20,26 @@
         response.sendRedirect("login.jsp");
         return;
     }
-    
+
     // Obtener el usuario completo de la sesión
     Usuario usuario = (Usuario) session.getAttribute("usuario");
-    
-    // Cargar las reservas activas del usuario desde la base de datos
-    List<Actividad> reservasActivas = null;
-    if (usuario != null) {
-        ActividadDAO actividadDAO = new ActividadDAO();
-        reservasActivas = actividadDAO.reservasActivasPorCi(usuario.getCedula(), "aceptada");
-    }
+
+    // Obtener lista de reservas desde el servlet
+    List<Actividad> reservas = (List<Actividad>) request.getAttribute("historialReservas");
+
+    // Obtener mensajes de éxito o error (si los hubiera)
+    String mensajeExito = (String) session.getAttribute("exito");
+    String mensajeError = (String) session.getAttribute("error");
+
+    // Evitar que se repitan los mensajes al recargar
+    session.removeAttribute("exito");
+    session.removeAttribute("error");
 %>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Interfaz Usuario - ReserLab</title>
+    <title>Historial de Reservas - ReserLab</title>
     <link rel="stylesheet" href="estilos/usuario.css?v=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -45,7 +49,23 @@
 <div class="contenedorPrincipal">
     <aside class="barraLateral">
         <div class="perfil">
+            <div class="foto-perfil-container">
+                <% if (fotoUsuario != null && !fotoUsuario.isEmpty()) { %>
+                <img src="<%= fotoUsuario %>" alt="Foto de perfil"
+                     class="fotoPerfil" id="fotoPerfil"
+                     title="Ver mi perfil">
+                <% } else { %>
+                <i class="fa-solid fa-user-circle iconoPerfil"
+                   id="iconoPerfil" title="Ver mi perfil"></i>
+                <% } %>
 
+                <button class="btn-cambiar-foto" id="btnCambiarFoto" title="Cambiar foto">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+                <input type="file" id="inputFoto" accept="image/*" style="display: none;">
+            </div>
+
+            <h2 class="nombreUsuario" id="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
         <nav class="menu">
@@ -53,8 +73,6 @@
             <button id="opciones-equipos"><i class="fa-solid fa-laptop"></i> Equipos</button>
             <button id="opciones-otros"><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
         </nav>
-
-
 
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
@@ -92,95 +110,103 @@
         </div>
     </div>
 
-        <main class="contenido">
-            <div class="contenido-reservas">
-                <div class="header-reservas">
-                    <h2 class="titulo-seccion">Reservas activas</h2>
-                    <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
-                        <i class="fa-solid fa-plus"></i> Crear Reserva
-                    </button>
-                </div>
+    <main class="contenido">
+        <%-- DEBUG: Visual indicator that we're on history page --%>
+        <script>console.log('DEBUG: HistorialDeReservas.jsp CARGADO');</script>
+        
+        <div class="contenido-reservas">
+    <div class="header-reservas">
+        <h2 class="titulo-seccion">📜 Historial de Reservas</h2>
+        <button class="btn-crear-reserva" onclick="mostrarModalCrearReserva()">
+            <i class="fa-solid fa-plus"></i> Crear Reserva
+        </button>
+    </div>
 
-                <%-- Mostrar mensajes de éxito o error --%>
-                <%
-                String mensajeExito = (String) session.getAttribute("exito");
-                String mensajeError = (String) session.getAttribute("error");
+    <%-- Filtros de búsqueda --%>
+    <div class="filtros-container">
+        <div class="filtro-grupo">
+            <label for="filtroFecha">
+                <i class="fa-solid fa-calendar"></i> Filtrar por Fecha:
+            </label>
+            <input type="date" id="filtroFecha" class="input-filtro">
+            <button class="btn-limpiar-filtro" onclick="limpiarFiltroFecha()" title="Limpiar filtro">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="filtro-grupo">
+            <label for="filtroEstado">
+                <i class="fa-solid fa-filter"></i> Filtrar por Estado:
+            </label>
+            <select id="filtroEstado" class="select-filtro">
+                <option value="">Todos los estados</option>
+                <option value="en_espera">En Espera</option>
+                <option value="aceptada">Aceptada</option>
+                <option value="rechazada">Rechazada</option>
+                <option value="en_curso">En Curso</option>
+                <option value="finalizada">Finalizada</option>
+                <option value="no_asistió">No Asistió</option>
+                <option value="desactivada">Desactivada</option>
+            </select>
+        </div>
+    </div>
 
-                if (mensajeExito != null) {
-                    session.removeAttribute("exito");
-            %>
-            <div class="mensaje-exito">
-                <i class="fa-solid fa-check-circle"></i>
-                <%= mensajeExito %>
+    <%-- Mostrar mensajes si existen --%>
+    <% if (mensajeExito != null) { %>
+    <div class="mensaje-exito">
+        <i class="fa-solid fa-check-circle"></i>
+        <%= mensajeExito %>
+    </div>
+    <% } %>
+
+    <% if (mensajeError != null) { %>
+    <div class="mensaje-error">
+        <i class="fa-solid fa-exclamation-circle"></i>
+        <%= mensajeError %>
+    </div>
+    <% } %>
+
+    <%-- Si no hay reservas --%>
+    <% if (reservas == null || reservas.isEmpty()) { %>
+    <div class="sin-reservas">
+        <i class="fa-solid fa-calendar-xmark"></i>
+        <h3>No hay reservas disponibles</h3>
+        <p>No se encontraron reservas en tu historial.</p>
+    </div>
+    <% } else { %>
+    <div class="grid-reservas" id="gridReservas">
+        <% for (Actividad reserva : reservas) { %>
+        <div class="tarjeta-reserva" 
+             data-fecha="<%= reserva.getFecha().toString() %>" 
+             data-estado="<%= reserva.getEstado().toLowerCase() %>">
+            <div class="icono-reserva">
+                <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
             </div>
-                <%
-                }
-
-                if (mensajeError != null) {
-                    session.removeAttribute("error");
-            %>
-            <div class="mensaje-error">
-                <i class="fa-solid fa-exclamation-circle"></i>
-                <%= mensajeError %>
-            </div>
-                <%
-                }
-            %>
-
-            <%-- Sección de Reservas Activas --%>
-            <div class="seccion-reservas-activas">
-
-                <div id="contenedor-reservas-activas" class="grid-reservas">
-                    <%
-                        if (reservasActivas == null || reservasActivas.isEmpty()) {
-                    %>
-                    <div class="sin-reservas">
-                        <i class="fa-solid fa-calendar-xmark"></i>
-                        <p>No tienes reservas activas en este momento</p>
-                    </div>
-                    <%
-                        } else {
-                            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                            for (Actividad reserva : reservasActivas) {
-                                String fecha = reserva.getFecha().format(dateFormatter);
-                                String horaInicio = reserva.getHoraInicio().toString().substring(0, 5);
-                                String horaFin = reserva.getHoraFin().toString().substring(0, 5);
-                                String sede = reserva.getCarreraCliente() != null ? reserva.getCarreraCliente() : "Sede no disponible";
-                    %>
-                    <div class="tarjeta-reserva" data-fecha="<%= reserva.getFecha().toString() %>" data-horainicio="<%= String.format("%tT", reserva.getHoraInicio()) %>" data-horafin="<%= String.format("%tT", reserva.getHoraFin()) %>">
-                        <div class="icono-reserva">
-                            <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
-                        </div>
-                        <div class="detalles-reserva">
-                            <div class="detalle">
-                                <i class="fa-solid fa-calendar-days"></i>
-                                <span><%= fecha %></span>
-                            </div>
-                            <div class="detalle">
-                                <i class="fa-solid fa-clock"></i>
-                                <span><%= horaInicio %> - <%= horaFin %></span>
-                            </div>
-                            <div class="detalle">
-                                <i class="fa-solid fa-map-marker-alt"></i>
-                                <span><%= sede %></span>
-                            </div>
-                        </div>
-                        <div class="botones-reserva">
-                            <button class="btn-cancelar" onclick="cancelarReserva(<%= reserva.getIdActividad() %>)">
-                                Cancelar
-                            </button>
-                            <button class="btn-editar" onclick="editarReserva(<%= reserva.getIdActividad() %>)">
-                                Editar reserva
-                            </button>
-                        </div>
-                    </div>
-                    <%
-                            }
-                        }
-                    %>
+            <div class="detalles-reserva">
+                <div class="detalle">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span><%= reserva.getFecha().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) %></span>
                 </div>
+                <div class="detalle">
+                    <i class="fa-solid fa-clock"></i>
+                    <span><%= reserva.getHoraInicio().toString().substring(0, 5) %> - <%= reserva.getHoraFin().toString().substring(0, 5) %></span>
+                </div>
+                <div class="detalle">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="estado-<%= reserva.getEstado().toLowerCase().replace("_", "-") %>"><%= reserva.getEstado() %></span>
+                </div>
+                <% if (reserva.getCarreraCliente() != null) { %>
+                <div class="detalle">
+                    <i class="fa-solid fa-map-marker-alt"></i>
+                    <span><%= reserva.getCarreraCliente() %></span>
+                </div>
+                <% } %>
             </div>
         </div>
+        <% } %>
+    </div>
+    <% } %>
+</div>
     </main>
 </div>
 
@@ -197,7 +223,6 @@
         </div>
         <form id="formCrearReserva" action="reserva_cliente" method="post">
             <div class="form-grid-usuario">
-
 
                 <div class="form-group">
                     <label for="fecha">
@@ -297,38 +322,27 @@
 
 <script>
     function mostrarModalCrearReserva() {
-        const modal = document.getElementById('modalCrearReserva');
-        if (!modal) return;
-        modal.style.display = 'flex';
-
-        // fecha mínima hoy
+        document.getElementById('modalCrearReserva').style.display = 'flex';
+        // Establecer fecha mínima como hoy
         const hoy = new Date().toISOString().split('T')[0];
-        const inputFecha = document.getElementById('fecha');
-        if (inputFecha) {
-            inputFecha.setAttribute('min', hoy);
-        }
+        document.getElementById('fecha').setAttribute('min', hoy);
         
         // Inicializar la visualización de equipos
         actualizarEquiposSeleccionados();
     }
 
     function cerrarModalCrearReserva() {
-        const modal = document.getElementById('modalCrearReserva');
-        if (!modal) return;
-        modal.style.display = 'none';
-
-        const form = document.getElementById('formCrearReserva');
-        if (form) form.reset();
+        document.getElementById('modalCrearReserva').style.display = 'none';
+        document.getElementById('formCrearReserva').reset();
     }
 
-    // cerrar al clickear afuera
-    document.addEventListener('click', function (e) {
+    // Cerrar modal al hacer clic fuera de él
+    window.onclick = function(event) {
         const modal = document.getElementById('modalCrearReserva');
-        if (!modal) return;
-        if (modal.style.display !== 'none' && e.target === modal) {
+        if (event.target === modal) {
             cerrarModalCrearReserva();
         }
-    });
+    }
 
     // Validar que hora fin sea mayor que hora inicio
     document.getElementById('formCrearReserva').addEventListener('submit', function(e) {
@@ -575,76 +589,86 @@
         }
     });
 
-    // Funcionalidad de cambiar foto de perfil
-    document.getElementById('inputFotoPerfil').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                // Cambiar el icono por la imagen
-                const iconoPerfil = document.querySelector('.iconoPerfil');
-                iconoPerfil.style.display = 'none';
-                
-                let imgPerfil = document.getElementById('imgPerfilUsuario');
-                if (!imgPerfil) {
-                    imgPerfil = document.createElement('img');
-                    imgPerfil.id = 'imgPerfilUsuario';
-                    imgPerfil.style.width = '68px';
-                    imgPerfil.style.height = '68px';
-                    imgPerfil.style.borderRadius = '50%';
-                    imgPerfil.style.objectFit = 'cover';
-                    imgPerfil.style.cursor = 'pointer';
-                    iconoPerfil.parentElement.appendChild(imgPerfil);
-                }
-                imgPerfil.src = event.target.result;
-                
-                // Guardar en localStorage para que persista
-                localStorage.setItem('fotoPerfil', event.target.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    // Cargar foto de perfil si existe en localStorage
-    window.addEventListener('load', function() {
-        const fotoGuardada = localStorage.getItem('fotoPerfil');
-        if (fotoGuardada) {
-            const iconoPerfil = document.querySelector('.iconoPerfil');
-            iconoPerfil.style.display = 'none';
-            
-            let imgPerfil = document.getElementById('imgPerfilUsuario');
-            if (!imgPerfil) {
-                imgPerfil = document.createElement('img');
-                imgPerfil.id = 'imgPerfilUsuario';
-                imgPerfil.style.width = '68px';
-                imgPerfil.style.height = '68px';
-                imgPerfil.style.borderRadius = '50%';
-                imgPerfil.style.objectFit = 'cover';
-                imgPerfil.style.cursor = 'pointer';
-                iconoPerfil.parentElement.appendChild(imgPerfil);
-            }
-            imgPerfil.src = fotoGuardada;
-        }
-    });
-
-    // Funcionalidad de modo oscuro
-    const btnModoOscuro = document.getElementById('btnModoOscuro');
+    // ======= FILTROS DE BÚSQUEDA =======
     
-    // Cargar preferencia de modo oscuro
-    if (localStorage.getItem('modoOscuro') === 'true') {
-        document.body.classList.add('modo-oscuro');
-        btnModoOscuro.innerHTML = '<i class="fa-solid fa-sun"></i> Modo Claro';
+    // Función para aplicar filtros
+    function aplicarFiltros() {
+        const filtroFecha = document.getElementById('filtroFecha').value;
+        const filtroEstado = document.getElementById('filtroEstado').value.toLowerCase();
+        const tarjetas = document.querySelectorAll('.tarjeta-reserva');
+        
+        let contadorVisible = 0;
+        
+        tarjetas.forEach(tarjeta => {
+            const fechaTarjeta = tarjeta.getAttribute('data-fecha');
+            const estadoTarjeta = tarjeta.getAttribute('data-estado');
+            
+            let mostrarPorFecha = true;
+            let mostrarPorEstado = true;
+            
+            // Filtro por fecha
+            if (filtroFecha && fechaTarjeta !== filtroFecha) {
+                mostrarPorFecha = false;
+            }
+            
+            // Filtro por estado
+            if (filtroEstado && estadoTarjeta !== filtroEstado) {
+                mostrarPorEstado = false;
+            }
+            
+            // Mostrar u ocultar tarjeta
+            if (mostrarPorFecha && mostrarPorEstado) {
+                tarjeta.style.display = 'block';
+                contadorVisible++;
+            } else {
+                tarjeta.style.display = 'none';
+            }
+        });
+        
+        // Mostrar mensaje si no hay resultados
+        const gridReservas = document.getElementById('gridReservas');
+        let mensajeSinResultados = document.getElementById('mensajeSinResultados');
+        
+        if (contadorVisible === 0) {
+            if (!mensajeSinResultados) {
+                mensajeSinResultados = document.createElement('div');
+                mensajeSinResultados.id = 'mensajeSinResultados';
+                mensajeSinResultados.className = 'sin-reservas';
+                mensajeSinResultados.innerHTML = `
+                    <i class="fa-solid fa-filter-circle-xmark"></i>
+                    <h3>No se encontraron reservas</h3>
+                    <p>No hay reservas que coincidan con los filtros seleccionados.</p>
+                `;
+                if (gridReservas) {
+                    gridReservas.parentNode.insertBefore(mensajeSinResultados, gridReservas.nextSibling);
+                }
+            }
+            if (gridReservas) gridReservas.style.display = 'none';
+        } else {
+            if (mensajeSinResultados) {
+                mensajeSinResultados.remove();
+            }
+            if (gridReservas) gridReservas.style.display = 'grid';
+        }
     }
     
-    btnModoOscuro.addEventListener('click', function() {
-        document.body.classList.toggle('modo-oscuro');
+    // Función para limpiar el filtro de fecha
+    function limpiarFiltroFecha() {
+        document.getElementById('filtroFecha').value = '';
+        aplicarFiltros();
+    }
+    
+    // Event listeners para los filtros
+    document.addEventListener('DOMContentLoaded', function() {
+        const filtroFecha = document.getElementById('filtroFecha');
+        const filtroEstado = document.getElementById('filtroEstado');
         
-        if (document.body.classList.contains('modo-oscuro')) {
-            btnModoOscuro.innerHTML = '<i class="fa-solid fa-sun"></i> Modo Claro';
-            localStorage.setItem('modoOscuro', 'true');
-        } else {
-            btnModoOscuro.innerHTML = '<i class="fa-solid fa-moon"></i> Modo Oscuro';
-            localStorage.setItem('modoOscuro', 'false');
+        if (filtroFecha) {
+            filtroFecha.addEventListener('change', aplicarFiltros);
+        }
+        
+        if (filtroEstado) {
+            filtroEstado.addEventListener('change', aplicarFiltros);
         }
     });
 
