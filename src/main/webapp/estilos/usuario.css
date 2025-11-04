@@ -312,7 +312,190 @@ body {
     transform: translateY(-1px);
 }
 
-/* ======== Estados especiales ======== */
+/* ======== Modal Editar Reserva - Estilo según diseño ======== */
+#modalEditarReserva .modal-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+#modalEditarReserva .modal-header {
+    background-color: #06295a;
+    color: white;
+    padding: 25px 30px;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#modalEditarReserva .modal-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#modalEditarReserva #formEditarReserva {
+    padding: 30px 35px;
+    background-color: white;
+}
+
+#modalEditarReserva .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 22px;
+    margin-bottom: 28px;
+}
+
+#modalEditarReserva .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#modalEditarReserva .form-group label {
+    background-color: #027b8e;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+#modalEditarReserva .form-group label i {
+    color: white;
+    font-size: 16px;
+}
+
+#modalEditarReserva .form-group input[type="date"],
+#modalEditarReserva .form-group input[type="time"],
+#modalEditarReserva .form-group input[type="number"] {
+    padding: 12px 16px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+    background-color: #f8f9fa;
+}
+
+#modalEditarReserva .form-group input:focus {
+    outline: none;
+    border-color: #027b8e;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(2, 123, 142, 0.1);
+}
+
+#modalEditarReserva .modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding-top: 25px;
+    border-top: 2px solid #e0e7ff;
+}
+
+#modalEditarReserva .btn-cancelar,
+#modalEditarReserva .btn-guardar {
+    padding: 12px 35px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    min-width: 140px;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+#modalEditarReserva .btn-cancelar {
+    background-color: #6c757d;
+    color: white;
+}
+
+#modalEditarReserva .btn-cancelar:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.3);
+}
+
+#modalEditarReserva .btn-guardar {
+    background-color: #027b8e;
+    color: white;
+}
+
+#modalEditarReserva .btn-guardar:hover {
+    background-color: #045777;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(2, 123, 142, 0.4);
+}
+
+#modalEditarReserva .btn-guardar:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Estados de error de validación */
+#modalEditarReserva .form-group input:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #dc3545;
+}
+
+#modalEditarReserva .form-group input:valid:not(:focus):not(:placeholder-shown) {
+    border-color: #28a745;
+}
+
+/* ======== Modo Oscuro ======== */
+body.modo-oscuro {
+    background-color: #1a1a1a;
+}
+
+body.modo-oscuro .contenido {
+    background-color: #2d2d2d;
+    border-color: #444;
+}
+
+body.modo-oscuro .contenido-reservas h1,
+body.modo-oscuro .titulo-seccion,
+body.modo-oscuro .contenido-reservas h2 {
+    color: #e0e0e0;
+}
+
+body.modo-oscuro .tarjeta-reserva {
+    background-color: #383838;
+    border-color: #555;
+}
+
+body.modo-oscuro .detalle {
+    color: #d0d0d0;
+}
+
+body.modo-oscuro .mensaje-exito {
+    background-color: #1e4620;
+    color: #8bc34a;
+    border-color: #2e5930;
+}
+
+body.modo-oscuro .mensaje-error {
+    background-color: #4a1e1e;
+    color: #f44336;
+    border-color: #5e2e2e;
+}
+
+/* ======== Estados especiales ======== */ */
 .sin-reservas, .error-mensaje {
     text-align: center;
     padding: 40px 20px;
@@ -1003,8 +1186,6 @@ body {
     border: 1px solid #ccc;
 }
 
-.form-row {
-    margin-bottom: 20px;
 .btn-cerrar-modal:hover {
     background-color: rgba(255, 255, 255, 0.2);
 }

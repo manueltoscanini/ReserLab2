@@ -551,9 +551,238 @@ function cancelarReserva(idActividad) {
     }
 }
 
+/**
+ * Carga el formulario de edición para una reserva específica.
+ * Se ejecuta cuando el usuario hace clic en el botón "Editar reserva" en una tarjeta.
+ * 
+ * Flujo:
+ * 1. Hace una petición GET al servidor para obtener los datos de la reserva
+ * 2. Si la petición es exitosa, muestra el modal con los datos
+ * 3. Si hay error, muestra un mensaje de error
+ * 
+ * @param {number} idActividad - ID de la reserva a editar
+ */
 function editarReserva(idActividad) {
-    // Aquí implementarías la lógica para editar la reserva
-    alert('Funcionalidad de edición en desarrollo');
+    // Cargar los datos de la reserva desde el servidor
+    fetch(`EditarReservaServlet?idActividad=${idActividad}`)
+        .then(response => {
+            // Verificar si la respuesta fue exitosa
+            if (!response.ok) {
+                // Si el servidor respondió con un error, intentar leer el mensaje
+                return response.json().then(err => {
+                    throw new Error(err.error || 'Error al cargar la reserva');
+                });
+            }
+            return response.json();
+        })
+        .then(actividad => {
+            // Si se cargaron correctamente, mostrar el modal con los datos
+            console.log('Datos de la reserva cargados:', actividad); // Debug: ver qué datos llegaron
+            mostrarModalEditarReserva(actividad);
+        })
+        .catch(error => {
+            console.error('Error completo:', error);
+            mostrarMensajeTemporal('Error al cargar los datos de la reserva: ' + error.message, 'error');
+        });
+}
+
+/**
+ * Crea y muestra el modal de edición de reserva con los datos prellenados.
+ * El modal incluye todos los campos editables y validaciones.
+ * 
+ * Campos editables:
+ * - Fecha de la reserva
+ * - Hora de inicio
+ * - Hora de fin
+ * - Cantidad de participantes
+ * 
+ * @param {Object} actividad - Objeto con los datos de la reserva a editar
+ * @param {number} actividad.idActividad - ID de la reserva
+ * @param {string} actividad.fecha - Fecha de la reserva (formato yyyy-MM-dd)
+ * @param {string} actividad.horaInicio - Hora de inicio
+ * @param {string} actividad.horaFin - Hora de fin
+ * @param {number} actividad.cantParticipantes - Cantidad de participantes
+ */
+function mostrarModalEditarReserva(actividad) {
+    // Crear el HTML del modal dinámicamente con los datos de la reserva
+    const modalHTML = `
+        <div id="modalEditarReserva" class="modal" style="display: flex;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-edit"></i> Editar Reserva</h3>
+                    <button class="btn-cerrar-modal" onclick="cerrarModalEditarReserva()">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <form id="formEditarReserva">
+                    <input type="hidden" id="editIdActividad" name="idActividad" value="${actividad.idActividad}">
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="editFecha">
+                                <i class="fa-solid fa-calendar"></i> Ingrese la fecha de la reserva (dd/MM/yyyy):
+                            </label>
+                            <input type="date" id="editFecha" name="fecha" value="${actividad.fecha}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editHoraInicio">
+                                <i class="fa-solid fa-clock"></i> Hora de inicio (HH:mm):
+                            </label>
+                            <input type="time" id="editHoraInicio" name="horaInicio" value="${formatearHoraParaInput(actividad.horaInicio)}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editHoraFin">
+                                <i class="fa-solid fa-clock"></i> Hora de fin (HH:mm):
+                            </label>
+                            <input type="time" id="editHoraFin" name="horaFin" value="${formatearHoraParaInput(actividad.horaFin)}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="editCantidadParticipantes">
+                                <i class="fa-solid fa-users"></i> Ingrese la cantidad de participantes:
+                            </label>
+                            <input type="number" id="editCantidadParticipantes" name="cantidadParticipantes"
+                                   min="1" max="50" value="${actividad.cantParticipantes}" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancelar" onclick="cerrarModalEditarReserva()">
+                            <i class="fa-solid fa-times"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn-guardar">
+                            <i class="fa-solid fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+
+    // Eliminar modal previo si existe (para evitar duplicados)
+    const modalPrevio = document.getElementById('modalEditarReserva');
+    if (modalPrevio) {
+        modalPrevio.remove();
+    }
+
+    // Insertar el modal en el body de la página
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Establecer fecha mínima como hoy (no permitir editar con fechas pasadas)
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('editFecha').setAttribute('min', hoy);
+
+    // Agregar evento de submit al formulario para interceptarlo y manejarlo con AJAX
+    document.getElementById('formEditarReserva').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evitar que el formulario se envíe de forma tradicional
+        guardarCambiosReserva(); // Enviar los datos con AJAX
+    });
+
+    // Permitir cerrar el modal al hacer clic fuera de él (en el fondo oscuro)
+    document.getElementById('modalEditarReserva').addEventListener('click', function(e) {
+        if (e.target.id === 'modalEditarReserva') {
+            cerrarModalEditarReserva();
+        }
+    });
+
+    // VALIDACIÓN EN TIEMPO REAL: Verificar que la hora de fin sea mayor que la hora de inicio
+    const horaInicioInput = document.getElementById('editHoraInicio');
+    const horaFinInput = document.getElementById('editHoraFin');
+    // Agregar validación a ambos campos de hora
+    [horaInicioInput, horaFinInput].forEach(input => {
+        input.addEventListener('change', function() {
+            const horaInicio = horaInicioInput.value;
+            const horaFin = horaFinInput.value;
+            
+            // Si ambas horas están llenas, validar que fin > inicio
+            if (horaInicio && horaFin && horaInicio >= horaFin) {
+                // Marcar como inválido usando la API de validación de HTML5
+                horaFinInput.setCustomValidity('La hora de fin debe ser posterior a la hora de inicio');
+            } else {
+                // Limpiar el mensaje de error si la validación es correcta
+                horaFinInput.setCustomValidity('');
+            }
+        });
+    });
+}
+
+/**
+ * Formatea una hora para que sea compatible con un input type="time".
+ * Los inputs de tipo time esperan el formato HH:mm (sin segundos).
+ * 
+ * @param {string|Object} hora - Hora que puede venir como "14:30:00" o como objeto Time
+ * @returns {string} Hora formateada como "14:30"
+ */
+function formatearHoraParaInput(hora) {
+    // hora puede venir como "14:30:00" o como objeto Time
+    if (typeof hora === 'string') {
+        return hora.substring(0, 5); // Devuelve "14:30"
+    }
+    return hora;
+}
+
+/**
+ * Cierra y elimina el modal de edición de reserva.
+ * Se asegura de eliminar el modal del DOM después de la animación.
+ */
+function cerrarModalEditarReserva() {
+    const modal = document.getElementById('modalEditarReserva');
+    if (modal) {
+        modal.style.display = 'none';
+        setTimeout(() => modal.remove(), 300);
+    }
+}
+
+/**
+ * Envía los datos modificados de la reserva al servidor.
+ * Maneja el estado del botón durante el envío y muestra mensajes de resultado.
+ * 
+ * Flujo:
+ * 1. Recopila los datos del formulario
+ * 2. Deshabilita el botón "Guardar" y muestra un spinner
+ * 3. Envía los datos al servidor mediante POST
+ * 4. Procesa la respuesta:
+ *    - Si es exitoso: cierra el modal, muestra mensaje de éxito y recarga las reservas
+ *    - Si hay error: muestra mensaje de error y reactiva el botón
+ */
+function guardarCambiosReserva() {
+    const form = document.getElementById('formEditarReserva');
+    const formData = new FormData(form);
+    const params = new URLSearchParams(formData);
+    const btnGuardar = form.querySelector('.btn-guardar');
+
+    // Deshabilitar botón durante el envío
+    btnGuardar.disabled = true;
+    btnGuardar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+
+    fetch('EditarReservaServlet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            cerrarModalEditarReserva();
+            mostrarMensajeTemporal(result.mensaje, 'exito');
+            // Recargar las reservas activas
+            cargarReservasActivas();
+        } else {
+            mostrarMensajeTemporal(result.mensaje, 'error');
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = '<i class="fa-solid fa-save"></i> Guardar';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        mostrarMensajeTemporal('Error al guardar los cambios', 'error');
+        btnGuardar.disabled = false;
+        btnGuardar.innerHTML = '<i class="fa-solid fa-save"></i> Guardar';
+    });
 }
 
 

@@ -44,7 +44,10 @@
 <div class="contenedorPrincipal">
     <aside class="barraLateral">
         <div class="perfil">
-            <a href="#" id="opciones-perfil"><i class="fa-solid fa-user-circle iconoPerfil"></i></a>
+            <label for="inputFotoPerfil" style="cursor: pointer;">
+                <i class="fa-solid fa-user-circle iconoPerfil"></i>
+            </label>
+            <input type="file" id="inputFotoPerfil" accept="image/*" style="display: none;">
             <h2 id="nombreUsuario" class="nombreUsuario"><%= nombreUsuario %></h2>
         </div>
 
@@ -53,6 +56,10 @@
             <button id="opciones-equipos"><i class="fa-solid fa-laptop"></i> Equipos</button>
             <button id="opciones-otros"><i class="fa-solid fa-ellipsis-h"></i> Otros</button>
         </nav>
+
+        <button id="btnModoOscuro" class="btnVerde" style="width: 80%; margin: 20px auto;">
+            <i class="fa-solid fa-moon"></i> Modo Oscuro
+        </button>
 
         <form class="logout" action="${pageContext.request.contextPath}/logout" method="post">
             <button type="submit"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
@@ -262,6 +269,79 @@
         if (horaInicio && horaFin && horaInicio >= horaFin) {
             e.preventDefault();
             alert('La hora de fin debe ser posterior a la hora de inicio');
+        }
+    });
+
+    // Funcionalidad de cambiar foto de perfil
+    document.getElementById('inputFotoPerfil').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // Cambiar el icono por la imagen
+                const iconoPerfil = document.querySelector('.iconoPerfil');
+                iconoPerfil.style.display = 'none';
+                
+                let imgPerfil = document.getElementById('imgPerfilUsuario');
+                if (!imgPerfil) {
+                    imgPerfil = document.createElement('img');
+                    imgPerfil.id = 'imgPerfilUsuario';
+                    imgPerfil.style.width = '68px';
+                    imgPerfil.style.height = '68px';
+                    imgPerfil.style.borderRadius = '50%';
+                    imgPerfil.style.objectFit = 'cover';
+                    imgPerfil.style.cursor = 'pointer';
+                    iconoPerfil.parentElement.appendChild(imgPerfil);
+                }
+                imgPerfil.src = event.target.result;
+                
+                // Guardar en localStorage para que persista
+                localStorage.setItem('fotoPerfil', event.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Cargar foto de perfil si existe en localStorage
+    window.addEventListener('load', function() {
+        const fotoGuardada = localStorage.getItem('fotoPerfil');
+        if (fotoGuardada) {
+            const iconoPerfil = document.querySelector('.iconoPerfil');
+            iconoPerfil.style.display = 'none';
+            
+            let imgPerfil = document.getElementById('imgPerfilUsuario');
+            if (!imgPerfil) {
+                imgPerfil = document.createElement('img');
+                imgPerfil.id = 'imgPerfilUsuario';
+                imgPerfil.style.width = '68px';
+                imgPerfil.style.height = '68px';
+                imgPerfil.style.borderRadius = '50%';
+                imgPerfil.style.objectFit = 'cover';
+                imgPerfil.style.cursor = 'pointer';
+                iconoPerfil.parentElement.appendChild(imgPerfil);
+            }
+            imgPerfil.src = fotoGuardada;
+        }
+    });
+
+    // Funcionalidad de modo oscuro
+    const btnModoOscuro = document.getElementById('btnModoOscuro');
+    
+    // Cargar preferencia de modo oscuro
+    if (localStorage.getItem('modoOscuro') === 'true') {
+        document.body.classList.add('modo-oscuro');
+        btnModoOscuro.innerHTML = '<i class="fa-solid fa-sun"></i> Modo Claro';
+    }
+    
+    btnModoOscuro.addEventListener('click', function() {
+        document.body.classList.toggle('modo-oscuro');
+        
+        if (document.body.classList.contains('modo-oscuro')) {
+            btnModoOscuro.innerHTML = '<i class="fa-solid fa-sun"></i> Modo Claro';
+            localStorage.setItem('modoOscuro', 'true');
+        } else {
+            btnModoOscuro.innerHTML = '<i class="fa-solid fa-moon"></i> Modo Oscuro';
+            localStorage.setItem('modoOscuro', 'false');
         }
     });
 

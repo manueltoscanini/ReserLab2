@@ -54,11 +54,40 @@ public class Actividad {
         return estado;
     }
 
+    /**
+     * Obtiene la cantidad de participantes de la actividad.
+     * @return Número de participantes
+     */
     public int getCantidadParticipantes() {
         return cantidadParticipantes;
     }
 
+    /**
+     * Alias para getCantidadParticipantes().
+     * Se usa para compatibilidad con JSON cuando se serializa/deserializa.
+     * Gson y otras librerías JSON buscan este nombre de método.
+     * @return Número de participantes
+     */
+    public int getCantParticipantes() {
+        return cantidadParticipantes;
+    }
+
+    /**
+     * Obtiene la cédula del cliente dueño de la reserva.
+     * @return Cédula del cliente
+     */
     public String getCedulaCliente() {
+        return cedulaCliente;
+    }
+
+    /**
+     * Alias para getCedulaCliente().
+     * Se usa para compatibilidad con JSON cuando se serializa/deserializa.
+     * Gson busca este nombre de método al convertir a JSON.
+     * IMPORTANTE: Este método es usado por el servlet de edición para validar permisos.
+     * @return Cédula del cliente
+     */
+    public String getCiCliente() {
         return cedulaCliente;
     }
 
