@@ -383,6 +383,53 @@ public class ActividadDAO {
         return lista;
     }
 
+    public boolean actualizarReserva(int idActividad, LocalDate fecha, Time horaInicio, Time horaFin, int cantParticipantes) {
+        String sql = "UPDATE actividad SET fecha = ?, hora_inicio = ?, hora_fin = ?, cant_participantes = ? WHERE id_actividad = ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setDate(1, java.sql.Date.valueOf(fecha));
+            ps.setTime(2, horaInicio);
+            ps.setTime(3, horaFin);
+            ps.setInt(4, cantParticipantes);
+            ps.setInt(5, idActividad);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar la reserva", e);
+        }
+    }
+
+    public boolean eliminarEquiposDeActividad(int idActividad) {
+        String sql = "DELETE FROM actividad_equipo WHERE id_actividad = ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setInt(1, idActividad);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al eliminar equipos de la actividad", e);
+        }
+    }
+
+    public boolean existeConflictoReservaExcluyendo(LocalDate fecha, Time horaInicio, Time horaFin, int idActividadExcluir) {
+        String sql = "SELECT 1 FROM actividad " +
+                "WHERE fecha = ? " +
+                "AND hora_inicio < ? " +
+                "AND hora_fin > ? " +
+                "AND id_actividad != ?";
+        try {
+            PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
+            ps.setDate(1, java.sql.Date.valueOf(fecha));
+            ps.setTime(2, horaFin);
+            ps.setTime(3, horaInicio);
+            ps.setInt(4, idActividadExcluir);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al verificar conflicto de reserva", e);
+        }
+    }
+
 
 }
 

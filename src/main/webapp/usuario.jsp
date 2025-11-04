@@ -205,6 +205,78 @@
     </main>
 </div>
 
+<!-- Modal para editar reserva -->
+<div id="modalEditarReserva" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-calendar-pen"></i> Editar Reserva</h3>
+            <button class="btn-cerrar-modal" onclick="cerrarModalEditarReserva()">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+        <form id="formEditarReserva" action="editar-reserva" method="post">
+            <input type="hidden" id="editIdActividad" name="idActividad">
+            <div class="form-grid-usuario">
+
+                <div class="form-group">
+                    <label for="editFecha">
+                        <i class="fa-solid fa-calendar"></i> Fecha
+                    </label>
+                    <input type="date" id="editFecha" name="fecha" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editHoraInicio">
+                        <i class="fa-solid fa-clock"></i> Hora Inicio
+                    </label>
+                    <input type="time" id="editHoraInicio" name="horaInicio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editHoraFin">
+                        <i class="fa-solid fa-clock"></i> Hora Fin
+                    </label>
+                    <input type="time" id="editHoraFin" name="horaFin" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCantidadParticipantes">
+                        <i class="fa-solid fa-users"></i> Cantidad de Participantes
+                    </label>
+                    <input type="number" id="editCantidadParticipantes" name="cantidadParticipantes"
+                           min="1" max="10" required>
+                </div>
+
+                <div class="form-group equipos-section">
+                    <label>
+                        <i class="fa-solid fa-laptop"></i> Equipos de Laboratorio
+                    </label>
+                    <div class="equipos-container">
+                        <div class="equipos-header">
+                            <button type="button" id="btnAgregarEquipoEdit" class="btn-agregar-equipo">
+                                <i class="fa-solid fa-plus"></i> Agregar Equipo
+                            </button>
+                        </div>
+                        <div id="equiposSeleccionadosEdit" class="equipos-seleccionados">
+                            <!-- Los equipos seleccionados se mostrarán aquí -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-cancelar" onclick="cerrarModalEditarReserva()">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </button>
+                <button type="submit" class="btn-guardar">
+                    <i class="fa-solid fa-save"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script src="js/usuario.js?v=1.0" defer></script>
 
 <!-- Modal para crear reserva -->
@@ -352,19 +424,22 @@
     });
 
     // Validar que hora fin sea mayor que hora inicio
-    document.getElementById('formCrearReserva').addEventListener('submit', function(e) {
-        const horaInicio = document.getElementById('horaInicio').value;
-        const horaFin = document.getElementById('horaFin').value;
+    const formCrear = document.getElementById('formCrearReserva');
+    if (formCrear) {
+        formCrear.addEventListener('submit', function(e) {
+            const horaInicio = document.getElementById('horaInicio').value;
+            const horaFin = document.getElementById('horaFin').value;
 
-        if (horaInicio && horaFin && horaInicio >= horaFin) {
-            e.preventDefault();
-            alert('La hora de fin debe ser posterior a la hora de inicio');
-            return;
-        }
-        
-        // Agregar equipos seleccionados al formulario
-        agregarEquiposAlFormulario();
-    });
+            if (horaInicio && horaFin && horaInicio >= horaFin) {
+                e.preventDefault();
+                alert('La hora de fin debe ser posterior a la hora de inicio');
+                return;
+            }
+            
+            // Agregar equipos seleccionados al formulario
+            agregarEquiposAlFormulario();
+        });
+    }
 
     // Variables globales para equipos
     let equiposDisponibles = [];
@@ -593,6 +668,238 @@
         const modalEquipos = document.getElementById('modalSeleccionarEquipo');
         if (event.target === modalEquipos) {
             cerrarModalSeleccionarEquipo();
+        }
+    });
+
+    // ======= EDITAR RESERVA =======
+    
+    let equiposSeleccionadosEdit = [];
+    
+    // Override the global function for this page
+    window.editarReserva = async function(idActividad) {
+        console.log('=== EDITAR RESERVA LLAMADO ===');
+        console.log('ID de actividad:', idActividad);
+        
+        try {
+            // Obtener datos de la reserva
+            console.log('Solicitando datos de reserva...');
+            const response = await fetch('editar-reserva?id=' + idActividad);
+            console.log('Respuesta recibida:', response.status);
+            
+            if (!response.ok) {
+                throw new Error('No se pudo cargar la información de la reserva');
+            }
+            
+            const reserva = await response.json();
+            console.log('Datos de reserva:', reserva);
+            
+            // Llenar el formulario
+            document.getElementById('editIdActividad').value = reserva.id;
+            document.getElementById('editFecha').value = reserva.fecha;
+            document.getElementById('editHoraInicio').value = reserva.horaInicio;
+            document.getElementById('editHoraFin').value = reserva.horaFin;
+            document.getElementById('editCantidadParticipantes').value = reserva.cantidadParticipantes;
+            
+            // Cargar equipos seleccionados
+            equiposSeleccionadosEdit = reserva.equipos || [];
+            console.log('Equipos cargados:', equiposSeleccionadosEdit);
+            actualizarEquiposSeleccionadosEdit();
+            
+            // Mostrar modal
+            document.getElementById('modalEditarReserva').style.display = 'flex';
+            console.log('Modal mostrado');
+            
+            // Establecer fecha mínima como hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('editFecha').setAttribute('min', hoy);
+            
+        } catch (error) {
+            console.error('Error al cargar reserva:', error);
+            alert('Error al cargar la información de la reserva: ' + error.message);
+        }
+    };
+    
+    function cerrarModalEditarReserva() {
+        document.getElementById('modalEditarReserva').style.display = 'none';
+        document.getElementById('formEditarReserva').reset();
+        equiposSeleccionadosEdit = [];
+    }
+    
+    // Validar formulario de edición
+    document.addEventListener('DOMContentLoaded', function() {
+        const formEdit = document.getElementById('formEditarReserva');
+        if (formEdit) {
+            formEdit.addEventListener('submit', function(e) {
+                const horaInicio = document.getElementById('editHoraInicio').value;
+                const horaFin = document.getElementById('editHoraFin').value;
+
+                if (horaInicio && horaFin && horaInicio >= horaFin) {
+                    e.preventDefault();
+                    alert('La hora de fin debe ser posterior a la hora de inicio');
+                    return;
+                }
+                
+                // Agregar equipos seleccionados al formulario
+                agregarEquiposAlFormularioEdit();
+            });
+        }
+    });
+    
+    function actualizarEquiposSeleccionadosEdit() {
+        const container = document.getElementById('equiposSeleccionadosEdit');
+        if (!container) return;
+        
+        container.innerHTML = '';
+        
+        if (equiposSeleccionadosEdit.length === 0) {
+            container.innerHTML = '<p style="color: #666; font-size: 14px; text-align: center; padding: 10px; margin: 0;">No hay equipos agregados</p>';
+            return;
+        }
+        
+        equiposSeleccionadosEdit.forEach((equipo, index) => {
+            const equipoDiv = document.createElement('div');
+            equipoDiv.className = 'equipo-seleccionado';
+            
+            const equipoInfo = document.createElement('div');
+            equipoInfo.className = 'equipo-info';
+            
+            const equipoNombre = document.createElement('div');
+            equipoNombre.className = 'equipo-nombre';
+            equipoNombre.textContent = equipo.nombre || 'Sin nombre';
+            
+            const equipoTipo = document.createElement('div');
+            equipoTipo.className = 'equipo-tipo';
+            equipoTipo.textContent = equipo.tipo || 'Sin tipo especificado';
+            
+            const equipoUso = document.createElement('div');
+            equipoUso.className = 'equipo-uso';
+            equipoUso.textContent = 'Uso: ' + (equipo.uso || 'No especificado');
+            
+            equipoInfo.appendChild(equipoNombre);
+            equipoInfo.appendChild(equipoTipo);
+            equipoInfo.appendChild(equipoUso);
+            
+            const btnEliminar = document.createElement('button');
+            btnEliminar.type = 'button';
+            btnEliminar.className = 'btn-eliminar-equipo';
+            btnEliminar.onclick = function() { eliminarEquipoEdit(index); };
+            btnEliminar.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            
+            equipoDiv.appendChild(equipoInfo);
+            equipoDiv.appendChild(btnEliminar);
+            container.appendChild(equipoDiv);
+        });
+    }
+    
+    function eliminarEquipoEdit(index) {
+        equiposSeleccionadosEdit.splice(index, 1);
+        actualizarEquiposSeleccionadosEdit();
+    }
+    
+    function agregarEquiposAlFormularioEdit() {
+        // Eliminar inputs de equipos anteriores
+        const inputsAnteriores = document.querySelectorAll('#formEditarReserva input[name="equiposIds"], #formEditarReserva input[name="equiposUsos"]');
+        inputsAnteriores.forEach(input => input.remove());
+        
+        // Agregar inputs para cada equipo seleccionado
+        equiposSeleccionadosEdit.forEach(equipo => {
+            const inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'equiposIds';
+            inputId.value = equipo.id;
+            
+            const inputUso = document.createElement('input');
+            inputUso.type = 'hidden';
+            inputUso.name = 'equiposUsos';
+            inputUso.value = equipo.uso;
+            
+            document.getElementById('formEditarReserva').appendChild(inputId);
+            document.getElementById('formEditarReserva').appendChild(inputUso);
+        });
+    }
+    
+    // Agregar equipo en modo edición
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnAgregarEquipoEdit = document.getElementById('btnAgregarEquipoEdit');
+        if (btnAgregarEquipoEdit) {
+            btnAgregarEquipoEdit.addEventListener('click', function() {
+                mostrarModalSeleccionarEquipoEdit();
+            });
+        }
+    });
+    
+    function mostrarModalSeleccionarEquipoEdit() {
+        const modal = document.getElementById('modalSeleccionarEquipo');
+        const select = document.getElementById('selectEquipo');
+        
+        // Limpiar opciones anteriores
+        select.innerHTML = '<option value="">Seleccione un equipo...</option>';
+        
+        if (!equiposDisponibles || equiposDisponibles.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No hay equipos disponibles';
+            select.appendChild(option);
+        } else {
+            // Agregar equipos disponibles (excluyendo los ya seleccionados)
+            equiposDisponibles.forEach(equipo => {
+                if (!equiposSeleccionadosEdit.some(e => e.id === equipo.id)) {
+                    const option = document.createElement('option');
+                    option.value = equipo.id;
+                    option.textContent = equipo.nombre;
+                    select.appendChild(option);
+                }
+            });
+        }
+        
+        // Limpiar campos
+        document.getElementById('usoEquipo').value = '';
+        
+        // Cambiar el comportamiento del botón de agregar
+        const btnAgregarEquipo = document.querySelector('#modalSeleccionarEquipo .btn-guardar');
+        btnAgregarEquipo.onclick = agregarEquipoSeleccionadoEdit;
+        
+        modal.style.display = 'flex';
+    }
+    
+    function agregarEquipoSeleccionadoEdit() {
+        const select = document.getElementById('selectEquipo');
+        const uso = document.getElementById('usoEquipo').value.trim();
+        
+        if (!select.value) {
+            alert('Por favor seleccione un equipo');
+            return;
+        }
+        
+        if (!uso) {
+            alert('Por favor describa para qué va a usar el equipo');
+            return;
+        }
+        
+        const equipoId = parseInt(select.value);
+        const equipo = equiposDisponibles.find(e => e.id === equipoId);
+        
+        if (equipo) {
+            const nuevoEquipo = {
+                id: equipo.id,
+                nombre: equipo.nombre,
+                tipo: equipo.tipo || 'Sin tipo especificado',
+                uso: uso
+            };
+            
+            equiposSeleccionadosEdit.push(nuevoEquipo);
+            actualizarEquiposSeleccionadosEdit();
+            cerrarModalSeleccionarEquipo();
+        } else {
+            alert('Error: No se pudo encontrar el equipo seleccionado');
+        }
+    }
+
+    // Cerrar modal de edición al hacer clic fuera de él
+    window.addEventListener('click', function(event) {
+        const modalEditar = document.getElementById('modalEditarReserva');
+        if (event.target === modalEditar) {
+            cerrarModalEditarReserva();
         }
     });
 

@@ -57,7 +57,7 @@ public class LoginServlet extends HttpServlet {
                 // Redirigir según su rol
                 if (usuario.getEsAdmin()) {
                     System.out.println("Redirigiendo a admin.jsp");
-                    response.sendRedirect("admin.jsp");
+                    response.sendRedirect("reservas");
                 } else {
                     System.out.println("Redirigiendo a usuario.jsp");
                     response.sendRedirect("usuario.jsp");

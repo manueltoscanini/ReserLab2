@@ -819,9 +819,12 @@ function cancelarReserva(idActividad) {
     });
 }
 
-function editarReserva(idActividad) {
-    // Aquí implementarías la lógica para editar la reserva
-    alert('Funcionalidad de edición en desarrollo');
+// Override in page-specific scripts if needed
+if (typeof window.editarReserva === 'undefined') {
+    window.editarReserva = function(idActividad) {
+        // Aquí implementarías la lógica para editar la reserva
+        alert('Funcionalidad de edición en desarrollo');
+    };
 }
 
 
