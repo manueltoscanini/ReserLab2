@@ -2081,3 +2081,18 @@ body[data-theme="dark"] #modalSeleccionarEquipo .btn-guardar {
 body[data-theme="dark"] #modalSeleccionarEquipo .btn-guardar:hover {
     background: #0284c7;
 }
+
+/* Asegura que el modal de Seleccionar Equipo quede delante del de Crear Reserva */
+#modalSeleccionarEquipo.modal-overlay {
+    z-index: 4000;
+    position: fixed;
+}
+
+#modalSeleccionarEquipo .modal-content {
+    position: relative;
+    z-index: 4001;
+}
+
+#modalEditarReserva.modal-overlay {
+    z-index: 3500;
+}
