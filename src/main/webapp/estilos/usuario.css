@@ -1036,6 +1036,10 @@ body {
 
 /* Modal overlay específico para los modales del perfil */
 .modal-overlay {
+    margin-top: 5px ;
+    margin-right: 5px ;
+    margin-left: 5px;
+
     display: none;
     position: fixed;
     top: 0;

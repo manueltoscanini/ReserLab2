@@ -1023,47 +1023,7 @@
         }
     });
 
-    // ==== MODO OSCURO ====
-    (function initTemaOnce() {
-        if (window.__temaInitDone) return;
-        window.__temaInitDone = true;
 
-        const body = document.body;
-        const btn = document.getElementById('btnModoOscuro');
-
-        // Aplicar preferencia guardada
-        try {
-            const temaGuardado = localStorage.getItem('temaUsuario');
-            if (temaGuardado) body.dataset.theme = temaGuardado;
-        } catch (_) {
-        }
-
-        // Actualizar label/icono
-        function actualizarIcono() {
-            if (!btn) return;
-            if (body.dataset.theme === 'dark') {
-                btn.innerHTML = '<i class="fa-solid fa-sun"></i> Modo claro';
-            } else {
-                btn.innerHTML = '<i class="fa-solid fa-moon"></i> Modo oscuro';
-            }
-        }
-
-        actualizarIcono();
-
-        // Toggle
-        if (btn && !btn.__hooked) {
-            btn.addEventListener('click', () => {
-                const nuevo = body.dataset.theme === 'dark' ? 'light' : 'dark';
-                body.dataset.theme = nuevo;
-                try {
-                    localStorage.setItem('temaUsuario', nuevo);
-                } catch (_) {
-                }
-                actualizarIcono();
-            });
-            btn.__hooked = true;
-        }
-    })();
 
     // ==== MODAL LOGOUT (interceptar todos los forms.logout) ====
     (function initLogoutModalOnce() {
