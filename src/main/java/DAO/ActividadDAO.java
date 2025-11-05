@@ -384,7 +384,7 @@ public class ActividadDAO {
     }
 
     public boolean actualizarReserva(int idActividad, LocalDate fecha, Time horaInicio, Time horaFin, int cantParticipantes) {
-        String sql = "UPDATE actividad SET fecha = ?, hora_inicio = ?, hora_fin = ?, cant_participantes = ? WHERE id_actividad = ?";
+        String sql = "UPDATE actividad SET fecha = ?, hora_inicio = ?, hora_fin = ?, cant_participantes = ? WHERE id_actividad = ? AND estado IN ('en_espera','aceptada')";
         try {
             PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql);
             ps.setDate(1, java.sql.Date.valueOf(fecha));
@@ -430,7 +430,52 @@ public class ActividadDAO {
         }
     }
 
+    public int actualizarEstadosSegunTiempo() {
+        String aEnCurso = """
+        UPDATE actividad
+        SET estado = 'en_curso'
+        WHERE estado = 'aceptada'
+          AND fecha = CURRENT_DATE
+          AND CURRENT_TIME BETWEEN hora_inicio AND hora_fin
+    """;
 
+        String aFinalizada = """
+        UPDATE actividad
+        SET estado = 'finalizada'
+        WHERE estado IN ('aceptada','en_curso')
+          AND (
+               fecha < CURRENT_DATE
+               OR (fecha = CURRENT_DATE AND CURRENT_TIME > hora_fin)
+          )
+    """;
+
+        try {
+            var conn = ConnectionDB.getInstancia().getConnection();
+            int cambios = 0;
+            try (PreparedStatement ps1 = conn.prepareStatement(aEnCurso)) {
+                cambios += ps1.executeUpdate();
+            }
+            try (PreparedStatement ps2 = conn.prepareStatement(aFinalizada)) {
+                cambios += ps2.executeUpdate();
+            }
+            return cambios;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al actualizar estados por tiempo", e);
+        }
+    }
+
+    private String obtenerEstadoPorId(int id) {
+        String sql = "SELECT estado FROM actividad WHERE id_actividad = ?";
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString(1);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al obtener estado", e);
+        }
+        return null;
+    }
 }
 
 

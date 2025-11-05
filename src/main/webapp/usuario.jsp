@@ -388,6 +388,32 @@
     </div>
 </div>
 
+<div id="modalConfirmLogout" class="modal-overlay" style="display:none;">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+        <div class="modal-header">
+            <h3 id="logoutTitle">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+            </h3>
+            <button class="btn-cerrar-modal" id="closeLogoutModal" aria-label="Cerrar">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <p>¿Seguro que querés cerrar sesión?</p>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-cancelar" id="btnCancelLogout">
+                <i class="fa-solid fa-times"></i> Cancelar
+            </button>
+            <button type="button" class="btn-guardar" id="btnConfirmLogout">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     function mostrarModalCrearReserva() {
         const modal = document.getElementById('modalCrearReserva');
@@ -901,6 +927,55 @@
         if (event.target === modalEditar) {
             cerrarModalEditarReserva();
         }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('modalConfirmLogout');
+        if (!modal) return;
+
+        const btnConfirm = document.getElementById('btnConfirmLogout');
+        const btnCancel  = document.getElementById('btnCancelLogout');
+        const btnCloseX  = document.getElementById('closeLogoutModal');
+
+        let lastLogoutForm = null;
+
+        // 1) Interceptar todos los formularios de logout
+        document.querySelectorAll('form.logout').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                lastLogoutForm = this;
+                abrirModal();
+            });
+        });
+
+        // 2) Acciones del modal
+        function abrirModal() {
+            modal.style.display = 'flex';
+            // foco por accesibilidad
+            setTimeout(() => btnConfirm && btnConfirm.focus(), 0);
+        }
+        function cerrarModal() {
+            modal.style.display = 'none';
+        }
+
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', function () {
+                cerrarModal();
+                if (lastLogoutForm) lastLogoutForm.submit();
+            });
+        }
+        if (btnCancel) btnCancel.addEventListener('click', cerrarModal);
+        if (btnCloseX) btnCloseX.addEventListener('click', cerrarModal);
+
+        // Cerrar clickeando fuera del contenido
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) cerrarModal();
+        });
+
+        // Cerrar con Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modal.style.display !== 'none') cerrarModal();
+        });
     });
 
 </script>
