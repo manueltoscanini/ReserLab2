@@ -197,6 +197,8 @@
                 %>
                 <div class="tarjeta-reserva"
                      data-fecha="<%= reserva.getFecha().toString() %>"
+                     data-horainicio="<%= reserva.getHoraInicio().toString() %>"
+                     data-horafin="<%= reserva.getHoraFin().toString() %>"
                      data-estado="<%= reserva.getEstado().toLowerCase() %>">
                     <div class="icono-reserva">
                         <img src="imagenes/logo.png" alt="Logo ReserLab" class="logo-ficha">
