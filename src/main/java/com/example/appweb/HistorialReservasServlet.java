@@ -59,6 +59,10 @@ public class HistorialReservasServlet extends HttpServlet {
             String cedulaUsuario = usuario.getCedula();
             System.out.println("DEBUG: Cédula del usuario: " + cedulaUsuario);
 
+            System.out.println("DEBUG: Actualizando estados según fecha/hora...");
+            int cambios = actividadDAO.actualizarEstadosSegunTiempo();
+            System.out.println("DEBUG: Estados actualizados: " + cambios);
+
             // Obtener el historial de reservas (todos los estados excepto "aceptada")
             System.out.println("DEBUG: Consultando historial de reservas para cédula: " + cedulaUsuario);
             List<Actividad> todasLasReservas = actividadDAO.historialReservasPorCi(cedulaUsuario);

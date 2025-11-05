@@ -1967,6 +1967,117 @@ body[data-theme="dark"] .btnModoOscuro:hover {
     background: #111827;
 }
 
-#modalSeleccionarEquipo.modal-overlay {
-    z-index: 3500; /* más alto que el modal de crear reserva */
+body[data-theme="dark"] #modalCrearReserva .modal-content {
+    background: #1f2937;                    /* panel del modal */
+    color: #e2e8f0;
+}
+
+body[data-theme="dark"] #modalCrearReserva .modal-header {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #fff;
+}
+
+body[data-theme="dark"] #modalCrearReserva label {
+    color: #e2e8f0;
+}
+
+/* inputs del modal */
+body[data-theme="dark"] #modalCrearReserva input,
+body[data-theme="dark"] #modalCrearReserva select,
+body[data-theme="dark"] #modalCrearReserva textarea {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    color: #e2e8f0;
+}
+body[data-theme="dark"] #modalCrearReserva input::placeholder,
+body[data-theme="dark"] #modalCrearReserva textarea::placeholder {
+    color: rgba(226, 232, 240, 0.4);
+}
+
+/* cajita blanca de equipos → que sea oscura */
+body[data-theme="dark"] #modalCrearReserva .equipos-container {
+    background: #111827;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+}
+body[data-theme="dark"] #modalCrearReserva .equipos-seleccionados {
+    background: transparent;
+}
+body[data-theme="dark"] #modalCrearReserva .equipo-seleccionado {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #e2e8f0;
+}
+
+/* botón "Agregar Equipo" */
+body[data-theme="dark"] #modalCrearReserva .btn-agregar-equipo {
+    background: #0ea5e9;
+    color: #fff;                /* <- acá estaba el problema de legibilidad */
+}
+body[data-theme="dark"] #modalCrearReserva .btn-agregar-equipo:hover {
+    background: #0284c7;
+}
+
+/* botones de abajo */
+body[data-theme="dark"] #modalCrearReserva .btn-cancelar {
+    background: #334155;
+    color: #e2e8f0;
+}
+body[data-theme="dark"] #modalCrearReserva .btn-cancelar:hover {
+    background: #1f2937;
+}
+
+body[data-theme="dark"] #modalCrearReserva .btn-guardar,
+body[data-theme="dark"] #modalCrearReserva .btn-crear-reserva,
+body[data-theme="dark"] #modalCrearReserva button[type="submit"] {
+    background: #0ea5e9;
+    color: #fff;
+}
+body[data-theme="dark"] #modalCrearReserva .btn-guardar:hover,
+body[data-theme="dark"] #modalCrearReserva .btn-crear-reserva:hover,
+body[data-theme="dark"] #modalCrearReserva button[type="submit"]:hover {
+    background: #0284c7;
+}
+
+body[data-theme="dark"] #modalSeleccionarEquipo .modal-content {
+    background: #1f2937;
+    color: #e2e8f0;
+}
+
+body[data-theme="dark"] #modalSeleccionarEquipo .modal-header {
+    background: linear-gradient(135deg, #0ea5e9, #0284c7);
+    color: #fff;
+}
+
+body[data-theme="dark"] #modalSeleccionarEquipo label {
+    color: #e2e8f0;
+}
+
+body[data-theme="dark"] #modalSeleccionarEquipo input,
+body[data-theme="dark"] #modalSeleccionarEquipo select,
+body[data-theme="dark"] #modalSeleccionarEquipo textarea {
+    background: #0f172a;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    color: #e2e8f0;
+}
+
+body[data-theme="dark"] #modalSeleccionarEquipo input::placeholder,
+body[data-theme="dark"] #modalSeleccionarEquipo textarea::placeholder {
+    color: rgba(226, 232, 240, 0.5);
+}
+
+/* Botones inferiores */
+body[data-theme="dark"] #modalSeleccionarEquipo .btn-cancelar {
+    background: #334155;
+    color: #e2e8f0;
+}
+body[data-theme="dark"] #modalSeleccionarEquipo .btn-cancelar:hover {
+    background: #1f2937;
+}
+
+body[data-theme="dark"] #modalSeleccionarEquipo .btn-guardar {
+    background: #0ea5e9;
+    color: #fff;
+}
+body[data-theme="dark"] #modalSeleccionarEquipo .btn-guardar:hover {
+    background: #0284c7;
 }
