@@ -36,7 +36,12 @@
             <input type="email" id="email" name="email" required><br>
 
             <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required><br>
+            <div class="password-container">
+                <input type="password" id="password" name="password" required>
+                <span class="eye-icon" onclick="togglePasswordVisibility()">
+                    <i id="eyeIcon" class="fas fa-eye"></i>
+                </span>
+            </div><br>
 
             <input type="submit" value="Iniciar sesión">
         </form>
@@ -51,5 +56,22 @@
         <!-- <p><a href="registro.jsp">¿No tienes cuenta? Regístrate</a></p> -->
     </div>
 </main>
+
+<script>
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
+</script>
 </body>
 </html>
