@@ -224,7 +224,7 @@
                         <i class="fa-solid fa-users"></i> Cantidad de Participantes
                     </label>
                     <input type="number" id="cantidadParticipantes" name="cantidadParticipantes" 
-                           min="1" max="50" required>
+                           min="1" max="20" required>
                 </div>
 
                 <div class="form-group">
@@ -244,15 +244,18 @@
                     </label>
                     <div class="equipos-container">
                         <div class="equipos-header">
-                            <button type="button" id="btnAgregarEquipoAdmin" class="btn-agregar-equipo">
+                            <button type="button" id="btnAgregarEquipo" class="btn-agregar-equipo">
                                 <i class="fa-solid fa-plus"></i> Agregar Equipo
                             </button>
                         </div>
-                        <div id="equiposSeleccionadosAdmin" class="equipos-seleccionados">
+                        <div id="equiposSeleccionados" class="equipos-seleccionados">
                             <!-- Los equipos seleccionados se mostrarán aquí -->
                         </div>
                     </div>
                 </div>
+
+
+
             </div>
 
             <div class="modal-footer">
@@ -326,7 +329,7 @@
     }
 
     // Mostrar modal para seleccionar equipo (Admin)
-    document.getElementById('btnAgregarEquipoAdmin').addEventListener('click', function() {
+    document.getElementById('btnAgregarEquipo').addEventListener('click', function() {
         mostrarModalSeleccionarEquipoAdmin();
     });
 
@@ -342,7 +345,7 @@
             if (!equiposSeleccionadosAdmin.some(e => e.id === equipo.id)) {
                 const option = document.createElement('option');
                 option.value = equipo.id;
-                option.textContent = `${equipo.nombre} (${equipo.tipo})`;
+                option.textContent = equipo.nombre;
                 select.appendChild(option);
             }
         });
@@ -388,22 +391,49 @@
     }
 
     function actualizarEquiposSeleccionadosAdmin() {
-        const container = document.getElementById('equiposSeleccionadosAdmin');
+        const container = document.getElementById('equiposSeleccionados');
+        
+        if (!container) return;
+        
         container.innerHTML = '';
+        
+        if (equiposSeleccionadosAdmin.length === 0) {
+            container.innerHTML = '<p style="color: #666; font-size: 14px; text-align: center; padding: 10px; margin: 0;">No hay equipos agregados</p>';
+            return;
+        }
         
         equiposSeleccionadosAdmin.forEach((equipo, index) => {
             const equipoDiv = document.createElement('div');
             equipoDiv.className = 'equipo-seleccionado';
-            equipoDiv.innerHTML = `
-                <div class="equipo-info">
-                    <div class="equipo-nombre">${equipo.nombre}</div>
-                    <div class="equipo-tipo">${equipo.tipo}</div>
-                    <div class="equipo-uso">Uso: ${equipo.uso}</div>
-                </div>
-                <button type="button" class="btn-eliminar-equipo" onclick="eliminarEquipoAdmin(${index})">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            `;
+            
+            // Crear elementos de forma segura
+            const equipoInfo = document.createElement('div');
+            equipoInfo.className = 'equipo-info';
+            
+            const equipoNombre = document.createElement('div');
+            equipoNombre.className = 'equipo-nombre';
+            equipoNombre.textContent = equipo.nombre || 'Sin nombre';
+            
+            const equipoTipo = document.createElement('div');
+            equipoTipo.className = 'equipo-tipo';
+            equipoTipo.textContent = equipo.tipo || 'Sin tipo especificado';
+            
+            const equipoUso = document.createElement('div');
+            equipoUso.className = 'equipo-uso';
+            equipoUso.textContent = 'Uso: ' + (equipo.uso || 'No especificado');
+            
+            equipoInfo.appendChild(equipoNombre);
+            equipoInfo.appendChild(equipoTipo);
+            equipoInfo.appendChild(equipoUso);
+            
+            const btnEliminar = document.createElement('button');
+            btnEliminar.type = 'button';
+            btnEliminar.className = 'btn-eliminar-equipo-reserva';
+            btnEliminar.onclick = function() { eliminarEquipoAdmin(index); };
+            btnEliminar.innerHTML = '<i class="fa-solid fa-trash"></i>';
+            
+            equipoDiv.appendChild(equipoInfo);
+            equipoDiv.appendChild(btnEliminar);
             container.appendChild(equipoDiv);
         });
     }

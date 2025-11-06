@@ -1508,3 +1508,126 @@ body {
 .toast-reserlab.error {
     background: #e74c3c;      /* rojo */
 }
+
+/* ======== Equipos ======== */
+.equipos-section {
+    grid-column: 1 / -1;
+}
+
+.equipos-container {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    background-color: #f9f9f9;
+    min-height: 120px;
+}
+
+.equipos-header {
+    margin-bottom: 16px;
+}
+
+.btn-agregar-equipo {
+    background-color: #027b8e;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-agregar-equipo:hover {
+    background-color: #025a6b;
+    transform: translateY(-2px);
+}
+
+.equipos-seleccionados {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 50px;
+}
+
+.equipo-seleccionado {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    border: 2px solid #027b8e;
+    border-radius: 8px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.equipo-seleccionado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.equipo-info {
+    flex: 1;
+}
+
+.equipo-nombre {
+    font-weight: bold;
+    color: #027b8e;
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+
+.equipo-tipo {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.equipo-uso {
+    color: #444;
+    font-size: 13px;
+    font-style: italic;
+    padding: 6px 10px;
+    background-color: #f0f8ff;
+    border-radius: 4px;
+    border-left: 3px solid #027b8e;
+    margin-top: 6px;
+    font-weight: 400;
+}
+.btn-eliminar-equipo-reserva {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 50px;
+
+}
+
+.btn-eliminar-equipo-reserva:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}

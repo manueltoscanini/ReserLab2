@@ -353,7 +353,7 @@
                         <i class="fa-solid fa-users"></i> Cantidad de Participantes
                     </label>
                     <input type="number" id="cantidadParticipantes" name="cantidadParticipantes"
-                           min="1" max="10" required>
+                           min="1" max="20" required>
                 </div>
 
                 <div class="form-group equipos-section">
@@ -409,7 +409,7 @@
                     <i class="fa-solid fa-comment"></i> ¿Para qué va a usar este equipo?
                 </label>
                 <textarea id="usoEquipo" placeholder="Describa el propósito de uso del equipo..."
-                          rows="3" required></textarea>
+                          rows="3" required ></textarea>
             </div>
         </div>
         <div class="modal-footer">
