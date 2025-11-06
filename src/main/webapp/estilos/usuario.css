@@ -1854,7 +1854,7 @@ body[data-theme="dark"] {
     --dark: #e2e8f0;           /* texto principal */
     --white: #1f2937;          /* “blanco” oscuro para cards */
     --muted: #94a3b8;
-    --danger: #f43f5e;
+    --danger: #c65163;
     --danger-700: #e11d48;
     --success: #22c55e;
     background: var(--bg-page);

@@ -261,7 +261,7 @@ body {
     color: #856404;
 }
 
-.estado-aprobada {
+.estado-aceptada {
     background-color: #d4edda;
     color: #155724;
 }
@@ -270,6 +270,7 @@ body {
     background-color: #f8d7da;
     color: #721c24;
 }
+
 
 .cliente span {
     font-weight: 500;
@@ -361,6 +362,7 @@ body {
     gap: 10px;
     align-items: center;
     justify-content: center;
+    height: 30px;
 }
 
 .btn-aprobar, .btn-rechazar {
@@ -403,6 +405,7 @@ body {
     color: #666;
     font-size: 14px;
     font-weight: 500;
+    height: 10px;
 }
 
 .estado-final i {
@@ -1630,4 +1633,11 @@ body {
 .btn-eliminar-equipo-reserva:hover {
     background-color: #c82333;
     transform: scale(1.05);
+}
+
+#botonCerrarSesion{
+    background-color: #c62828;
+}
+#botonCerrarSesion:hover{
+    background-color: #a4161a;
 }

@@ -117,8 +117,6 @@
                 } else {
                 %>
                 <div class="estado-final">
-                    <i class="fa-solid fa-<%= "aprobada".equals(reserva.getEstado()) ? "check-circle" : "times-circle" %>"></i>
-                    <span>Estado: <%= reserva.getEstado() %></span>
                 </div>
                 <%
                     }
