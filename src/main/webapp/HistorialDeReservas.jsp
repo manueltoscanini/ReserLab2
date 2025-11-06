@@ -29,7 +29,7 @@
     if (usuario != null) {
         ActividadDAO actividadDAO = new ActividadDAO();
         // Actualizar estados antes de consultar
-        actividadDAO.actualizarEstadosSegunTiempo();
+        actividadDAO.refrescarEstados();
 
         reservas = (List<Actividad>) request.getAttribute("historialReservas");
     }

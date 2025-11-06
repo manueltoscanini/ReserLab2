@@ -34,6 +34,8 @@ public class HistorialReservasServlet extends HttpServlet {
         System.out.println("========================================\n");
 
         try {
+            actividadDAO.refrescarEstados();
+
             // Obtener la cédula del usuario desde la sesión
             HttpSession session = request.getSession();
             // Debug: mostrar todos los atributos de sesión
@@ -58,10 +60,6 @@ public class HistorialReservasServlet extends HttpServlet {
 
             String cedulaUsuario = usuario.getCedula();
             System.out.println("DEBUG: Cédula del usuario: " + cedulaUsuario);
-
-            System.out.println("DEBUG: Actualizando estados según fecha/hora...");
-            int cambios = actividadDAO.actualizarEstadosSegunTiempo();
-            System.out.println("DEBUG: Estados actualizados: " + cambios);
 
             // Obtener el historial de reservas (todos los estados excepto "aceptada")
             System.out.println("DEBUG: Consultando historial de reservas para cédula: " + cedulaUsuario);

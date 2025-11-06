@@ -40,6 +40,8 @@ public class ReservasActivasServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         
         try {
+
+            actividadDAO.refrescarEstados();
             // Obtener la cédula del usuario desde la sesión
             HttpSession session = request.getSession();
             

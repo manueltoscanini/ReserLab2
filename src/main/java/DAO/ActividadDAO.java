@@ -430,8 +430,9 @@ public class ActividadDAO {
         }
     }
 
-    public int actualizarEstadosSegunTiempo() {
-        String aEnCurso = """
+    public void refrescarEstados() {
+        // 1) aceptada -> en_curso si es hoy y estamos entre inicio y fin
+        String sqlEnCurso = """
         UPDATE actividad
         SET estado = 'en_curso'
         WHERE estado = 'aceptada'
@@ -439,28 +440,22 @@ public class ActividadDAO {
           AND CURRENT_TIME BETWEEN hora_inicio AND hora_fin
     """;
 
-        String aFinalizada = """
+        // 2) aceptada/en_curso -> finalizada si ya terminó (ayer o antes, o hoy y pasó la hora_fin)
+        String sqlFinalizada = """
         UPDATE actividad
         SET estado = 'finalizada'
         WHERE estado IN ('aceptada','en_curso')
           AND (
                fecha < CURRENT_DATE
-               OR (fecha = CURRENT_DATE AND CURRENT_TIME > hora_fin)
+            OR (fecha = CURRENT_DATE AND CURRENT_TIME > hora_fin)
           )
     """;
 
-        try {
-            var conn = ConnectionDB.getInstancia().getConnection();
-            int cambios = 0;
-            try (PreparedStatement ps1 = conn.prepareStatement(aEnCurso)) {
-                cambios += ps1.executeUpdate();
-            }
-            try (PreparedStatement ps2 = conn.prepareStatement(aFinalizada)) {
-                cambios += ps2.executeUpdate();
-            }
-            return cambios;
+        try (var conn = ConnectionDB.getInstancia().getConnection()) {
+            try (var ps1 = conn.prepareStatement(sqlEnCurso)) { ps1.executeUpdate(); }
+            try (var ps2 = conn.prepareStatement(sqlFinalizada)) { ps2.executeUpdate(); }
         } catch (SQLException e) {
-            throw new RuntimeException("Error al actualizar estados por tiempo", e);
+            throw new RuntimeException("Error al refrescar estados", e);
         }
     }
 
