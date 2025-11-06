@@ -458,19 +458,6 @@ public class ActividadDAO {
             throw new RuntimeException("Error al refrescar estados", e);
         }
     }
-
-    private String obtenerEstadoPorId(int id) {
-        String sql = "SELECT estado FROM actividad WHERE id_actividad = ?";
-        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
-            ps.setInt(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getString(1);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error al obtener estado", e);
-        }
-        return null;
-    }
 }
 
 

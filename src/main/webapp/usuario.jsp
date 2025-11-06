@@ -416,12 +416,6 @@
 </div>
 
 <script>
-
-    setInterval(() => {
-        fetch('refrescar-estados', { method: 'POST' }) // endpoint que llama actividadDAO.refrescarEstados()
-            .then(() => location.reload());
-    }, 60000);
-
     function mostrarModalCrearReserva() {
         const modal = document.getElementById('modalCrearReserva');
         if (!modal) return;
