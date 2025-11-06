@@ -1031,7 +1031,9 @@ body {
     background-color: #5a6268;
     transform: translateY(-2px)
 }
-
+#formEditarReserva {
+    padding: 24px;
+}
 /* ======= Modal ======= */
 
 /* Modal overlay específico para los modales del perfil */
