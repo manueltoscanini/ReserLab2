@@ -8,26 +8,12 @@
     <title>Iniciar sesión - ReserLab</title>
     <link rel="stylesheet" type="text/css" href="estilos/login.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <main>
     <div id="contenedorLogin">
-
-        <c:if test="${param.error == 'credenciales'}">
-            <div class="mensaje-error">Correo o contraseña incorrectos.</div>
-        </c:if>
-
-        <c:if test="${param.error == 'camposVacios'}">
-            <div class="mensaje-error">Por favor, complete todos los campos.</div>
-        </c:if>
-
-        <c:if test="${param.error == 'servidor'}">
-            <div class="mensaje-error">Error interno del servidor. Intente nuevamente más tarde.</div>
-        </c:if>
-
-        <c:if test="${param.msg == 'cuentaDesactivada'}">
-            <div class="mensaje-error">Tu cuenta ha sido desactivada. Contacta al administrador.</div>
-        </c:if>
 
         <h2>Iniciar sesión</h2>
 
@@ -56,6 +42,64 @@
         <!-- <p><a href="registro.jsp">¿No tienes cuenta? Regístrate</a></p> -->
     </div>
 </main>
+
+<!-- Script para mostrar alertas con SweetAlert -->
+<script>
+    // Función para obtener parámetros de la URL
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Mostrar alertas con SweetAlert según los parámetros de la URL
+    window.addEventListener('DOMContentLoaded', function() {
+        var error = getParameterByName('error');
+        var exito = getParameterByName('exito');
+        var msg = getParameterByName('msg');
+        
+        if (error) {
+            var errorMessage = '';
+            if (error === 'credenciales') {
+                errorMessage = 'Correo o contraseña incorrectos.';
+            } else if (error === 'camposVacios') {
+                errorMessage = 'Por favor, complete todos los campos.';
+            } else if (error === 'servidor') {
+                errorMessage = 'Error interno del servidor. Intente nuevamente más tarde.';
+            } else {
+                errorMessage = error; // Mensaje personalizado
+            }
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                confirmButtonText: 'Aceptar'
+            });
+        }
+        
+        if (exito) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: exito,
+                confirmButtonText: 'Aceptar'
+            });
+        }
+        
+        if (msg && msg === 'cuentaDesactivada') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Cuenta desactivada',
+                text: 'Tu cuenta ha sido desactivada. Contacta al administrador.',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    });
+</script>
 
 <script>
     function togglePasswordVisibility() {

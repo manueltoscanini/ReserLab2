@@ -54,8 +54,8 @@ public class CrearUsuarioServlet extends HttpServlet {
             }
 
             // Verificar duplicados
-            if (usuarioDAO.existeUsuario(nombre, email, cedula)) {
-                session.setAttribute("error", "Ya existe un usuario con estos datos (nombre, email o cédula).");
+            if (usuarioDAO.existeUsuario(email, cedula)) {
+                session.setAttribute("error", "Ya existe un usuario con estos datos (email o cédula).");
                 response.sendRedirect("usuarios");
                 return;
             }

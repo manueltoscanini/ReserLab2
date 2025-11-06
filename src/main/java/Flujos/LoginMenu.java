@@ -107,8 +107,8 @@ public class LoginMenu {
         String cedula = scanner.nextLine();
 
         // Validar primero que los datos no estén registrados en la base de datos
-        if (usuarioDAO.existeUsuario(nombre, correo, cedula)) {
-            System.out.println("Error: Ya existe un usuario con estos datos (nombre, email o cédula)");
+        if (usuarioDAO.existeUsuario(correo, cedula)) {
+            System.out.println("Error: Ya existe un usuario con estos datos (email o cédula)");
             return;
         }
 
