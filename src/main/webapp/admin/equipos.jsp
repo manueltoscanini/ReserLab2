@@ -227,9 +227,54 @@ function cerrarModalCrearEquipo() {
     document.getElementById('formCrearEquipo').reset();
 }
 
-function eliminarEquipo(idEquipo) {
-    if (confirm('¿Estás seguro de que deseas eliminar este equipo?')) {
-        alert('Funcionalidad de eliminar equipo en desarrollo');
+async function eliminarEquipo(idEquipo) {
+    if (!confirm('¿Estás seguro de que deseas eliminar este equipo?')) {
+        return;
+    }
+    
+    try {
+        // Send as URL encoded form data instead of FormData
+        const params = new URLSearchParams();
+        params.append('idEquipo', idEquipo);
+        
+        // Get context path
+        const contextPath = document.body.dataset.context || '';
+        const url = contextPath + '/eliminar-equipo';
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Mostrar mensaje de éxito y recargar la página
+            if (typeof showToast === 'function') {
+                showToast('success', data.message || 'Equipo eliminado correctamente');
+            } else {
+                alert(data.message || 'Equipo eliminado correctamente');
+            }
+            // Recargar la lista de equipos
+            setTimeout(() => window.location.reload(), 1000);
+        } else {
+            // Mostrar mensaje de error
+            if (typeof showToast === 'function') {
+                showToast('error', data.message || 'No se pudo eliminar el equipo');
+            } else {
+                alert(data.message || 'No se pudo eliminar el equipo');
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (typeof showToast === 'function') {
+            showToast('error', 'Error al eliminar el equipo');
+        } else {
+            alert('Error al eliminar el equipo');
+        }
     }
 }
 

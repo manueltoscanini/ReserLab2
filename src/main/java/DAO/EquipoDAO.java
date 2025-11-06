@@ -30,12 +30,12 @@ public class EquipoDAO {
 
 
     public void eliminarEquipo(int id) {
-        String sql = "DELETE FROM EquipoLaboratorio WHERE id_equipo = ?";
+        String sql = "UPDATE EquipoLaboratorio SET activo = 0 WHERE id_equipo = ?";
         try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
             ps.setInt(1, id);
             int filas = ps.executeUpdate();
             if (filas > 0) {
-                System.out.println("Equipo eliminado.");
+                System.out.println("Equipo eliminado (desactivado).;");
             } else {
                 System.out.println("No se encontró un equipo con ese ID.");
             }
