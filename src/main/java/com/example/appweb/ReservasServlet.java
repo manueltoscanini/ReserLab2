@@ -21,6 +21,9 @@ public class ReservasServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
+
+            actividadDAO.refrescarEstados();
+
             // Obtener parámetros de paginación y filtro
             String pageParam = request.getParameter("page");
             String fechaParam = request.getParameter("fecha");
