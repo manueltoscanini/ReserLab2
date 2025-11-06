@@ -80,8 +80,6 @@ public class RegistroServlet extends HttpServlet {
         }
 
         try {
-            // Crear usuario (no admin)
-            usuarioDAO.crearUsuario(nombre, email, cedula, Hashed.encriptarContra(password));
 
             // Cliente: mapear tipo y carrera (solo estudiantes requieren carrera)
             Integer idCarrera = null;
@@ -96,6 +94,8 @@ public class RegistroServlet extends HttpServlet {
                     return;
                 }
             }
+            // Crear usuario (no admin)
+             usuarioDAO.crearUsuario(nombre, email, cedula, Hashed.encriptarContra(password));
 
             boolean ok = clienteDAO.insertarCliente(cedula, tipoCliente, idCarrera);
             if (!ok) {
@@ -159,13 +159,16 @@ public class RegistroServlet extends HttpServlet {
         response.sendRedirect("login.jsp?exito=" + encodedMessage);
     }
 
-    private static boolean isEmpty(String s) { return s == null || s.isBlank(); }
-    private static String trim(String s) { return s == null ? null : s.trim(); }
+    private static boolean isEmpty(String s) {
+        return s == null || s.isBlank();
+    }
+    private static String trim(String s) {
+        return s == null ? null : s.trim();
+    }
     private static boolean emailValido(String email) {
         // Validación simple similar a AdministradorMenu.validarEmail
         return email != null && email.contains("@") && email.contains(".");
     }
-
     private static boolean validarCedulaUruguaya(String ci) {
         if (ci == null) return false;
 
