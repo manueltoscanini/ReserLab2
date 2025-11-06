@@ -619,6 +619,10 @@ body {
     flex-direction: column;
     gap: 8px;
 }
+.modal-content .modal-body .form-group {
+    margin-bottom: 20px;
+}
+
 
 .form-group label {
     color: #333;
