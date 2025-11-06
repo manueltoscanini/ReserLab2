@@ -281,13 +281,12 @@ public class UsuarioDAO {
             throw new RuntimeException("Error al verificar email existente excluyendo actual", e);
         }
     }
-    public boolean existeUsuario(String nombre, String email, String cedula) {
-        String consulta = "SELECT COUNT(*) FROM usuario WHERE nombre = ? OR email = ? OR cedula = ?";
+    public boolean existeUsuario(String email, String cedula) {
+        String consulta = "SELECT COUNT(*) FROM usuario WHERE email = ? OR cedula = ?";
         try {
             PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(consulta);
-            ps.setString(1, nombre);
-            ps.setString(2, email);
-            ps.setString(3, cedula);
+            ps.setString(1, email);
+            ps.setString(2, cedula);
 
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {

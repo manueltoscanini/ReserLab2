@@ -11,6 +11,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @WebServlet(name = "RegistroServlet", value = "/RegistroServlet")
@@ -42,33 +44,28 @@ public class RegistroServlet extends HttpServlet {
 
         // Validaciones básicas siguiendo el flujo de LoginMenu/AdministradorMenu
         if (isEmpty(nombre) || isEmpty(email) || isEmpty(cedula) || isEmpty(password) || isEmpty(password2) || isEmpty(tipoCliente)) {
-            request.setAttribute("error", "Todos los campos marcados son obligatorios.");
-            doGet(request, response);
+            redirectToRegistroWithMessage(response, "error", "Todos los campos marcados son obligatorios.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
         if (!validarCedulaUruguaya(cedula)) {
-            request.setAttribute("error", "La cédula ingresada no es válida.");
-            doGet(request, response);
+            redirectToRegistroWithMessage(response, "error", "La cédula ingresada no es válida.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
         if (!emailValido(email)) {
-            request.setAttribute("error", "El formato del email no es válido.");
-            doGet(request, response);
+            redirectToRegistroWithMessage(response, "error", "El formato del email no es válido.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
         if (!password.equals(password2)) {
-            request.setAttribute("error", "Las contraseñas no coinciden.");
-            doGet(request, response);
+            redirectToRegistroWithMessage(response, "error", "Las contraseñas no coinciden.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
         // Duplicados
-        if (usuarioDAO.existeUsuario(nombre, email, cedula)) {
-            request.setAttribute("error", "Ya existe un usuario con estos datos (nombre, email o cédula).");
-            doGet(request, response);
+        if (usuarioDAO.existeUsuario(email, cedula)) {
+            redirectToRegistroWithMessage(response, "error", "Ya existe un usuario con estos datos (email o cédula).",nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
@@ -78,8 +75,7 @@ public class RegistroServlet extends HttpServlet {
                 !password.matches(".*[a-z].*") ||
                 !password.matches(".*\\d.*")) {
 
-            request.setAttribute("error", "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
-            doGet(request, response);
+            redirectToRegistroWithMessage(response, "error", "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
@@ -91,32 +87,76 @@ public class RegistroServlet extends HttpServlet {
             Integer idCarrera = null;
             if ("estudiante".equalsIgnoreCase(tipoCliente)) {
                 if (isEmpty(carreraNombre)) {
-                    request.setAttribute("error", "Seleccioná una carrera para estudiantes.");
-                    doGet(request, response);
+                    redirectToRegistroWithMessage(response, "error", "Seleccioná una carrera para estudiantes.", nombre, email, cedula, tipoCliente, carreraNombre);
                     return;
                 }
                 idCarrera = clienteDAO.obtenerIdCarreraPorNombre(carreraNombre);
                 if (idCarrera == null) {
-                    request.setAttribute("error", "La carrera seleccionada no existe.");
-                    doGet(request, response);
+                    redirectToRegistroWithMessage(response, "error", "La carrera seleccionada no existe.", nombre, email, cedula, tipoCliente, carreraNombre);
                     return;
                 }
             }
 
             boolean ok = clienteDAO.insertarCliente(cedula, tipoCliente, idCarrera);
             if (!ok) {
-                request.setAttribute("error", "No se pudo registrar el cliente.");
-                doGet(request, response);
+                redirectToRegistroWithMessage(response, "error", "No se pudo registrar el cliente.", nombre, email, cedula, tipoCliente, carreraNombre);
                 return;
             }
 
-            // Éxito: redirigir a login
-            request.setAttribute("exito", "Registro exitoso. Ahora podés iniciar sesión.");
-            request.getRequestDispatcher("/login.jsp").forward(request, response);
+            // Éxito: redirigir a login con mensaje de éxito
+            redirectToLoginWithSuccessMessage(response, "Registro exitoso. Ahora podés iniciar sesión.");
         } catch (Exception e) {
-            request.setAttribute("error", "Error al registrar: " + e.getMessage());
-            doGet(request, response);
+            redirectToRegistroWithMessage(response, "error", "Error al registrar: " + e.getMessage(), nombre, email, cedula, tipoCliente, carreraNombre);
         }
+    }
+
+    // Método auxiliar para redirigir al formulario de registro con un mensaje de error
+    private void redirectToRegistroWithMessage(HttpServletResponse response, String messageType, String message, 
+            String nombre, String email, String cedula, String tipoCliente, String carreraNombre) throws IOException {
+        // Primero obtener la lista de carreras
+        List<String> carreras = null;
+        try {
+            carreras = clienteDAO.listarCarreras();
+        } catch (Exception ignored) {}
+        
+        // Construir URL con parámetros
+        StringBuilder url = new StringBuilder("registro.jsp?");
+        url.append(messageType).append("=").append(URLEncoder.encode(message, StandardCharsets.UTF_8.toString()));
+        
+        if (nombre != null) {
+            url.append("&nombre=").append(URLEncoder.encode(nombre, StandardCharsets.UTF_8.toString()));
+        }
+        if (email != null) {
+            url.append("&email=").append(URLEncoder.encode(email, StandardCharsets.UTF_8.toString()));
+        }
+        if (cedula != null) {
+            url.append("&cedula=").append(URLEncoder.encode(cedula, StandardCharsets.UTF_8.toString()));
+        }
+        if (tipoCliente != null) {
+            url.append("&tipoCliente=").append(URLEncoder.encode(tipoCliente, StandardCharsets.UTF_8.toString()));
+        }
+        if (carreraNombre != null) {
+            url.append("&carrera=").append(URLEncoder.encode(carreraNombre, StandardCharsets.UTF_8.toString()));
+        }
+        
+        // Agregar las carreras como parámetros codificados
+        if (carreras != null && !carreras.isEmpty()) {
+            // Codificar la lista de carreras como un parámetro
+            StringBuilder carrerasParam = new StringBuilder();
+            for (int i = 0; i < carreras.size(); i++) {
+                if (i > 0) carrerasParam.append(",");
+                carrerasParam.append(URLEncoder.encode(carreras.get(i), StandardCharsets.UTF_8.toString()));
+            }
+            url.append("&carreras=").append(carrerasParam.toString());
+        }
+        
+        response.sendRedirect(url.toString());
+    }
+
+    // Método auxiliar para redirigir al login con un mensaje de éxito
+    private void redirectToLoginWithSuccessMessage(HttpServletResponse response, String message) throws IOException {
+        String encodedMessage = URLEncoder.encode(message, StandardCharsets.UTF_8.toString());
+        response.sendRedirect("login.jsp?exito=" + encodedMessage);
     }
 
     private static boolean isEmpty(String s) { return s == null || s.isBlank(); }
@@ -166,5 +206,3 @@ public class RegistroServlet extends HttpServlet {
         return dvCalculado == digitoVerificador;
     }
 }
-
-

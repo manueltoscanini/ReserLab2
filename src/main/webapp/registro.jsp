@@ -7,35 +7,29 @@
     <title>Registro - ReserLab</title>
     <link rel="stylesheet" href="estilos/registro.css?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
 <div id="contenedorRegistro">
-
-    <c:if test="${not empty error}">
-        <div class="mensaje-error">${error}</div>
-    </c:if>
-
-    <c:if test="${not empty exito}">
-        <div class="mensaje-exito">${exito}</div>
-    </c:if>
 
     <h2>Crear cuenta</h2>
 
     <form action="${pageContext.request.contextPath}/RegistroServlet" method="post">
         <div>
             <label for="nombre">Nombre completo</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" value="<%= request.getParameter("nombre") != null ? request.getParameter("nombre") : "" %>" required>
         </div>
 
         <div class="fila">
             <div>
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" required>
+                <input type="email" id="email" name="email" placeholder="tucorreo@ejemplo.com" value="<%= request.getParameter("email") != null ? request.getParameter("email") : "" %>" required>
             </div>
             <div>
                 <label for="cedula">Cédula</label>
-                <input type="text" id="cedula" name="cedula" placeholder="Ej: 4.123.456-7" required>
+                <input type="text" id="cedula" name="cedula" placeholder="Ej: 4.123.456-7" value="<%= request.getParameter("cedula") != null ? request.getParameter("cedula") : "" %>" required>
             </div>
         </div>
 
@@ -53,10 +47,10 @@
         <div>
             <label for="tipoCliente">Tipo de cliente</label>
             <select id="tipoCliente" name="tipoCliente" required>
-                <option value="estudiante">Estudiante</option>
-                <option value="emprendedor">Emprendedor</option>
-                <option value="docente">Docente</option>
-                <option value="invitado">Invitado</option>
+                <option value="estudiante" <%= "estudiante".equals(request.getParameter("tipoCliente")) ? "selected" : "" %>>Estudiante</option>
+                <option value="emprendedor" <%= "emprendedor".equals(request.getParameter("tipoCliente")) ? "selected" : "" %>>Emprendedor</option>
+                <option value="docente" <%= "docente".equals(request.getParameter("tipoCliente")) ? "selected" : "" %>>Docente</option>
+                <option value="invitado" <%= "invitado".equals(request.getParameter("tipoCliente")) ? "selected" : "" %>>Invitado</option>
             </select>
             <div class="nota">Si elegís Estudiante, seleccioná también tu carrera.</div>
         </div>
@@ -66,11 +60,29 @@
             <select id="carrera" name="carrera">
                 <option value="">-- Seleccioná carrera --</option>
                 <%
+                    // Obtener carreras de los parámetros de la URL o del atributo de solicitud
                     java.util.List<String> carreras = (java.util.List<String>) request.getAttribute("carreras");
+                    String carrerasParam = request.getParameter("carreras");
+                    
+                    // Si no hay carreras en el atributo, intentar parsear desde el parámetro
+                    if (carreras == null && carrerasParam != null && !carrerasParam.isEmpty()) {
+                        String[] carrerasArray = carrerasParam.split(",");
+                        carreras = new java.util.ArrayList<>();
+                        for (String carrera : carrerasArray) {
+                            try {
+                                carreras.add(java.net.URLDecoder.decode(carrera, "UTF-8"));
+                            } catch (Exception e) {
+                                carreras.add(carrera);
+                            }
+                        }
+                    }
+                    
+                    String carreraSeleccionada = request.getParameter("carrera");
                     if (carreras != null) {
                         for (String c : carreras) {
+                            String selected = (carreraSeleccionada != null && carreraSeleccionada.equals(c)) ? "selected" : "";
                 %>
-                <option value="<%= c %>"><%= c %></option>
+                <option value="<%= c %>" <%= selected %>><%= c %></option>
                 <%
                         }
                     }
@@ -91,6 +103,43 @@
     </div>
 </div>
 
+<!-- Script para mostrar alertas con SweetAlert -->
+<script>
+    // Función para obtener parámetros de la URL
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    // Mostrar alertas con SweetAlert según los parámetros de la URL
+    window.addEventListener('DOMContentLoaded', function() {
+        var error = getParameterByName('error');
+        var exito = getParameterByName('exito');
+        
+        if (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error,
+                confirmButtonText: 'Aceptar'
+            });
+        }
+        
+        if (exito) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: exito,
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    });
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function(){
   const tipo = document.getElementById('tipoCliente');
@@ -105,23 +154,6 @@ document.addEventListener('DOMContentLoaded', function(){
   sync();
 });
 </script>
-
-</body>
-</html>
-
-<%--
-  Created by IntelliJ IDEA.
-  User: enzot
-  Date: 16/10/2025
-  Time: 14:10
-  To change this template use File | Settings | File Templates.
---%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title>Title</title>
-</head>
-<body>
 
 </body>
 </html>
