@@ -29,10 +29,19 @@ public class MailService {
             session = Session.getInstance(props, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
+                    System.out.println("Autenticando con usuario: " + user);
                     return new PasswordAuthentication(user, pass);
                 }
             });
+            
+            System.out.println("Configuración de correo cargada:");
+            System.out.println("  FROM: " + FROM);
+            System.out.println("  USER: " + user);
+            System.out.println("  HOST: " + props.getProperty("mail.smtp.host"));
+            System.out.println("  PORT: " + props.getProperty("mail.smtp.port"));
         } catch (IOException e) {
+            System.err.println("ERROR AL CARGAR CONFIGURACIÓN DE CORREO:");
+            e.printStackTrace();
             throw new RuntimeException("Error cargando mail.properties", e);
         }
     }
@@ -64,20 +73,49 @@ public class MailService {
         msg.setContent(html, "text/html; charset=UTF-8");
         Transport.send(msg);
     }
+    
     // En MailService.java
     public static void sendHtmlAsync(String to, String subject, String html) {
         executor.submit(() -> {
             try {
+                System.out.println("Preparando para enviar correo ASÍNCRONO a: " + to);
                 MimeMessage msg = new MimeMessage(session);
                 msg.setFrom(new InternetAddress(FROM, false));
                 msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
                 msg.setSubject(subject, StandardCharsets.UTF_8.name());
                 msg.setContent(html, "text/html; charset=UTF-8");
+                System.out.println("Enviando correo ASÍNCRONO...");
                 Transport.send(msg);
+                System.out.println("Correo ASÍNCRONO enviado exitosamente a: " + to);
             } catch (Exception e) {
+                System.err.println("Error al enviar correo ASÍNCRONO a: " + to);
                 e.printStackTrace();
             }
         });
+    }
+    
+    // Método para envío síncrono (bloqueante)
+    public static void sendHtmlSync(String to, String subject, String html) throws MessagingException {
+        System.out.println("=== INICIO ENVÍO CORREO SÍNCRONO ===");
+        System.out.println("Preparando para enviar correo SÍNCRONO a: " + to);
+        System.out.println("Asunto: " + subject);
+        
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            msg.setFrom(new InternetAddress(FROM, false));
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
+            msg.setSubject(subject, StandardCharsets.UTF_8.name());
+            msg.setContent(html, "text/html; charset=UTF-8");
+            System.out.println("Enviando correo SÍNCRONO...");
+            Transport.send(msg);
+            System.out.println("Correo SÍNCRONO enviado exitosamente a: " + to);
+        } catch (MessagingException e) {
+            System.err.println("ERROR AL ENVIAR CORREO SÍNCRONO a: " + to);
+            e.printStackTrace();
+            throw e;
+        }
+        
+        System.out.println("=== FIN ENVÍO CORREO SÍNCRONO ===");
     }
 
 
@@ -86,4 +124,3 @@ public class MailService {
     }
 
 }
-
