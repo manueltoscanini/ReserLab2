@@ -13,44 +13,53 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+// Servlet para cambiar el estado de una actividad (aprobar o rechazar)
 @WebServlet(name = "CambiarEstadoServlet", value = "/cambiar-estado")
 public class CambiarEstadoServlet extends HttpServlet {
 
+    // Instancia del DAO de Actividad
     private ActividadDAO actividadDAO = new ActividadDAO();
 
+    // Maneja las solicitudes POST para cambiar el estado de una actividad
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
+            // Obtener parámetros de la solicitud
             String idActividadParam = request.getParameter("idActividad");
             String nuevoEstado = request.getParameter("nuevoEstado");
             String pageParam = request.getParameter("page");
 
-            System.out.println("=== CambiarEstadoServlet ===");
-            System.out.println("ID Actividad: " + idActividadParam);
-            System.out.println("Nuevo Estado: " + nuevoEstado);
-            System.out.println("Página: " + pageParam);
-
+            // Validar parámetros
             if (idActividadParam == null || nuevoEstado == null) {
                 System.out.println("Error: Parámetros faltantes");
                 response.getWriter().println("<h3>Error: Parámetros requeridos</h3>");
                 return;
             }
 
+            // Convertir idActividad a entero
             int idActividad = Integer.parseInt(idActividadParam);
 
             // Cambiar el estado en la base de datos
             boolean exito = false;
             if ("aprobada".equals(nuevoEstado)) {
                 System.out.println("Intentando aprobar actividad: " + idActividad);
+
+                // Llamar al método del DAO para aprobar la actividad
                 exito = actividadDAO.aprobarActividad(idActividad);
+
+                // Enviar correo de notificación
                 String emailPersona = actividadDAO.buscarEmail(idActividad);
                 MailService.sendReservationAcceptedAsync(
                         emailPersona, "Reserva aceptada");
             } else if ("rechazada".equals(nuevoEstado)) {
                 System.out.println("Intentando rechazar actividad: " + idActividad);
+
+                // Llamar al método para rechazar la actividad
                 exito = rechazarActividad(idActividad);
+
+                // Enviar correo de notificación
                 String emailPersona = actividadDAO.buscarEmail(idActividad);
                 MailService.sendReservationAcceptedAsync(
                         emailPersona, "Reserva rechazada");
@@ -68,16 +77,6 @@ public class CambiarEstadoServlet extends HttpServlet {
             } else {
                 response.getWriter().println("<h3>Error al cambiar el estado de la reserva</h3>");
             }
-
-
-            // MailService.sendReservationAcceptedAsync(
-            //  usuario.getEmail(),
-            //  usuario.getNombre(),
-            //  String.valueOf(reserva.getId()),
-            //  reserva.getFecha().toString(),
-            //reserva.getRecurso()
-            // );
-
         } catch (Exception e) {
             System.err.println("Error en CambiarEstadoServlet: " + e.getMessage());
             e.printStackTrace();
@@ -85,6 +84,7 @@ public class CambiarEstadoServlet extends HttpServlet {
         }
     }
 
+    // Método para rechazar una actividad en la base de datos
     private boolean rechazarActividad(int idActividad) {
         String sql = "UPDATE actividad SET estado = 'rechazada' WHERE id_actividad = ? AND estado = 'en_espera'";
         try {
@@ -96,9 +96,4 @@ public class CambiarEstadoServlet extends HttpServlet {
             throw new RuntimeException("Error al rechazar actividad", e);
         }
     }
-
-
-
-
-
 }

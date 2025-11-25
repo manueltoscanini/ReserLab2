@@ -12,23 +12,28 @@ import java.io.IOException;
 import java.util.List;
 import Models.Usuario;
 
+// Servlet para editar el perfil del usuario
 @WebServlet(name = "EditarPerfilServlet", value = "/EditarPerfilServlet")
 public class EditarPerfilServlet extends HttpServlet {
 
+    // Instancias de los DAOs necesarios
     private ClienteDAO clienteDAO = new ClienteDAO();
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
     private CarreraDAO carreraDAO = new CarreraDAO();
 
+    // Maneja las solicitudes GET para mostrar el formulario de edición de perfil
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
+        // Obtener el usuario de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         String cedula = usuario.getCedula();
 
@@ -57,16 +62,19 @@ public class EditarPerfilServlet extends HttpServlet {
         }
     }
 
+    // Maneja las solicitudes POST para actualizar el perfil del usuario
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
+        // Obtener el usuario de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         String cedula = usuario.getCedula();
         String email = usuario.getEmail();
@@ -78,7 +86,7 @@ public class EditarPerfilServlet extends HttpServlet {
         try {
             boolean actualizado = false;
 
-            // 1️⃣ Actualizar nombre si se proporcionó
+            // Actualizar nombre si se proporcionó
             if (nuevoNombre != null && !nuevoNombre.trim().isEmpty()) {
                 System.out.println("Actualizando nombre de: " + usuario.getNombre() + " a: " + nuevoNombre);
                 boolean nombreActualizado = usuarioDAO.actualizarNombre(email, nuevoNombre);
@@ -89,7 +97,7 @@ public class EditarPerfilServlet extends HttpServlet {
                 }
             }
 
-            // 2️⃣ Actualizar tipo de cliente si se proporcionó
+            // Actualizar tipo de cliente si se proporcionó
             if (nuevoTipo != null && !nuevoTipo.trim().isEmpty()) {
                 System.out.println("Actualizando tipo de cliente a: " + nuevoTipo);
                 

@@ -14,23 +14,28 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.util.List;
 
+// Servlet para editar una reserva de actividad
 @WebServlet(name = "EditarReservaServlet", value = "/editar-reserva")
 public class EditarReservaServlet extends HttpServlet {
 
     private ActividadDAO actividadDAO = new ActividadDAO();
 
+    // Maneja las solicitudes GET para obtener los detalles de una reserva
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Obtener el ID de la reserva desde los parámetros de la solicitud
         String idStr = request.getParameter("id");
-        
+
+        // Validar que el ID esté presente
         if (idStr == null || idStr.isEmpty()) {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID de reserva no proporcionado");
             return;
         }
         
         try {
+            // Parsear el ID
             int idActividad = Integer.parseInt(idStr);
             
             // Obtener la actividad
@@ -53,7 +58,8 @@ public class EditarReservaServlet extends HttpServlet {
             json.append("\"horaFin\":\"").append(actividad.getHoraFin().toString().substring(0, 5)).append("\",");
             json.append("\"cantidadParticipantes\":").append(actividad.getCantidadParticipantes()).append(",");
             json.append("\"equipos\":[");
-            
+
+            // Agregar equipos al JSON
             for (int i = 0; i < equipos.size(); i++) {
                 EquipoUso equipo = equipos.get(i);
                 if (i > 0) json.append(",");
@@ -80,6 +86,7 @@ public class EditarReservaServlet extends HttpServlet {
         }
     }
 
+    // Maneja las solicitudes POST para actualizar una reserva
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -100,6 +107,7 @@ public class EditarReservaServlet extends HttpServlet {
                 return;
             }
 
+            // Parsear fecha y horas
             int idActividad = Integer.parseInt(idStr);
             LocalDate fecha = LocalDate.parse(fechaStr);
             Time horaInicio = Time.valueOf(horaInicioStr + ":00");
@@ -166,7 +174,8 @@ public class EditarReservaServlet extends HttpServlet {
         String referer = request.getHeader("Referer");
         response.sendRedirect(referer != null ? referer : "usuario.jsp");
     }
-    
+
+    // Método para escapar caracteres especiales en JSON
     private String escapeJson(String text) {
         if (text == null) return "";
         return text.replace("\\", "\\\\")

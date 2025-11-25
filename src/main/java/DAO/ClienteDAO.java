@@ -10,6 +10,7 @@ import java.sql.Time;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.Serializable;
 
 public class ClienteDAO {
 
@@ -146,6 +147,63 @@ public class ClienteDAO {
             throw new RuntimeException("Error al cancelar la reserva", e);
         }
     }
+
+    // DTO sencillo para devolver resultados de búsqueda
+    public static class ClienteBusqueda implements Serializable {
+        private String cedula;
+        private String nombre;
+        private String email;
+        private String tipo;
+        private String carrera;
+
+        public ClienteBusqueda(String cedula, String nombre, String email,
+                               String tipo, String carrera) {
+            this.cedula = cedula;
+            this.nombre = nombre;
+            this.email = email;
+            this.tipo = tipo;
+            this.carrera = carrera;
+        }
+
+        public String getCedula() { return cedula; }
+        public String getNombre() { return nombre; }
+        public String getEmail() { return email; }
+        public String getTipo() { return tipo; }
+        public String getCarrera() { return carrera; }
+    }
+
+    // Buscar clientes activos por nombre
+    public List<ClienteBusqueda> buscarClientesPorNombre(String nombreParcial) {
+        String sql =
+                "SELECT u.cedula, u.nombre, u.email, c.tipo_cliente, ca.nombre AS carrera " +
+                        "FROM cliente c " +
+                        "JOIN usuario u ON u.cedula = c.ci_usuario " +
+                        "LEFT JOIN carrera ca ON ca.id_carrera = c.id_carrera " +
+                        "WHERE c.activo = 1 AND u.nombre LIKE ? " +
+                        "ORDER BY u.nombre " +
+                        "LIMIT 10";
+
+        List<ClienteBusqueda> resultados = new ArrayList<>();
+
+        try (PreparedStatement ps = ConnectionDB.getInstancia().getConnection().prepareStatement(sql)) {
+            ps.setString(1, "%" + nombreParcial + "%");
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String cedula = rs.getString("cedula");
+                String nombre = rs.getString("nombre");
+                String email = rs.getString("email");
+                String tipo = rs.getString("tipo_cliente");
+                String carrera = rs.getString("carrera");
+
+                resultados.add(new ClienteBusqueda(cedula, nombre, email, tipo, carrera));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error al buscar clientes por nombre", e);
+        }
+        return resultados;
+    }
+
 }
 
 

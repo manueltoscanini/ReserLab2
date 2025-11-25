@@ -9,23 +9,28 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+// Servlet para editar un usuario existente
 @WebServlet(name = "EditarUsuarioServlet", value = "/editar-usuario")
 public class EditarUsuarioServlet extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    // Maneja las solicitudes POST para procesar la edición del usuario
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Configurar la respuesta como JSON
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
         try {
+            // Obtener parámetros del formulario
             String cedula = request.getParameter("cedula");
             String nombre = request.getParameter("nombre");
             String email = request.getParameter("email");
 
+            // Validar parámetros obligatorios
             if (cedula == null || cedula.isBlank()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"success\": false, \"message\": \"Cédula es requerida\"}");
@@ -54,6 +59,7 @@ public class EditarUsuarioServlet extends HttpServlet {
                 if (emailFinal == null) emailFinal = usuarioActual.getEmail();
             }
 
+            // Llamar al método del DAO para actualizar el usuario
             boolean ok = usuarioDAO.actualizarUsuario(cedula, nombreFinal, emailFinal);
             if (ok) {
                 response.getWriter().write("{\"success\": true}");

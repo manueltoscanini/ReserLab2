@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+// Servlet para mostrar el historial de reservas de un usuario
 @WebServlet(name = "HistorialReservasServlet", value = "/historial-reservas")
 public class HistorialReservasServlet extends HttpServlet {
 
     private ActividadDAO actividadDAO = new ActividadDAO();
 
-
+    // Maneja las solicitudes GET para mostrar el historial de reservas
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -34,6 +35,7 @@ public class HistorialReservasServlet extends HttpServlet {
         System.out.println("========================================\n");
 
         try {
+            // Refrescar los estados de las actividades antes de obtener el historial
             actividadDAO.refrescarEstados();
 
             // Obtener la cédula del usuario desde la sesión

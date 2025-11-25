@@ -12,7 +12,8 @@ import java.util.List;
 public class ListarEquiposServlet extends HttpServlet {
     
     private EquipoDAO equipoDAO = new EquipoDAO();
-    
+
+    // Maneja las solicitudes GET para listar los equipos
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

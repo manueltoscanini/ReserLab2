@@ -9,12 +9,14 @@ import jakarta.servlet.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
+// Servlet para manejar la visualización y paginación de equipos
 @WebServlet(name = "EquiposServlet", value = "/equipos")
 public class EquiposServlet extends HttpServlet {
     
     private EquipoDAO equipoDAO = new EquipoDAO();
     private Gson gson = new Gson();
-    
+
+    // Maneja las solicitudes GET para mostrar la lista de equipos con paginación
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

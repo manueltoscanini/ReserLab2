@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
+// Servlet para gestionar y mostrar las reservas de actividades con paginación y filtro por fecha
 @WebServlet(name = "ReservasServlet", value = "/reservas")
 public class ReservasServlet extends HttpServlet {
 

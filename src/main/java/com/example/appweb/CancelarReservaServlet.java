@@ -9,33 +9,43 @@ import java.io.IOException;
 import java.sql.Time;
 import java.time.LocalDate;
 
+// Servlet para cancelar una reserva de actividad
 @WebServlet(name = "CancelarReservaServlet", value = "/CancelarReservaServlet")
 public class CancelarReservaServlet extends HttpServlet {
 
+    // Instancia del DAO de Cliente
     private final ClienteDAO clienteDAO = new ClienteDAO();
 
+    // Maneja las solicitudes POST para cancelar una reserva
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Configurar la respuesta como JSON
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
 
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
+
+        // Si no hay sesión o no hay usuario, responder con error 401
         if (session == null || session.getAttribute("usuario") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("{\"ok\":false,\"msg\":\"No autenticado\"}");
             return;
         }
 
+        // Obtener el usuario de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         String cedula = usuario.getCedula();
 
+        // Obtener parámetros de la solicitud
         String idParam = request.getParameter("idActividad");
         String fechaParam = request.getParameter("fecha");
         String horaInicioParam = request.getParameter("horaInicio");
         String horaFinParam = request.getParameter("horaFin");
 
+        // Validar que todos los parámetros estén presentes
         if (idParam == null || fechaParam == null || horaInicioParam == null || horaFinParam == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"ok\":false,\"msg\":\"Parámetros incompletos\"}");
@@ -43,6 +53,8 @@ public class CancelarReservaServlet extends HttpServlet {
         }
 
         try {
+
+            // Parsear los parámetros
             int idActividad = Integer.parseInt(idParam);
             LocalDate fecha = LocalDate.parse(fechaParam);
             Time horaInicio = parseTimeFlexible(horaInicioParam);
@@ -60,10 +72,13 @@ public class CancelarReservaServlet extends HttpServlet {
                 return;
             }
 
+            // Intentar cancelar la reserva en la base de datos
             boolean exito = clienteDAO.cancelarReserva(cedula, idActividad, fecha, horaInicio, horaFin);
             if (exito) {
+                // Respuesta exitosa
                 response.getWriter().write("{\"ok\":true}");
             } else {
+                // Reserva no encontrada
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().write("{\"ok\":false,\"msg\":\"Reserva no encontrada\"}");
             }
@@ -75,7 +90,10 @@ public class CancelarReservaServlet extends HttpServlet {
         }
     }
 
+    // Método auxiliar para parsear horas en formatos flexibles
     private Time parseTimeFlexible(String value) {
+
+        // Validar entrada
         String v = value == null ? null : value.trim();
         if (v == null || v.isEmpty()) throw new IllegalArgumentException("hora vacía");
 
@@ -90,6 +108,8 @@ public class CancelarReservaServlet extends HttpServlet {
         java.util.regex.Matcher m = java.util.regex.Pattern
                 .compile("^(\\d{1,2})(?::(\\d{2}))?(?::(\\d{2}))?")
                 .matcher(compact);
+
+        // Manejo de formatos con AM/PM
         if (m.find()) {
             int h = Integer.parseInt(m.group(1));
             int min = m.group(2) != null ? Integer.parseInt(m.group(2)) : 0;

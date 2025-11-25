@@ -12,12 +12,14 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+// Servlet para crear un nuevo usuario (administrador o cliente)
 @WebServlet(name = "CrearUsuarioServlet", value = "/crear-usuario")
 public class CrearUsuarioServlet extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final ClienteDAO clienteDAO = new ClienteDAO();
 
+    // Maneja las solicitudes POST para crear un nuevo usuario
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -41,12 +43,14 @@ public class CrearUsuarioServlet extends HttpServlet {
                 return;
             }
 
+            // Validar formato de email
             if (!emailValido(email)) {
                 session.setAttribute("error", "El formato del email no es válido.");
                 response.sendRedirect("usuarios");
                 return;
             }
 
+            // Validar que las contraseñas coincidan
             if (!password.equals(password2)) {
                 session.setAttribute("error", "Las contraseñas no coinciden.");
                 response.sendRedirect("usuarios");
@@ -82,6 +86,7 @@ public class CrearUsuarioServlet extends HttpServlet {
                         response.sendRedirect("usuarios");
                         return;
                     }
+                    // Obtener idCarrera desde el nombre
                     idCarrera = clienteDAO.obtenerIdCarreraPorNombre(carreraNombre);
                     if (idCarrera == null) {
                         session.setAttribute("error", "La carrera seleccionada no existe.");
@@ -90,6 +95,7 @@ public class CrearUsuarioServlet extends HttpServlet {
                     }
                 }
 
+                // Insertar datos de cliente
                 boolean ok = clienteDAO.insertarCliente(cedula, tipoCliente, idCarrera);
                 if (!ok) {
                     session.setAttribute("error", "No se pudo registrar el cliente.");

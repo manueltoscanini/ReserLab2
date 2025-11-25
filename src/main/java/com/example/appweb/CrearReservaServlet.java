@@ -12,12 +12,15 @@ import java.io.IOException;
 import java.sql.Time;
 import java.time.LocalDate;
 
+// Servlet para crear una reserva de actividad
 @WebServlet(name = "CrearReservaServlet", value = "/crear-reserva")
 public class CrearReservaServlet extends HttpServlet {
 
+    // Instancias de los DAO necesarios
     private ActividadDAO actividadDAO = new ActividadDAO();
     private ClienteDAO clienteDAO = new ClienteDAO();
 
+    // Maneja las solicitudes POST para crear una reserva
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -82,6 +85,7 @@ public class CrearReservaServlet extends HttpServlet {
                 if (equiposIds != null && equiposUsos != null && equiposIds.length == equiposUsos.length) {
                     for (int i = 0; i < equiposIds.length; i++) {
                         try {
+                            // Vincular cada equipo a la actividad
                             int equipoId = Integer.parseInt(equiposIds[i]);
                             String uso = equiposUsos[i];
                             actividadDAO.vincularEquipoAActividad(idActividad, equipoId, uso);

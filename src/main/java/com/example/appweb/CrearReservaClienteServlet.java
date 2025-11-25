@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.sql.Time;
 import java.time.LocalDate;
 
+// Servlet para crear una reserva de actividad por parte del cliente
 @WebServlet(name = "CrearReservaClienteServlet", value = "/reserva_cliente")
 public class CrearReservaClienteServlet extends HttpServlet {
 
@@ -21,6 +22,7 @@ public class CrearReservaClienteServlet extends HttpServlet {
     private ActividadDAO actividadDAO = new ActividadDAO();
     private ClienteDAO clienteDAO = new ClienteDAO();
 
+    // Maneja las solicitudes POST para crear una reserva
    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -78,14 +80,18 @@ public class CrearReservaClienteServlet extends HttpServlet {
                     fecha, horaInicio, horaFin, cantidadParticipantes, cedulaCliente, estado
             );
 
+            // Vincular equipos si la reserva fue creada exitosamente
             if (idActividad != null) {
                 // Procesar equipos seleccionados
                 String[] equiposIds = request.getParameterValues("equiposIds");
                 String[] equiposUsos = request.getParameterValues("equiposUsos");
-                
+
+                // Vincular cada equipo a la actividad
                 if (equiposIds != null && equiposUsos != null && equiposIds.length == equiposUsos.length) {
                     for (int i = 0; i < equiposIds.length; i++) {
                         try {
+
+                            // Parsear ID del equipo y obtener uso
                             int equipoId = Integer.parseInt(equiposIds[i]);
                             String uso = equiposUsos[i];
                             actividadDAO.vincularEquipoAActividad(idActividad, equipoId, uso);
@@ -94,7 +100,8 @@ public class CrearReservaClienteServlet extends HttpServlet {
                         }
                     }
                 }
-                
+
+                // Reserva creada exitosamente
                 request.getSession().setAttribute("exito",
                         "Reserva creada exitosamente con ID: " + idActividad);
             } else {
@@ -111,7 +118,7 @@ public class CrearReservaClienteServlet extends HttpServlet {
                     "Error al crear la reserva: " + e.getMessage());
         }
 
-       response.sendRedirect("usuario.jsp?mostrar=historial");//mostrar = historial para que se active un script que me mestre el historial de reserva
+       response.sendRedirect("usuario.jsp?mostrar=historial");//mostrar = historial para que se active un script que me muestre el historial de reserva
     }
 
 

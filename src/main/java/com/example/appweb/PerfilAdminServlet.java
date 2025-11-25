@@ -11,18 +11,22 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+// Servlet para manejar el perfil del administrador
 @WebServlet(name = "PerfilAdminServlet", value = "/perfil-admin")
 public class PerfilAdminServlet extends HttpServlet {
 
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    // Maneja las solicitudes GET para mostrar el perfil del administrador
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Verificar si el usuario es administrador
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
+        // Si no es administrador, redirigir al login
         if (usuario == null || !usuario.getEsAdmin()) {
             response.sendRedirect("login.jsp");
             return;
@@ -32,13 +36,16 @@ public class PerfilAdminServlet extends HttpServlet {
         request.getRequestDispatcher("perfil-admin.jsp").forward(request, response);
     }
 
+    // Maneja las solicitudes POST para actualizar el perfil del administrador
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Verificar si el usuario es administrador
         HttpSession session = request.getSession();
         Usuario usuario = (Usuario) session.getAttribute("usuario");
 
+        // Si no es administrador, redirigir al login
         if (usuario == null || !usuario.getEsAdmin()) {
             response.sendRedirect("login.jsp");
             return;

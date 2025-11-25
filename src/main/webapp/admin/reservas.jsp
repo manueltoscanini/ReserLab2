@@ -72,7 +72,7 @@
             <div class="info-reserva">
                 <div class="horario">
                     <i class="fa-solid fa-clock"></i>
-                    <span><%= reserva.getHoraInicio() %> - <%= reserva.getHoraFin() %></span>
+                    <span><%= reserva.getHoraInicioUY() %> - <%= reserva.getHoraFinUY() %></span>
                 </div>
                 <div class="estado estado-<%= reserva.getEstado().toLowerCase() %>">
                     <i class="fa-solid fa-circle"></i>
@@ -88,7 +88,7 @@
                 </div>
                 <div class="fecha">
                     <i class="fa-solid fa-calendar"></i>
-                    <span><%= reserva.getFecha() %></span>
+                    <span><%= reserva.getFechaUY() %></span>
                 </div>
             </div>
 
@@ -187,13 +187,26 @@
         </div>
         <form id="formCrearReserva" action="crear-reserva" method="post">
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="cedulaCliente">
-                        <i class="fa-solid fa-user"></i> Cédula del Cliente
+                <div class="form-group" style="position: relative;">
+                    <label for="clienteNombre">
+                        <i class="fa-solid fa-user"></i> Cliente
                     </label>
-                    <input type="text" id="cedulaCliente" name="cedulaCliente" 
-                           placeholder="Ej: 12345678" required pattern="[0-9]{8}">
-                    <small>Debe ser un cliente registrado en el sistema</small>
+
+                    <!-- Input visible: búsqueda por nombre -->
+                    <input type="text"
+                           id="clienteNombre"
+                           placeholder="Buscar cliente por nombre..."
+                           autocomplete="off">
+
+                    <!-- Input oculto: acá va la cédula que usa el servlet -->
+                    <input type="hidden"
+                           id="cedulaCliente"
+                           name="cedulaCliente">
+
+                    <!-- Contenedor para las sugerencias -->
+                    <div id="sugerenciasCliente" class="lista-sugerencias-cliente"></div>
+
+                    <small>Escribí el nombre y seleccioná un cliente de la lista.</small>
                 </div>
 
                 <div class="form-group">
@@ -463,8 +476,30 @@
         });
     }
 
-    // Modificar el envío del formulario para incluir equipos
+    // Validación de horas + validación de cliente + equipos
     document.getElementById('formCrearReserva').addEventListener('submit', function(e) {
+        const horaInicio = document.getElementById('horaInicio').value;
+        const horaFin = document.getElementById('horaFin').value;
+
+        // 1) Validar horas
+        if (horaInicio && horaFin && horaInicio >= horaFin) {
+            e.preventDefault();
+            alert('La hora de fin debe ser posterior a la hora de inicio');
+            return;
+        }
+
+        // 2) Validar que se seleccionó un cliente de la lista
+        const cedulaHidden = document.getElementById('cedulaCliente');
+        const clienteVisible = document.getElementById('clienteBuscador');
+
+        if (!cedulaHidden || !cedulaHidden.value) {
+            e.preventDefault();
+            alert('Debés seleccionar un cliente de la lista de sugerencias.');
+            if (clienteVisible) clienteVisible.focus();
+            return;
+        }
+
+        // 3) Agregar equipos ocultos al form
         agregarEquiposAlFormularioAdmin();
     });
 
@@ -475,4 +510,82 @@
             cerrarModalSeleccionarEquipoAdmin();
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputNombre = document.getElementById('clienteNombre');
+        const inputCedula = document.getElementById('cedulaCliente');
+        const contSugerencias = document.getElementById('sugerenciasCliente');
+
+        if (!inputNombre || !inputCedula || !contSugerencias) return;
+
+        let timeoutBusqueda = null;
+
+        // Cada vez que se escribe algo, buscamos
+        inputNombre.addEventListener('input', function () {
+            const texto = this.value.trim();
+
+            // Si cambio el texto manualmente, limpio la cédula
+            inputCedula.value = '';
+
+            // Si hay menos de 2 letras, no busco
+            if (texto.length < 2) {
+                contSugerencias.innerHTML = '';
+                contSugerencias.style.display = 'none';
+                return;
+            }
+
+            // Pequeño debounce
+            clearTimeout(timeoutBusqueda);
+            timeoutBusqueda = setTimeout(() => {
+                buscarClientesPorNombre(texto);
+            }, 300);
+        });
+
+        function buscarClientesPorNombre(texto) {
+            fetch('buscar-clientes?q=' + encodeURIComponent(texto))
+                .then(resp => resp.json())
+                .then(data => {
+                    contSugerencias.innerHTML = '';
+
+                    if (!data || data.length === 0) {
+                        contSugerencias.style.display = 'none';
+                        return;
+                    }
+
+                    data.forEach(cliente => {
+                        const item = document.createElement('div');
+                        item.className = 'item-sugerencia-cliente';
+
+                        const carreraStr = cliente.carrera ? ' - ' + cliente.carrera : '';
+                        item.textContent = cliente.nombre + ' (CI: ' + cliente.cedula + ')' + carreraStr;
+
+                        item.addEventListener('click', function () {
+                            // Seteo nombre visible y cédula oculta
+                            inputNombre.value = cliente.nombre;
+                            inputCedula.value = cliente.cedula;
+
+                            // Cierro lista
+                            contSugerencias.innerHTML = '';
+                            contSugerencias.style.display = 'none';
+                        });
+
+                        contSugerencias.appendChild(item);
+                    });
+
+                    contSugerencias.style.display = 'block';
+                })
+                .catch(err => {
+                    console.error('Error al buscar clientes:', err);
+                });
+        }
+
+        // Cerrar sugerencias si hago click fuera
+        document.addEventListener('click', function (e) {
+            if (e.target !== inputNombre && !contSugerencias.contains(e.target)) {
+                contSugerencias.innerHTML = '';
+                contSugerencias.style.display = 'none';
+            }
+        });
+    });
+
 </script>

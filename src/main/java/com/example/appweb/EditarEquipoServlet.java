@@ -11,18 +11,21 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+// Servlet para editar un equipo existente
 @MultipartConfig
 @WebServlet(name = "EditarEquipoServlet", value = "/EditarEquipoServlet")
 public class EditarEquipoServlet extends HttpServlet {
 
     private final EquipoDAO equipoDAO = new EquipoDAO();
 
+    // Maneja las solicitudes GET para mostrar el formulario de edición de equipo
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         System.out.println("==== EditarEquipoServlet.doGet ====");
 
+        // Obtener el ID del equipo desde los parámetros de la solicitud
         String idStr = request.getParameter("id");
         if (idStr == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -31,6 +34,7 @@ public class EditarEquipoServlet extends HttpServlet {
         }
 
         try {
+            // Parsear el ID y obtener el equipo del DAO
             int id = Integer.parseInt(idStr);
             Equipo eq = equipoDAO.obtenerEquipoPorId(id);
             if (eq == null) {
@@ -39,6 +43,7 @@ public class EditarEquipoServlet extends HttpServlet {
                 return;
             }
 
+            // Enviar el equipo al JSP para edición
             request.setAttribute("equipo", eq);
             request.getRequestDispatcher("/admin/editarEquipo.jsp").forward(request, response);
 
@@ -48,20 +53,22 @@ public class EditarEquipoServlet extends HttpServlet {
         }
     }
 
+    // Maneja las solicitudes POST para procesar la edición del equipo
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        System.out.println("==== EditarEquipoServlet.doPost ====");
+        // Configurar la codificación y el tipo de contenido de la respuesta
         request.setCharacterEncoding("UTF-8");
         response.setContentType("application/json;charset=UTF-8");
 
+        // Obtener parámetros del formulario
         String idStr = request.getParameter("id");
         String nombre = request.getParameter("nombre");
         String tipo = request.getParameter("tipo");
         String precauciones = request.getParameter("precauciones");
 
-        // --- LOG MUY IMPORTANTE ---
+
         System.out.println("==== EditarEquipoServlet.doPost ====");
         System.out.println("id        = " + idStr);
         System.out.println("nombre    = " + nombre);
@@ -78,9 +85,10 @@ public class EditarEquipoServlet extends HttpServlet {
         }
 
         try {
+            // parsea el id
             int id = Integer.parseInt(idStr);
 
-            // llamamos al DAO normal
+            // llama al DAO normal
             boolean ok = equipoDAO.editarEquipo(id, nombre, tipo, precauciones);
 
             if (ok) {

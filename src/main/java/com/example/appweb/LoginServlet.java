@@ -13,11 +13,13 @@ import Models.Usuario;
 
 import java.io.IOException;
 
+// Servlet para manejar el inicio de sesión de usuarios
 @WebServlet(name = "LoginServlet", value = "/LoginServlet")
 public class LoginServlet extends HttpServlet {
 
-    private UsuarioDAO usuarioDAO = new UsuarioDAO(); // Tu DAO real
+    private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    // Maneja las solicitudes POST para el inicio de sesión
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -32,12 +34,13 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
+            // Intentar autenticar al usuario
             System.out.println("Intentando autenticar usuario: " + email);
             Usuario usuario = usuarioDAO.autenticarUsuario(email, password);
 
             if (usuario != null) {
 
-                // 🔹 Verificar si es cliente y está activo
+                // Verificar si es cliente y está activo
                 boolean activo = usuarioDAO.estaActivo(usuario.getCedula());
                 if (!activo) {
                     response.sendRedirect("login.jsp?msg=cuentaDesactivada");
@@ -46,13 +49,13 @@ public class LoginServlet extends HttpServlet {
 
                 System.out.println("Usuario autenticado exitosamente: " + usuario.getNombre());
 
-                // ✅ Crear sesión y guardar datos del usuario
+                // Crear sesión y guardar datos del usuario
                 HttpSession session = request.getSession();
                 session.setAttribute("usuario", usuario);
-                session.setAttribute("nombreUsuario", usuario.getNombre());  // usado en usuario.jsp
-                session.setAttribute("emailUsuario", usuario.getEmail());    // usado para consultas/reclamos
-                session.setAttribute("ciUsuario", usuario.getCedula());      // opcional, útil para consultas
-                session.setAttribute("fotoUsuario", usuario.getFotoUsuario()); // URL de la foto
+                session.setAttribute("nombreUsuario", usuario.getNombre());
+                session.setAttribute("emailUsuario", usuario.getEmail());
+                session.setAttribute("ciUsuario", usuario.getCedula());
+                session.setAttribute("fotoUsuario", usuario.getFotoUsuario());
 
                 // Redirigir según su rol
                 if (usuario.getEsAdmin()) {
@@ -63,6 +66,7 @@ public class LoginServlet extends HttpServlet {
                     response.sendRedirect("usuario.jsp");
                 }
             } else {
+                // Autenticación fallida
                 response.sendRedirect("login.jsp?error=credenciales");
             }
 

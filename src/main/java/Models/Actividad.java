@@ -82,6 +82,21 @@ public class Actividad {
         System.out.println("Carrera: " + carreraCliente);
 
     }
+
+    public String getFechaUY() {
+        if (fecha == null) return "";
+        return fecha.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+
+    public String getHoraInicioUY() {
+        if (horaInicio == null) return "";
+        return horaInicio.toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+    }
+
+    public String getHoraFinUY() {
+        if (horaFin == null) return "";
+        return horaFin.toLocalTime().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+    }
 }
 
 

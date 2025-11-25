@@ -10,18 +10,22 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+// Servlet para eliminar (desactivar) un usuario
 @WebServlet(name = "EliminarUsuarioServlet", value = "/eliminar-usuario")
 public class EliminarUsuarioServlet extends HttpServlet {
 
     private ClienteDAO clienteDAO = new ClienteDAO();
 
+    // Maneja las solicitudes POST para eliminar (desactivar) un usuario
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Configurar la respuesta como JSON
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        
+
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -30,8 +34,10 @@ public class EliminarUsuarioServlet extends HttpServlet {
         }
 
         try {
+            // Obtener la cédula del usuario a eliminar desde los parámetros de la solicitud
             String cedula = request.getParameter("cedula");
-            
+
+            // Validar que se haya proporcionado la cédula
             if (cedula == null || cedula.trim().isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("{\"success\": false, \"message\": \"Cédula no especificada\"}");

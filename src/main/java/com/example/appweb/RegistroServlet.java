@@ -15,12 +15,14 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+// Servlet para manejar el registro de nuevos usuarios
 @WebServlet(name = "RegistroServlet", value = "/RegistroServlet")
 public class RegistroServlet extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final ClienteDAO clienteDAO = new ClienteDAO();
 
+    // Maneja las solicitudes GET para mostrar el formulario de registro
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Pre-cargar lista de carreras para el formulario (si existieran)
@@ -32,6 +34,7 @@ public class RegistroServlet extends HttpServlet {
         request.getRequestDispatcher("/registro.jsp").forward(request, response);
     }
 
+    // Maneja las solicitudes POST para procesar el registro de un nuevo usuario
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String nombre = trim(request.getParameter("nombre"));
@@ -48,16 +51,19 @@ public class RegistroServlet extends HttpServlet {
             return;
         }
 
+        // Validar cédula uruguaya
         if (!validarCedulaUruguaya(cedula)) {
             redirectToRegistroWithMessage(response, "error", "La cédula ingresada no es válida.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
+        // Validar formato de email
         if (!emailValido(email)) {
             redirectToRegistroWithMessage(response, "error", "El formato del email no es válido.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
         }
 
+        // Validar que las contraseñas coincidan
         if (!password.equals(password2)) {
             redirectToRegistroWithMessage(response, "error", "Las contraseñas no coinciden.", nombre, email, cedula, tipoCliente, carreraNombre);
             return;
@@ -97,6 +103,7 @@ public class RegistroServlet extends HttpServlet {
             // Crear usuario (no admin)
              usuarioDAO.crearUsuario(nombre, email, cedula, Hashed.encriptarContra(password));
 
+            // Insertar cliente
             boolean ok = clienteDAO.insertarCliente(cedula, tipoCliente, idCarrera);
             if (!ok) {
                 redirectToRegistroWithMessage(response, "error", "No se pudo registrar el cliente.", nombre, email, cedula, tipoCliente, carreraNombre);

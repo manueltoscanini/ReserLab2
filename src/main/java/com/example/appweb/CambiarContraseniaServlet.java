@@ -1,4 +1,3 @@
-//CambiarContraseniaServlet.java:
 package com.example.appweb;
 
 import DAO.UsuarioDAO;
@@ -10,11 +9,14 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
+// Servlet para manejar el cambio de contraseña de usuario
 @WebServlet(name = "CambiarContraseniaServlet", value = "/CambiarContraseniaServlet")
 public class CambiarContraseniaServlet extends HttpServlet {
 
+    // Instancia del DAO de Usuario
     private UsuarioDAO usuarioDAO = new UsuarioDAO();
 
+    // Maneja las solicitudes GET para mostrar el formulario de cambio de contraseña
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -22,36 +24,41 @@ public class CambiarContraseniaServlet extends HttpServlet {
         request.getRequestDispatcher("cambiarContrasenia.jsp").forward(request, response);
     }
 
+    // Maneja las solicitudes POST para procesar el cambio de contraseña
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
+        // Obtener el usuario de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         String email = usuario.getEmail();
 
+        // Obtener parámetros del formulario
         String actual = request.getParameter("actual");
         String nueva = request.getParameter("nueva");
         String confirmar = request.getParameter("confirmar");
 
-        // Validaciones
+        // Validar campos
         if (actual == null || nueva == null || confirmar == null ||
                 actual.isEmpty() || nueva.isEmpty() || confirmar.isEmpty()) {
             response.getWriter().write("error:Todos los campos son obligatorios.");
             return;
         }
 
+        // Valida que las contraseñas nuevas coincidan
         if (!nueva.equals(confirmar)) {
             response.getWriter().write("error:Las contraseñas nuevas no coinciden.");
             return;
         }
 
-        // Reglas básicas de seguridad
+        // Reglas básicas de seguridad para la nueva contraseña
         if (nueva.length() < 8 || !nueva.matches(".*[A-Z].*") ||
                 !nueva.matches(".*[a-z].*") || !nueva.matches(".*\\d.*")) {
             response.getWriter().write("error:La nueva contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.");
@@ -59,7 +66,7 @@ public class CambiarContraseniaServlet extends HttpServlet {
         }
 
         try {
-            // Verificar contraseña actual
+            // Verificar la contraseña actual
             Usuario usuarioBD = usuarioDAO.buscarUsuarioPorEmail(email);
             if (usuarioBD == null) {
                 response.getWriter().write("error:Usuario no encontrado.");

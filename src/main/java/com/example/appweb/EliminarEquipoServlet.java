@@ -10,18 +10,22 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
+// Servlet para eliminar un equipo
 @WebServlet(name = "EliminarEquipoServlet", value = "/eliminar-equipo")
 public class EliminarEquipoServlet extends HttpServlet {
 
     private EquipoDAO equipoDAO = new EquipoDAO();
 
+    // Maneja las solicitudes POST para eliminar un equipo
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Configurar la respuesta como JSON
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        
+
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -29,6 +33,7 @@ public class EliminarEquipoServlet extends HttpServlet {
             return;
         }
 
+        // Obtener el ID del equipo a eliminar desde los parámetros de la solicitud
         try {
             String idEquipoStr = request.getParameter("idEquipo");
             

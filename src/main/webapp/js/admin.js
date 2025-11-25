@@ -20,17 +20,6 @@ window.onclick = function(event) {
     }
 }
 
-// Validar que hora fin sea mayor que hora inicio
-document.getElementById('formCrearReserva').addEventListener('submit', function(e) {
-    const horaInicio = document.getElementById('horaInicio').value;
-    const horaFin = document.getElementById('horaFin').value;
-
-    if (horaInicio && horaFin && horaInicio >= horaFin) {
-        e.preventDefault();
-        alert('La hora de fin debe ser posterior a la hora de inicio');
-    }
-});
-
 // --- Subir foto de perfil ---
 document.addEventListener('DOMContentLoaded', () => {
     const btnCambiarFoto = document.getElementById('btnCambiarFoto');

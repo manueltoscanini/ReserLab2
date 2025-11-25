@@ -18,16 +18,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// Servlet para manejar consultas y reclamos de usuarios
 @WebServlet(name = "ConsultaReclamoServlet", value = "/ConsultaReclamoServlet")
 public class ConsultaReclamoServlet extends HttpServlet {
 
+    // Instancia del DAO de Administrador
     private AdministradorDAO administradorDAO = new AdministradorDAO();
     private Gson gson = new Gson();
 
+    // Maneja las solicitudes GET para obtener la lista de administradores
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Configurar la respuesta como JSON
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
@@ -65,14 +69,17 @@ public class ConsultaReclamoServlet extends HttpServlet {
         }
     }
 
+    // Maneja las solicitudes POST para enviar una consulta o reclamo
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
+        // Configurar la respuesta como JSON
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
         try {
+            // Verificar si el usuario está autenticado
             HttpSession session = request.getSession(false);
             if (session == null || session.getAttribute("emailUsuario") == null) {
                 enviarRespuesta(response, false, "No hay sesión activa");
@@ -141,7 +148,8 @@ public class ConsultaReclamoServlet extends HttpServlet {
             enviarRespuesta(response, false, "Error al procesar la solicitud: " + e.getMessage());
         }
     }
-    
+
+    // Método auxiliar para enviar respuestas JSON
     private void enviarRespuesta(HttpServletResponse response, boolean success, String mensaje) throws IOException {
         Map<String, Object> result = new HashMap<>();
         result.put("success", success);

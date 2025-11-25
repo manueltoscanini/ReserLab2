@@ -11,22 +11,27 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
+// Servlet para eliminar (desactivar) la cuenta de un usuario
 @WebServlet(name = "EliminarCuentaServlet", value = "/EliminarCuentaServlet")
 public class EliminarCuentaServlet extends HttpServlet {
 
+    // Maneja las solicitudes POST para eliminar la cuenta del usuario
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Verificar si el usuario está autenticado
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("usuario") == null) {
             response.getWriter().write("error:sesionInvalida");
             return;
         }
 
+        // Obtener el usuario de la sesión
         Usuario usuario = (Usuario) session.getAttribute("usuario");
         String ciUsuario = usuario.getCedula();
 
+        // Desactivar la cuenta en la base de datos
         try (Connection conn = ConnectionDB.getInstancia().getConnection()) {
             String sql = "UPDATE Cliente SET activo = 0 WHERE ci_Usuario = ?";
             PreparedStatement ps = conn.prepareStatement(sql);
